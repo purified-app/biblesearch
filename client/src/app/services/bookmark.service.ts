@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { books } from '../constants/books-chapters';
 import { Bookmark, RecentRead, Verse } from '../interfaces';
 import Utils from '../utils/utils';
+import { LocalStorage } from '../constants/localStorage';
 
 @Injectable({ providedIn: 'root' })
 export class BookmarkService {
@@ -16,8 +17,9 @@ export class BookmarkService {
     const bookmark = Utils.convertVersesToBookmark(verses);
     // Retrieve the array from localStorage
     const bookmarks = this.getBookmarks();
+    const bookmarsLimit = Number(localStorage.getItem(LocalStorage.BookmarksLimit) || 5);
     // Check the length of the array
-    if (bookmarks.length >= 5) {
+    if (bookmarks.length >= bookmarsLimit) {
       // Remove the last element if the array is at max length
       bookmarks.pop();
     }
@@ -25,15 +27,15 @@ export class BookmarkService {
     bookmarks.unshift(bookmark);
     this.bookmarks = bookmarks;
     // Store the updated array back to localStorage
-    localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+    localStorage.setItem(LocalStorage.Bookmarks, JSON.stringify(bookmarks));
   }
 
   getBookmarks() {
-    return JSON.parse(localStorage.getItem('bookmarks') || '[]');
+    return JSON.parse(localStorage.getItem(LocalStorage.Bookmarks) || '[]');
   }
 
   getRecentRead() {
-    return JSON.parse(localStorage.getItem('recentRead') || 'null');
+    return JSON.parse(localStorage.getItem(LocalStorage.RecentRead) || 'null');
   }
 
   setRecentRead(recentRead: RecentRead) {
@@ -41,6 +43,6 @@ export class BookmarkService {
     const book = books.find((b) => b.id === bookId);
     const recent = { ...recentRead, bookName: book?.name };
     this.recentRead = recent;
-    localStorage.setItem('recentRead', JSON.stringify(recent));
+    localStorage.setItem(LocalStorage.RecentRead, JSON.stringify(recent));
   }
 }

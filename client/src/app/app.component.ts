@@ -62,7 +62,7 @@ export class AppComponent {
   public appPages = [
     { title: 'Search', url: '/search', icon: 'search' },
     { title: 'Read', url: '/read', icon: 'book' },
-    // { title: 'Settings', url: '/settings', icon: 'settings' },
+    { title: 'Settings', url: '/settings', icon: 'settings' },
   ];
   public labels = [
     'Genesis 1',
