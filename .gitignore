@@ -1,3 +1,4 @@
 *.tar
 .DS_Store
 .github_token
+secrets

@@ -1,8 +1,9 @@
 import { sleep } from "bun";
 
+// const url = "http://192.168.1.25:3000/api/search?q=god%20love";
 const url = "https://biblesearch.app/api/search?q=god%20love";
 const totalRequests = 100;
-const requestDelay = 10; // in milliseconds
+const requestDelay = 0; // in milliseconds
 
 async function makeRequest(requestNumber) {
   const startTime = performance.now();
