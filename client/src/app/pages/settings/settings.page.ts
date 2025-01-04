@@ -4,10 +4,9 @@ import { IonInputCustomEvent } from '@ionic/core';
 import { LocalStorage } from 'src/app/constants/localStorage';
 
 @Component({
-  selector: 'app-settings',
-  standalone: true,
-  imports: [IonList, IonItem, IonInput],
-  template: ` <ion-list>
+    selector: 'app-settings',
+    imports: [IonList, IonItem, IonInput],
+    template: ` <ion-list>
     <ion-item>
       <ion-input
         label="Bookmark count"
@@ -20,7 +19,7 @@ import { LocalStorage } from 'src/app/constants/localStorage';
       >
       </ion-input>
     </ion-item>
-  </ion-list>`,
+  </ion-list>`
 })
 export class SettingsPage {
   bookmarksLimit? = Number(localStorage.getItem('bookmarkCount') || undefined);

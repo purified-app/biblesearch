@@ -9,8 +9,11 @@
   </ion-toolbar>
 </ion-header>
 <ion-content>
-  <ion-list *ngIf="searchResults.length">
-    @for (result of searchResults; track result.id) {
+  @if (searchResults.isLoading()) {
+  <ion-spinner></ion-spinner>
+  }@else{
+  <ion-list>
+    @for (result of searchResults.value(); track result.id) {
     <a
       [routerLink]="['/read', result.book, result.chapter]"
       [queryParams]="{ verse: result.verse }"
@@ -26,4 +29,5 @@
     </a>
     }
   </ion-list>
+  }
 </ion-content>

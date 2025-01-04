@@ -1,5 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   IonList,
@@ -9,25 +8,23 @@ import {
   IonLabel,
   IonToolbar,
   IonHeader,
-  IonBackButton,
+  IonSpinner,
 } from '@ionic/angular/standalone';
-import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { HeaderMenuTitleComponent } from 'src/app/components/header-menu-title.component';
+import { Verse } from 'src/app/interfaces';
 import { HighlightPipe } from 'src/app/pipes/highlight.pipe';
 import { ApiService } from 'src/app/services/api.service';
 
 @Component({
-  standalone: true,
   imports: [
     HighlightPipe,
     IonLabel,
     IonItem,
-    IonBackButton,
     IonHeader,
     IonToolbar,
     IonContent,
-    CommonModule,
     IonSearchbar,
+    IonSpinner,
     IonList,
     RouterLink,
     HeaderMenuTitleComponent,
@@ -36,28 +33,26 @@ import { ApiService } from 'src/app/services/api.service';
   templateUrl: './search.page.html',
 })
 export class SearchPage {
-  searchResults: any[] = [];
-  private searchTerms = new Subject<string>();
   searchTerm = '';
 
-  constructor(private apiService: ApiService) {
-    this.searchTerms
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        switchMap((term: string) => this.apiService.search(term))
-      )
-      .subscribe((results) => {
-        this.searchResults = results;
-      });
-  }
+  search = signal<string>('');
+  apiService = inject(ApiService);
+
+  searchResults = resource<Verse[], { search: string }>({
+    request: () => ({ search: this.search() }),
+    loader: async ({ request }) => {
+      if (request.search.length < 2) return [];
+      return await this.apiService.search(request.search);
+    },
+  });
 
   onSearchInput(event: any) {
     this.searchTerm = event.target.value.trim();
-    if (this.searchTerm) {
-      this.searchTerms.next(this.searchTerm);
-    } else {
-      this.searchResults = [];
-    }
+    this.search.set(this.searchTerm);
   }
+
+  getListHeader = (data: Verse) => {
+    const { book_name, chapter, verse } = data;
+    return `${book_name} ${chapter}:${verse}`;
+  };
 }

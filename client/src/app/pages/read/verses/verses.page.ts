@@ -13,8 +13,6 @@ import {
   IonMenuButton,
   IonTitle,
   IonToolbar,
-  IonFabList,
-  IonButton,
 } from '@ionic/angular/standalone';
 import { combineLatest, debounceTime } from 'rxjs';
 import { books } from 'src/app/constants/books-chapters';
@@ -24,10 +22,7 @@ import { BookmarkService } from 'src/app/services/bookmark.service';
 
 @Component({
   selector: 'app-verses',
-  standalone: true,
   imports: [
-    IonButton,
-    IonFabList,
     IonActionSheet,
     IonButtons,
     IonMenuButton,
@@ -89,9 +84,7 @@ export class VersesPage {
     if (!found) {
       this.selectedVerses.push(verse);
     } else {
-      this.selectedVerses = this.selectedVerses.filter(
-        (v) => v.id !== verse.id
-      );
+      this.selectedVerses = this.selectedVerses.filter((v) => v.id !== verse.id);
     }
     if (!this.selectedVerses.length) return;
     this.selectedVerses.sort((a, b) => a.verse - b.verse);
@@ -100,10 +93,7 @@ export class VersesPage {
     const chapter = verse.chapter;
     const firstVerse = this.selectedVerses[0].verse;
     const lastVerse = this.selectedVerses[this.selectedVerses.length - 1].verse;
-    const verseText =
-      this.selectedVerses.length > 1
-        ? `${firstVerse}-${lastVerse}`
-        : verse.verse;
+    const verseText = this.selectedVerses.length > 1 ? `${firstVerse}-${lastVerse}` : verse.verse;
     this.selectedVersesText = `${book?.name} ${chapter}:${verseText}`;
   }
 
@@ -154,15 +144,13 @@ export class VersesPage {
     this.router.navigate([`/read/${newBook}/${newChapter}`]);
   }
 
-  private getVerses() {
+  private async getVerses() {
     const { verse } = this.route.snapshot.queryParams;
     const { book, chapter } = this.route.snapshot.params;
     const bookData = books.find((b) => b.id === Number(book));
     this.chapter = `${bookData?.name} ${chapter}`;
-    this.apiService.getVerses(book, chapter).subscribe((verses) => {
-      this.verses = verses;
-      this.focusVerse(verse);
-    });
+    this.verses = await this.apiService.getVerses(book, chapter);
+    this.focusVerse(verse);
   }
 
   private focusVerse(verse: string) {

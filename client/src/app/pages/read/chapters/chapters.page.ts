@@ -11,18 +11,17 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
 import { books } from 'src/app/constants/books-chapters';
 
 @Component({
-  selector: 'app-chapters',
-  standalone: true,
-  imports: [
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonButtons,
-    IonBackButton,
-    IonContent,
-    RouterLink,
-  ],
-  template: `
+    selector: 'app-chapters',
+    imports: [
+        IonHeader,
+        IonToolbar,
+        IonTitle,
+        IonButtons,
+        IonBackButton,
+        IonContent,
+        RouterLink,
+    ],
+    template: `
     <ion-header collapse="fade">
       <ion-toolbar>
         <ion-title>Chapters</ion-title>
@@ -41,8 +40,8 @@ import { books } from 'src/app/constants/books-chapters';
       </div>
     </ion-content>
   `,
-  styles: [
-    `
+    styles: [
+        `
       :host {
         margin: auto;
         max-width: var(--content-max-width);
@@ -69,7 +68,7 @@ import { books } from 'src/app/constants/books-chapters';
         justify-content: center;
       }
     `,
-  ],
+    ]
 })
 export class ChaptersPage {
   bookId: number;

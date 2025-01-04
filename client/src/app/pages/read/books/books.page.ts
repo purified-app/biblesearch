@@ -6,7 +6,6 @@ import {
   IonItem,
   IonLabel,
   IonList,
-  IonListHeader,
   IonSearchbar,
   IonToolbar,
 } from '@ionic/angular/standalone';
@@ -15,12 +14,10 @@ import { books } from 'src/app/constants/books-chapters';
 
 @Component({
   selector: 'app-books',
-  standalone: true,
   imports: [
     HeaderMenuTitleComponent,
     IonItem,
     IonList,
-    IonListHeader,
     IonContent,
     IonLabel,
     IonHeader,

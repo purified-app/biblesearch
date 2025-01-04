@@ -1,22 +1,18 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Verse } from '../interfaces';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  constructor(private http: HttpClient) {}
-
-  search(query: string): Observable<any[]> {
+  search(query: string): Promise<Verse[]> {
     const { apiUrl } = environment;
-    return this.http.get<any[]>(`${apiUrl}/search?q=${query}`);
+    const url = `${apiUrl}/search?q=${query}`;
+    return fetch(url).then((res) => res.json());
   }
 
-  getVerses(book: number, chapter: number): Observable<Verse[]> {
+  getVerses(book: number, chapter: number): Promise<Verse[]> {
     const { apiUrl } = environment;
-    return this.http.get<any[]>(
-      `${apiUrl}/verses?book=${book}&chapter=${chapter}`
-    );
+    const url = `${apiUrl}/verses?book=${book}&chapter=${chapter}`;
+    return fetch(url).then((res) => res.json());
   }
 }
