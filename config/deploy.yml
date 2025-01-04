@@ -7,7 +7,7 @@ image: benrei/biblesearch
 # Deploy to these servers.
 servers:
   web:
-    - biblesearch.mini-server.com
+    - biblesearch.app
     #- 78.47.79.2
   # job:
   #   hosts:

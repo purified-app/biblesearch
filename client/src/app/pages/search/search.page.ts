@@ -1,4 +1,4 @@
-import { Component, inject, resource, signal } from '@angular/core';
+import { AfterViewInit, Component, inject, resource, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   IonList,
@@ -32,7 +32,7 @@ import { ApiService } from 'src/app/services/api.service';
   styleUrl: './search.page.css',
   templateUrl: './search.page.html',
 })
-export class SearchPage {
+export class SearchPage implements AfterViewInit {
   searchTerm = '';
 
   search = signal<string>('');
@@ -45,6 +45,11 @@ export class SearchPage {
       return await this.apiService.search(request.search);
     },
   });
+  readonly searchbar = viewChild.required(IonSearchbar);
+
+  ngAfterViewInit(): void {
+    setTimeout(() => this.searchbar().setFocus());
+  }
 
   onSearchInput(event: any) {
     this.searchTerm = event.target.value.trim();
