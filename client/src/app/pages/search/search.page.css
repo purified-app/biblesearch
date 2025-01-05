@@ -1,9 +1,3 @@
-:host {
-  display: flex;
-  margin: auto;
-  max-width: var(--content-max-width);
-}
-
 ion-list a{
   text-decoration: none;
 }

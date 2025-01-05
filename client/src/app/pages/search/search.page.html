@@ -1,6 +1,8 @@
 <ion-header collapse="fade">
   <ion-toolbar>
     <app-header-menu-title titleText="Search"></app-header-menu-title>
+  </ion-toolbar>
+  <ion-toolbar>
     <ion-searchbar
       color="light"
       placeholder="In the beginning..."
@@ -11,7 +13,7 @@
 <ion-content>
   @if (searchResults.isLoading()) {
   <ion-spinner></ion-spinner>
-  }@else{
+  } @if(searchResults.value()?.length) {
   <ion-list>
     @for (result of searchResults.value(); track result.id) {
     <a

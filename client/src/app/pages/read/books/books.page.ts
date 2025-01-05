@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   IonContent,
@@ -29,6 +29,8 @@ import { books } from 'src/app/constants/books-chapters';
     <ion-header collapse="fade">
       <ion-toolbar>
         <app-header-menu-title titleText="Books"></app-header-menu-title>
+      </ion-toolbar>
+      <ion-toolbar>
         <ion-searchbar
           color="light"
           placeholder="Revelation"
@@ -48,18 +50,19 @@ import { books } from 'src/app/constants/books-chapters';
   `,
   styles: [
     `
-      :host {
-        margin: auto;
-        max-width: var(--content-max-width);
-      }
       ion-item {
         cursor: pointer;
       }
     `,
   ],
 })
-export class BooksPage {
+export class BooksPage implements AfterViewInit {
   books = books;
+  readonly searchbar = viewChild.required(IonSearchbar);
+
+  ngAfterViewInit(): void {
+    setTimeout(() => this.searchbar().setFocus());
+  }
 
   onSearch(event: any) {
     this.books = books.filter((book) =>

@@ -122,3 +122,8 @@ ion-item.selected {
   cursor: pointer;
   text-decoration: none;
 }
+
+ion-app {
+  margin: auto;
+  max-width: var(--app-max-width);
+}
