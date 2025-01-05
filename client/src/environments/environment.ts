@@ -3,7 +3,8 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  apiUrl: 'http://localhost:3000/api',
+  // See proxy.conf.json for the proxy configuration
+  apiUrl: '/api',
   production: false,
   loggerUrl: 'https://logs-01.loggly.com/inputs/92c096cc-dadd-4e5b-a604-d3c48e875aa6/tag/http/',
 };

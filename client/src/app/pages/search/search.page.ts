@@ -33,18 +33,17 @@ import { ApiService } from 'src/app/services/api.service';
   templateUrl: './search.page.html',
 })
 export class SearchPage implements AfterViewInit {
-  searchTerm = '';
-
-  search = signal<string>('');
   apiService = inject(ApiService);
 
+  searchTerm = signal<string>('');
   searchResults = resource<Verse[], { search: string }>({
-    request: () => ({ search: this.search() }),
+    request: () => ({ search: this.searchTerm() }),
     loader: async ({ request }) => {
       if (request.search.length < 2) return [];
       return await this.apiService.search(request.search);
     },
   });
+
   readonly searchbar = viewChild.required(IonSearchbar);
 
   ngAfterViewInit(): void {
@@ -52,8 +51,7 @@ export class SearchPage implements AfterViewInit {
   }
 
   onSearchInput(event: any) {
-    this.searchTerm = event.target.value.trim();
-    this.search.set(this.searchTerm);
+    this.searchTerm.set(event.target.value.trim());
   }
 
   getListHeader = (data: Verse) => {

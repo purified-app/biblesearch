@@ -1,3 +1,10 @@
+export interface Book {
+  id: number;
+  name: string;
+  chapters: number;
+  abbreviation: string;
+}
+
 export interface Bookmark {
   book: number;
   bookName?: string;

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import {
@@ -42,7 +41,6 @@ import { LocalStorage } from './constants/localStorage';
   imports: [
     RouterLink,
     RouterLinkActive,
-    CommonModule,
     IonApp,
     IonSplitPane,
     IonMenu,
@@ -65,6 +63,7 @@ export class AppComponent implements OnInit {
     { title: 'Settings', url: '/settings', icon: 'settings' },
   ];
   public labels = ['Genesis 1', 'Acts 2', 'Hebrews 11', '1 John 1', '1 Peter 2', 'Revelation 22'];
+
   bookmarkService = inject(BookmarkService);
 
   constructor(private router: Router) {
@@ -86,7 +85,10 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Check if there's a route saved in localStorage
+    this.navigateToStartPage();
+  }
+
+  private navigateToStartPage() {
     const startPage = localStorage.getItem(LocalStorage.StartPage);
     switch (startPage) {
       case 'search':
@@ -96,8 +98,9 @@ export class AppComponent implements OnInit {
         this.router.navigate(['/read']);
         break;
       case 'recentRead':
-        if (!this.bookmarkService.recentRead) return;
-        const { book, chapter } = this.bookmarkService.recentRead;
+        const recentRead = this.bookmarkService.recentRead();
+        if (!recentRead) return;
+        const { book, chapter } = recentRead;
         this.router.navigate(['/read', book, chapter]);
         break;
     }

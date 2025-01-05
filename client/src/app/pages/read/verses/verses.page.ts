@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -54,12 +54,10 @@ export class VersesPage {
 
   private lastParams: any;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private apiService: ApiService,
-    private bookmarkService: BookmarkService
-  ) {
+  private apiService = inject(ApiService);
+  private bookmarkService = inject(BookmarkService);
+
+  constructor(private route: ActivatedRoute, private router: Router) {
     combineLatest([this.route.params, this.route.queryParams])
       .pipe(debounceTime(0), takeUntilDestroyed())
       .subscribe(([params, queryParams]) => {
@@ -102,7 +100,7 @@ export class VersesPage {
   }
 
   onDismiss(event: any) {
-    const { data, role } = event.detail;
+    const { role } = event.detail;
     switch (role) {
       case 'backdrop':
         break;

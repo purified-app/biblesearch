@@ -1,18 +1,16 @@
+@let recentRead = this.bookmarkService.recentRead();
 <ion-app>
   <ion-split-pane contentId="main-content">
     <ion-menu contentId="main-content" type="overlay">
       <ion-content>
         <ion-list id="inbox-list">
-          <ion-list-header>Biblesearch (v.0.0.1-alpha)</ion-list-header>
+          <ion-list-header>Biblesearch (prototype)</ion-list-header>
           <ion-note>Search engine for bible verses</ion-note>
-
-          <ion-menu-toggle
-            auto-hide="false"
-            *ngFor="let p of appPages; let i = index"
-          >
+          @for (page of appPages; track $index) {
+          <ion-menu-toggle auto-hide="false">
             <ion-item
               routerDirection="root"
-              [routerLink]="[p.url]"
+              [routerLink]="[page.url]"
               lines="none"
               detail="false"
               routerLinkActive="selected"
@@ -20,43 +18,36 @@
               <ion-icon
                 aria-hidden="true"
                 slot="start"
-                [ios]="p.icon + '-outline'"
-                [md]="p.icon + '-sharp'"
+                [ios]="page.icon + '-outline'"
+                [md]="page.icon + '-sharp'"
               ></ion-icon>
-              <ion-label>{{ p.title }}</ion-label>
+              <ion-label>{{ page.title }}</ion-label>
             </ion-item>
           </ion-menu-toggle>
+          }
         </ion-list>
         <ion-list class="bookmarks-list">
           <ion-list-header>Recent read</ion-list-header>
+          @if(recentRead){
           <ion-item
-            *ngIf="bookmarkService.recentRead"
             lines="none"
             detail="false"
             routerDirection="root"
-            [routerLink]="[
-              '/read',
-              bookmarkService.recentRead.book,
-              bookmarkService.recentRead.chapter
-            ]"
+            [routerLink]="['/read', recentRead.book, recentRead.chapter]"
           >
-            <ion-icon
-              aria-hidden="true"
-              slot="start"
-              ios="time-outline"
-              md="time-sharp"
-            ></ion-icon>
+            <ion-icon aria-hidden="true" slot="start" ios="time-outline" md="time-sharp"></ion-icon>
             <ion-label>
-              {{ bookmarkService.recentRead.bookName }}
-              {{ bookmarkService.recentRead.chapter }}
+              {{ recentRead.bookName }}
+              {{ recentRead.chapter }}
             </ion-label>
           </ion-item>
+          }
         </ion-list>
 
         <ion-list class="bookmarks-list">
           <ion-list-header>Bookmarks</ion-list-header>
 
-          @for (bookmark of bookmarkService.bookmarks; track $index) {
+          @for (bookmark of this.bookmarkService.bookmarks(); track $index) {
           <a class="bookmark">
             <ion-menu-toggle auto-hide="false">
               <ion-item

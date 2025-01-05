@@ -6,21 +6,33 @@ const db = new Database("bible.db", { create: true });
 
 apiRoutes.get("/search", async (c) => {
   const term = c.req.query("q") ?? "";
-  const text = String(term)?.trim().split(" ").join(" OR ");
-  console.time("search");
   console.log(term);
+  const text = String(term)?.trim().split(" ").join(" OR ");
   let query = `
-      SELECT *, bm25(Verses_fts, 0, 10, 0, 2, 1, 15) as score
+      SELECT *, bm25(Verses_fts, 0, 20, 0, 10, 5, 15) as score
       FROM Verses_fts 
       WHERE Verses_fts MATCH '${text}*' 
       ORDER BY score
       LIMIT 7
     `;
 
+  // Regular expression to match format "John 3"
+  const matchChapter = term.match(/(\w+)\s+(\d+)/);
   // Regular expression to match both formats: "John 3:16" and "John 3 16"
-  const match = term.match(/(\w+)\s+(\d+)(?::|\s+)(\d+)?/);
-  if (match) {
-    const [, bookName, chapter, verse] = match;
+  const matchVerse = term.match(/(\w+)\s+(\d+)(?::|\s+)(\d+)?/);
+
+  if (matchChapter) {
+    const [, bookName, chapter] = matchChapter;
+    // Override the query to search for verses in the specified book name and chapter
+    query = `
+    SELECT *, bm25(Verses_fts, 0, 2, 0, 1, 0, 0) as score
+      FROM Verses_fts 
+      WHERE Verses_fts MATCH 'book_name:${bookName}*' AND chapter=${chapter}
+      ORDER BY book_name, verse;
+    `;
+  }
+  if (matchVerse) {
+    const [, bookName, chapter, verse] = matchVerse;
     // Override the query to search for verses in the specified book name, chapter, and verse
     query = `
     SELECT *, bm25(Verses_fts, 0, 2, 0, 1, 1, 0) as score
@@ -32,8 +44,6 @@ apiRoutes.get("/search", async (c) => {
   }
 
   const results = db.query(query);
-
-  console.timeEnd("search");
   try {
     return c.json(results.all());
   } catch (error) {
@@ -49,7 +59,12 @@ apiRoutes.get("/verses", async (c) => {
     `SELECT * FROM Verses WHERE book = '${book}' AND chapter = '${chapter}'`
   );
   try {
-    return c.json(results.all());
+    const verses = results.all();
+    const verse = verses[0] as { book_name: string; chapter: number };
+    if (verse) {
+      console.log(verse.book_name, verse.chapter);
+    }
+    return c.json(verses);
   } catch (error) {
     console.error("Error fetching data from external API:", error);
     return c.json(null);

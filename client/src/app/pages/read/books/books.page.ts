@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, viewChild } from '@angular/core';
+import { AfterViewInit, Component, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   IonContent,
@@ -11,6 +11,7 @@ import {
 } from '@ionic/angular/standalone';
 import { HeaderMenuTitleComponent } from 'src/app/components/header-menu-title.component';
 import { books } from 'src/app/constants/books-chapters';
+import { Book } from 'src/app/interfaces';
 
 @Component({
   selector: 'app-books',
@@ -40,7 +41,7 @@ import { books } from 'src/app/constants/books-chapters';
     </ion-header>
     <ion-content>
       <ion-list>
-        @for (book of books; track book.id) {
+        @for (book of books(); track book.id) {
         <ion-item [routerLink]="['/read', book.id]" detail="true">
           <ion-label>{{ book.name }}</ion-label>
         </ion-item>
@@ -57,7 +58,7 @@ import { books } from 'src/app/constants/books-chapters';
   ],
 })
 export class BooksPage implements AfterViewInit {
-  books = books;
+  books = signal<Book[]>(books);
   readonly searchbar = viewChild.required(IonSearchbar);
 
   ngAfterViewInit(): void {
@@ -65,8 +66,9 @@ export class BooksPage implements AfterViewInit {
   }
 
   onSearch(event: any) {
-    this.books = books.filter((book) =>
+    const booksFiltered = books.filter((book) =>
       book.name.toLowerCase().includes(event.target.value.toLowerCase())
     );
+    this.books.set(booksFiltered);
   }
 }
