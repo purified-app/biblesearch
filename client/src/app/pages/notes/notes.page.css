@@ -1,0 +1,32 @@
+:host {
+  display: block;
+}
+
+ion-item{
+  align-items: stretch;
+  display: flex;
+}
+ion-item ion-note {
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.note-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+ion-modal textarea{
+  height: 100%;
+  padding: 2px 4px;
+  width: 100%;
+}
+
+.note-modal-content{
+  height: 100%;
+  padding: 16px;
+}

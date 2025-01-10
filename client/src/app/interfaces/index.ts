@@ -10,7 +10,16 @@ export interface Bookmark {
   bookName?: string;
   chapter: number;
   verses: number[];
-  displayText: string;
+  title?: string;
+}
+
+export interface Note {
+  /** ID is a timestamp from when the note was created */
+  id: number;
+  bookmark: Bookmark;
+  createdDate?: string;
+  content?: string;
+  updatedDate?: string;
 }
 
 export interface RecentRead {

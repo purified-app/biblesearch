@@ -1,4 +1,3 @@
-@let recentRead = this.bookmarkService.recentRead();
 <ion-app>
   <ion-split-pane contentId="main-content">
     <ion-menu contentId="main-content" type="overlay">
@@ -9,14 +8,13 @@
           @for (page of appPages; track $index) {
           <ion-menu-toggle auto-hide="false">
             <ion-item
-              routerDirection="root"
-              [routerLink]="[page.url]"
-              lines="none"
               detail="false"
+              lines="none"
+              routerDirection="root"
               routerLinkActive="selected"
+              [routerLink]="[page.url]"
             >
               <ion-icon
-                aria-hidden="true"
                 slot="start"
                 [ios]="page.icon + '-outline'"
                 [md]="page.icon + '-sharp'"
@@ -26,53 +24,48 @@
           </ion-menu-toggle>
           }
         </ion-list>
-        <ion-list class="bookmarks-list">
-          <ion-list-header>Recent read</ion-list-header>
-          @if(recentRead){
-          <ion-item
-            lines="none"
-            detail="false"
-            routerDirection="root"
-            [routerLink]="['/read', recentRead.book, recentRead.chapter]"
-          >
-            <ion-icon aria-hidden="true" slot="start" ios="time-outline" md="time-sharp"></ion-icon>
-            <ion-label>
-              {{ recentRead.bookName }}
-              {{ recentRead.chapter }}
-            </ion-label>
-          </ion-item>
-          }
+        @let recentRead = this.bookmarkService.recentRead();
+        <ion-list>
+          <ion-menu-toggle auto-hide="false">
+            <ion-list-header>Recent read</ion-list-header>
+            @if(recentRead){
+            <ion-item
+              detail="false"
+              lines="none"
+              routerDirection="root"
+              routerLinkActive="selected"
+              [routerLink]="['/read', recentRead.book, recentRead.chapter]"
+            >
+              <ion-icon slot="start" ios="time-outline" md="time-sharp"></ion-icon>
+              <ion-label>
+                {{ recentRead.bookName }}
+                {{ recentRead.chapter }}
+              </ion-label>
+            </ion-item>
+            }
+          </ion-menu-toggle>
         </ion-list>
 
-        <ion-list class="bookmarks-list">
-          <ion-list-header>Bookmarks</ion-list-header>
+        <ion-list>
+          <ion-menu-toggle auto-hide="false">
+            <ion-list-header>Bookmarks</ion-list-header>
 
-          @for (bookmark of this.bookmarkService.bookmarks(); track $index) {
-          <a class="bookmark">
-            <ion-menu-toggle auto-hide="false">
-              <ion-item
-                lines="none"
-                detail="false"
-                routerDirection="root"
-                routerLinkActive="selected"
-                [routerLink]="['/read', bookmark.book, bookmark.chapter]"
-                [queryParams]="{
-                  verse: bookmark?.verses?.join(',')
-                }"
-              >
-                <ion-icon
-                  aria-hidden="true"
-                  slot="start"
-                  ios="bookmark-outline"
-                  md="bookmark-sharp"
-                ></ion-icon>
-                <ion-label>
-                  {{ bookmark.displayText }}
-                </ion-label>
-              </ion-item>
-            </ion-menu-toggle>
-          </a>
-          }
+            @for (bookmark of this.bookmarkService.bookmarks(); track $index) {
+            <ion-item
+              detail="false"
+              lines="none"
+              routerDirection="root"
+              routerLinkActive="selected"
+              [routerLink]="['/read', bookmark.book, bookmark.chapter]"
+              [queryParams]="{ verse: bookmark?.verses?.join(',') }"
+            >
+              <ion-icon slot="start" ios="bookmark-outline" md="bookmark-sharp"></ion-icon>
+              <ion-label>
+                {{ getBookmarkTitle(bookmark) }}
+              </ion-label>
+            </ion-item>
+            }
+          </ion-menu-toggle>
         </ion-list>
       </ion-content>
     </ion-menu>

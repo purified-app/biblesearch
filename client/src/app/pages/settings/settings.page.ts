@@ -10,6 +10,7 @@ import {
   IonLabel,
   IonList,
   IonListHeader,
+  IonMenuButton,
   IonRadio,
   IonRadioGroup,
   IonTitle,
@@ -26,13 +27,13 @@ import { LocalStorage } from 'src/app/constants/localStorage';
   selector: 'app-settings',
   imports: [
     IonButtons,
-    IonBackButton,
     IonContent,
+    IonInput,
     IonItem,
     IonLabel,
     IonList,
     IonListHeader,
-    IonInput,
+    IonMenuButton,
     IonRadio,
     IonRadioGroup,
     IonHeader,
@@ -43,8 +44,8 @@ import { LocalStorage } from 'src/app/constants/localStorage';
     <ion-header>
       <ion-toolbar>
         <ion-title>Settings</ion-title>
-        <ion-buttons slot="start" [collapse]="true">
-          <ion-back-button default-href="/"></ion-back-button>
+        <ion-buttons slot="end" [collapse]="true">
+          <ion-menu-button auto-hide="true"></ion-menu-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>

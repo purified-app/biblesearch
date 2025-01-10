@@ -1,7 +1,7 @@
 import { Bookmark, Verse } from '../interfaces';
 
-export default class Utils {
-  static getBookmarkFromVerses(verses: Verse[]): Bookmark {
+export default class BookmarkUtils {
+  static createBookmarkFromVerses(verses: Verse[]): Bookmark {
     if (verses.length === 0) {
       throw new Error('The verses array should not be empty.');
     }
@@ -15,14 +15,20 @@ export default class Utils {
     const firstVerse = verseNumbers[0];
     const lastVerse = verseNumbers[verseNumbers.length - 1];
     const verseText = verses.length === 1 ? firstVerse : `${firstVerse}-${lastVerse}`;
-    const displayText = `${bookName} ${chapter}:${verseText}`;
+    const title = `${bookName} ${chapter}:${verseText}`;
 
     return {
       book,
       bookName,
       chapter,
       verses: verseNumbers,
-      displayText,
+      title,
     };
+  }
+  static getTitle(bookmark: Bookmark) {
+    if (!bookmark) return '';
+    const { bookName, chapter, verses } = bookmark;
+    const verseText = verses.length === 1 ? verses[0] : `${verses[0]}-${verses[verses.length - 1]}`;
+    return `${bookName} ${chapter}:${verseText}`;
   }
 }
