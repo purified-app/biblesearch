@@ -9,6 +9,7 @@ h4 {
 }
 p {
   margin: auto;
+  margin-top: 8px;
   max-width: 500px;
   font-size: 1em;
   line-height: 2em;
@@ -23,4 +24,17 @@ p {
 }
 .verse-number {
   padding: 3px;
+}
+
+ion-button {
+  margin: unset;
+  margin-top: -12px;
+  margin-right: 4px;
+  min-height: unset;
+  min-width: unset;
+  --background: bisque;
+  --padding-bottom: 2px;
+  --padding-end: 2px;
+  --padding-start: 2px;
+  --padding-top: 2px;
 }

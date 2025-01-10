@@ -1,0 +1,15 @@
+textarea{
+  height: 100%;
+  padding: 2px 4px;
+  width: 100%;
+}
+
+.note-modal-content{
+  height: 100%;
+  padding: 16px;
+}
+
+ion-fab {
+  margin-bottom: 16px;
+  margin-right: 16px;
+}

@@ -4,6 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   ActionSheetButton,
   IonActionSheet,
+  IonBackButton,
+  IonButton,
   IonButtons,
   IonContent,
   IonFab,
@@ -15,15 +17,20 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { combineLatest, debounceTime } from 'rxjs';
+import { NoteModalService } from 'src/app/components/note-modal/note-modal.service';
 import { books } from 'src/app/constants/books-chapters';
-import { RecentRead, Verse } from 'src/app/interfaces';
+import { Note, RecentRead, Verse } from 'src/app/interfaces';
 import { ApiService } from 'src/app/services/api.service';
 import { BookmarkService } from 'src/app/services/bookmark.service';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
+import NoteUtils from 'src/app/utils/note.utils';
 
 @Component({
   selector: 'app-verses',
   imports: [
     IonActionSheet,
+    IonBackButton,
+    IonButton,
     IonButtons,
     IonMenuButton,
     IonContent,
@@ -50,12 +57,16 @@ export class VersesPage {
       text: 'Bookmark',
       role: 'bookmark',
     },
+    { icon: 'document-text-outline', text: 'Add note', role: 'notes' },
   ];
 
-  private lastParams: any;
+  protected notes: Note[] = [];
 
+  private lastParams: any;
   private apiService = inject(ApiService);
+  private storeService = inject(LocalStorageService);
   private bookmarkService = inject(BookmarkService);
+  private noteModalService = inject(NoteModalService);
 
   constructor(private route: ActivatedRoute, private router: Router) {
     combineLatest([this.route.params, this.route.queryParams])
@@ -75,6 +86,12 @@ export class VersesPage {
         }
         this.lastParams = params;
       });
+    this.notes = this.storeService.getNotes();
+  }
+
+  onNoteClick(event: Event, note: Note) {
+    event.stopImmediatePropagation();
+    this.noteModalService.openModal(note);
   }
 
   onVerseClick(verse: Verse) {
@@ -99,7 +116,7 @@ export class VersesPage {
     return !!this.selectedVerses.find((v) => v.id === verse.id);
   }
 
-  onDismiss(event: any) {
+  async onDismiss(event: any) {
     const { role } = event.detail;
     switch (role) {
       case 'backdrop':
@@ -107,6 +124,16 @@ export class VersesPage {
       case 'bookmark':
         this.bookmarkService.saveVersesAsBookmark(this.selectedVerses);
         this.selectedVerses = [];
+        break;
+      case 'notes':
+        const note = NoteUtils.createNoteFromVerses(this.selectedVerses);
+        const modal = await this.noteModalService.openModal(note);
+        modal.onDidDismiss().then(({ role }) => {
+          if (role === 'confirm') {
+            this.notes = this.storeService.getNotes();
+          }
+        });
+        break;
     }
   }
 
@@ -142,6 +169,8 @@ export class VersesPage {
     this.router.navigate([`/read/${newBook}/${newChapter}`]);
   }
 
+  protected getNotesForVerse = (verse: Verse) => NoteUtils.getNotesForVerse(this.notes, verse);
+
   private async getVerses() {
     const { verse } = this.route.snapshot.queryParams;
     const { book, chapter } = this.route.snapshot.params;
@@ -152,9 +181,11 @@ export class VersesPage {
   }
 
   private focusVerse(verse: string) {
-    if (verse && !this.verseFocused) {
+    // verse format is either '1' or '1,2,3'
+    const firstVerse = verse?.split(',')?.[0];
+    if (firstVerse && !this.verseFocused) {
       setTimeout(() => {
-        const element = document.getElementById(`verse-${verse}`);
+        const element = document.getElementById(`verse-${firstVerse}`);
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' });
           this.verseFocused = true;

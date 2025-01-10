@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { books } from '../constants/books-chapters';
 import { Bookmark, RecentRead, Verse } from '../interfaces';
-import Utils from '../utils/utils';
+import BookmarkUtils from '../utils/bookmark.utils';
 import { LocalStorage } from '../constants/localStorage';
 
 @Injectable({ providedIn: 'root' })
@@ -15,7 +15,7 @@ export class BookmarkService {
   }
 
   saveVersesAsBookmark(verses: Verse[]) {
-    const bookmark = Utils.getBookmarkFromVerses(verses);
+    const bookmark = BookmarkUtils.createBookmarkFromVerses(verses);
     // Retrieve the array from localStorage
     const bookmarks = this.getBookmarks();
     const bookmarsLimit = Number(localStorage.getItem(LocalStorage.BookmarksLimit) || 5);

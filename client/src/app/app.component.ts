@@ -1,5 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
   IonApp,
   IonSplitPane,
@@ -30,9 +30,12 @@ import {
   settingsSharp,
   timeOutline,
   timeSharp,
+  documentTextOutline,
+  documentTextSharp,
+  trashOutline,
 } from 'ionicons/icons';
 import { BookmarkService } from './services/bookmark.service';
-import { LocalStorage } from './constants/localStorage';
+import BookmarkUtils from './utils/bookmark.utils';
 
 @Component({
   selector: 'app-root',
@@ -56,17 +59,18 @@ import { LocalStorage } from './constants/localStorage';
     IonRouterOutlet,
   ],
 })
-export class AppComponent implements OnInit {
-  public appPages = [
+export class AppComponent {
+  protected appPages = [
     { title: 'Search', url: '/search', icon: 'search' },
     { title: 'Read', url: '/read', icon: 'book' },
     { title: 'Settings', url: '/settings', icon: 'settings' },
+    { title: 'Notes', url: '/notes', icon: 'document-text' },
   ];
-  public labels = ['Genesis 1', 'Acts 2', 'Hebrews 11', '1 John 1', '1 Peter 2', 'Revelation 22'];
 
-  bookmarkService = inject(BookmarkService);
+  protected bookmarkService = inject(BookmarkService);
+  protected getBookmarkTitle = BookmarkUtils.getTitle;
 
-  constructor(private router: Router) {
+  constructor() {
     addIcons({
       chevronBackOutline,
       chevronForwardOutline,
@@ -81,28 +85,9 @@ export class AppComponent implements OnInit {
       timeSharp,
       settingsOutline,
       settingsSharp,
+      documentTextOutline,
+      documentTextSharp,
+      trashOutline,
     });
-  }
-
-  ngOnInit() {
-    this.navigateToStartPage();
-  }
-
-  private navigateToStartPage() {
-    const startPage = localStorage.getItem(LocalStorage.StartPage);
-    switch (startPage) {
-      case 'search':
-        this.router.navigate(['/search']);
-        break;
-      case 'read':
-        this.router.navigate(['/read']);
-        break;
-      case 'recentRead':
-        const recentRead = this.bookmarkService.recentRead();
-        if (!recentRead) return;
-        const { book, chapter } = recentRead;
-        this.router.navigate(['/read', book, chapter]);
-        break;
-    }
   }
 }
