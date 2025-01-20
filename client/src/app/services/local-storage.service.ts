@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Note } from '../interfaces';
 import { LocalStorage } from '../constants/localStorage';
+import { VerseHighlight } from '../components/verse-actions-modal/verse-highlight.service';
 
 @Injectable({ providedIn: 'root' })
 export class LocalStorageService {
@@ -30,8 +31,44 @@ export class LocalStorageService {
     return notes ? this.sortNotes(JSON.parse(notes)) : [];
   }
 
+  getVerseHighlights(): VerseHighlight[] {
+    const highlights = localStorage.getItem(LocalStorage.VerseHighlights);
+    return highlights ? JSON.parse(highlights) : [];
+  }
+
+  getVerseHighlightsByBook(book: number, chapter: number, translation?: string): VerseHighlight[] {
+    const highlights = this.getVerseHighlights();
+    return highlights.filter((highlight) => {
+      return (
+        highlight.book === book &&
+        highlight.chapter === chapter &&
+        (!translation || highlight.translation === translation)
+      );
+    });
+  }
+
   saveNotes(notes: Note[]) {
     localStorage.setItem(LocalStorage.Notes, JSON.stringify(this.sortNotes(notes)));
+  }
+
+  saveVerseHighlights(highlights: VerseHighlight[]) {
+    const existingHighlights = this.getVerseHighlights();
+    // If the new highlights exist, remove them from the array
+    if (existingHighlights.length) {
+      highlights.forEach((highlight) => {
+        // check by translation, book, chapter, and verse
+        const index = existingHighlights.findIndex(
+          (existingHighlight) =>
+            existingHighlight.translation === highlight.translation &&
+            existingHighlight.book === highlight.book &&
+            existingHighlight.chapter === highlight.chapter &&
+            existingHighlight.verse === highlight.verse
+        );
+        if (index > -1) existingHighlights.splice(index, 1);
+      });
+    }
+    const allHighlights = [...existingHighlights, ...highlights];
+    localStorage.setItem(LocalStorage.VerseHighlights, JSON.stringify(allHighlights));
   }
 
   private sortNotes(notes: Note[]) {

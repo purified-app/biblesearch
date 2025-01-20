@@ -43,3 +43,8 @@
 .toolbar-with-search {
   display: flex;
 }
+
+ion-modal.modal-action-sheet {
+  align-items: flex-end;
+  --height: auto;
+}

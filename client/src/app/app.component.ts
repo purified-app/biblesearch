@@ -33,6 +33,8 @@ import {
   documentTextOutline,
   documentTextSharp,
   trashOutline,
+  closeCircleOutline,
+  closeCircle,
 } from 'ionicons/icons';
 import { BookmarkService } from './services/bookmark.service';
 import BookmarkUtils from './utils/bookmark.utils';
@@ -75,6 +77,7 @@ export class AppComponent {
       chevronBackOutline,
       chevronForwardOutline,
       chevronUpCircle,
+      closeCircle,
       searchOutline,
       searchSharp,
       bookOutline,

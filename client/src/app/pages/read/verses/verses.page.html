@@ -20,7 +20,7 @@
       @let notes = getNotesForVerse(verse);
       <div class="verse-container" [class.selected]="isSelected(verse)"
         (click)="onVerseClick(verse)">
-        <span class="verse-number" id="verse-{{ verse.verse }}" [class.highlight]="versesToFocus?.includes(verse.verse)">
+        <span class="verse-number" id="verse-{{ verse.verse }}" [class.highlight]="versesToFocus?.includes(verse.verse)" [style.color]="$any(verse).color">
           {{ verse.verse }}
         </span>          
         @for (note of notes; track $index) {
@@ -28,7 +28,7 @@
             <ion-icon name="document-text-outline"  slot="icon-only"></ion-icon>
           </ion-button>
         }
-        <span [class.highlight]="versesToFocus?.includes(verse.verse)">{{ verse.text }}
+        <span [class.highlight]="versesToFocus?.includes(verse.verse)"  [style.color]="$any(verse).color">{{ verse.text }}
         </span>
       </div>
     }
@@ -41,12 +41,12 @@
 
   @if (selectedVerses.length) {
     <ion-fab slot="fixed" vertical="bottom" horizontal="center">
-      <ion-fab-button id="open-action-sheet" color="dark">
+      <ion-fab-button id="open-action-sheet" color="dark" (click)="onVerseFabClick()">
         <ion-icon name="chevron-up-circle"></ion-icon>
       </ion-fab-button>
     </ion-fab>
-    <ion-action-sheet trigger="open-action-sheet" [buttons]="actionSheetButtons" [header]="selectedVersesText"
+    <!-- <ion-action-sheet trigger="open-action-sheet" [buttons]="actionSheetButtons" [header]="selectedVersesText"
       (willDismiss)="onDismiss($event)">
-    </ion-action-sheet>
+    </ion-action-sheet> -->
   }
 </ion-content>
