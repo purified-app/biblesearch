@@ -1,0 +1,20 @@
+:host {
+  display: block;
+}
+ion-item.selected ion-icon {
+  color: var(--ion-color-primary);
+}
+ion-item.selected {
+  --background: rgba(var(--ion-color-primary-rgb), 0.14);
+}
+ion-item.selected {
+  --color: var(--ion-color-primary);
+}
+
+ion-note{
+  margin-left: 20px;
+}
+
+::ng-deep router-outlet + * {
+  height: 100%;
+}

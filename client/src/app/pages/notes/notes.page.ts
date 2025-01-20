@@ -2,19 +2,14 @@ import { NoteModalService } from 'src/app/components/note-modal/note-modal.servi
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
-  IonButtons,
   IonContent,
-  IonHeader,
   IonItem,
   IonItemOption,
   IonItemOptions,
   IonItemSliding,
   IonLabel,
   IonList,
-  IonMenuButton,
   IonNote,
-  IonTitle,
-  IonToolbar,
 } from '@ionic/angular/standalone';
 import { Note } from 'src/app/interfaces';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
@@ -24,10 +19,7 @@ import NoteUtils from 'src/app/utils/note.utils';
 @Component({
   selector: 'app-notes',
   imports: [
-    IonButtons,
     IonContent,
-    IonMenuButton,
-    IonHeader,
     IonItem,
     IonItemOption,
     IonItemOptions,
@@ -35,20 +27,10 @@ import NoteUtils from 'src/app/utils/note.utils';
     IonLabel,
     IonList,
     IonNote,
-    IonToolbar,
-    IonTitle,
     DatePipe,
   ],
   template: `
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Notes</ion-title>
-        <ion-buttons slot="end" [collapse]="true">
-          <ion-menu-button auto-hide="true"></ion-menu-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-    <ion-content>
+    <ion-content class="ion-padding">
       <ion-list>
         @for (note of notes(); track $index) {
         <ion-item-sliding #sliding>

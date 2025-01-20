@@ -1,20 +1,14 @@
-import { effect, inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Verse } from 'src/app/interfaces';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class VerseHighlightService {
-  selectedVerses: Verse[] = [];
-  selectedColor = signal<string | undefined>('');
-
   private store = inject(LocalStorageService);
 
-  constructor() {
-    effect(() => {
-      const color = this.selectedColor() ?? '';
-      const highlights = this.buildVerseHighlights(this.selectedVerses, color);
-      this.store.saveVerseHighlights(highlights);
-    });
+  saveVerseHighlights(selectedVerses: Verse[], color: string) {
+    const highlights = this.buildVerseHighlights(selectedVerses, color);
+    this.store.saveVerseHighlights(highlights);
   }
 
   private buildVerseHighlights(verses: Verse[], color: string): VerseHighlight[] {

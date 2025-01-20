@@ -1,28 +1,13 @@
-import {
-  IonBackButton,
-  IonButtons,
-  IonContent,
-  IonHeader,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/angular/standalone';
 import { Component } from '@angular/core';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { IonContent } from '@ionic/angular/standalone';
 import { books } from 'src/app/constants/books-chapters';
 
 @Component({
   selector: 'app-chapters',
-  imports: [IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton, IonContent, RouterLink],
+  imports: [IonContent, RouterLink],
   template: `
-    <ion-header collapse="fade">
-      <ion-toolbar>
-        <ion-title>Chapters</ion-title>
-        <ion-buttons slot="start" [collapse]="true">
-          <ion-back-button></ion-back-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-    <ion-content [fullscreen]="true" class="ion-padding">
+    <ion-content class="ion-padding">
       <div class="grid-container">
         @for (chapter of chapters; track chapter) {
         <a [routerLink]="['/read', bookId, chapter]">

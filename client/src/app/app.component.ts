@@ -1,20 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
-import {
-  IonApp,
-  IonSplitPane,
-  IonMenu,
-  IonContent,
-  IonList,
-  IonListHeader,
-  IonNote,
-  IonMenuToggle,
-  IonItem,
-  IonIcon,
-  IonLabel,
-  IonRouterOutlet,
-  IonRouterLink,
-} from '@ionic/angular/standalone';
+import { IonApp } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   chevronBackOutline,
@@ -33,33 +18,17 @@ import {
   documentTextOutline,
   documentTextSharp,
   trashOutline,
-  closeCircleOutline,
   closeCircle,
 } from 'ionicons/icons';
 import { BookmarkService } from './services/bookmark.service';
 import BookmarkUtils from './utils/bookmark.utils';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
-  imports: [
-    RouterLink,
-    RouterLinkActive,
-    IonApp,
-    IonSplitPane,
-    IonMenu,
-    IonContent,
-    IonList,
-    IonListHeader,
-    IonNote,
-    IonMenuToggle,
-    IonItem,
-    IonIcon,
-    IonLabel,
-    IonRouterLink,
-    IonRouterOutlet,
-  ],
+  imports: [IonApp, RouterOutlet],
 })
 export class AppComponent {
   protected appPages = [
