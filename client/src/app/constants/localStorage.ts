@@ -4,4 +4,5 @@ export const LocalStorage = {
   Notes: 'notes',
   RecentRead: 'recentRead',
   StartPage: 'startPage',
+  VerseHighlights: 'verseHighlights',
 };

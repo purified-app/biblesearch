@@ -1,0 +1,52 @@
+:host {
+  display: block;
+}
+
+
+ion-radio-group{
+  display: flex;
+  gap: 8px;
+  margin-right: 8px;
+}
+
+ion-radio::part(container) {
+  width: 2rem;
+  height: 2rem;
+}
+ion-radio::part(mark) {
+  width: 100%;
+  height: 100%;
+}
+
+.red {
+  --color: #F43545;
+  --color-checked: #F43545;
+}
+.orange {
+  --color: #FA8901;
+  --color-checked: #FA8901;
+}
+.yellow {
+  --color: #FAD717;
+  --color-checked: #FAD717;
+}
+.green {
+  --color: #00BA71;
+  --color-checked: #00BA71;
+}
+.blue {
+  --color: blue;
+  --color-checked: blue;
+}
+.indigo {
+  --color: indigo;
+  --color-checked: indigo;
+}
+.violet {
+  --color: violet;
+  --color-checked: #5F2879;
+}
+.none{
+  --color: none;  
+  --color-checked: none;
+}
