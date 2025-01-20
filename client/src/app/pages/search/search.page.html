@@ -1,33 +1,29 @@
-<ion-header collapse="fade">
-  <ion-toolbar>
-    <app-header-menu-title titleText="Search"></app-header-menu-title>
-  </ion-toolbar>
-  <ion-toolbar>
-    <ion-searchbar
-      color="light"
-      placeholder="In the beginning..."
-      (ionInput)="onSearchInput($event)"
-    ></ion-searchbar>
-  </ion-toolbar>
-</ion-header>
 <ion-content>
-  @if (searchResults.isLoading()) {
-  <ion-spinner></ion-spinner>
-  } @if(searchResults.value()?.length) {
-  <ion-list>
-    @for (result of searchResults.value(); track result.id) {
-    <a
-      [routerLink]="['/read', result.book, result.chapter]"
-      [queryParams]="{ verse: result.verse }"
-    >
-      <ion-item>
-        <ion-label>
-          <h2 [innerHTML]="getListHeader(result) | highlightSearch: searchTerm()"></h2>
-          <p [innerHTML]="result.text | highlightSearch: searchTerm()"></p>
-        </ion-label>
-      </ion-item>
-    </a>
+  <ion-searchbar
+    color="light"
+    placeholder="In the beginning..."
+    slot="fixed"
+    (ionInput)="onSearchInput($event)"
+  ></ion-searchbar>
+  <div class="search-results">
+    @if (searchResults.isLoading()) {
+    <ion-spinner></ion-spinner>
+    } @if(searchResults.value()?.length) {
+    <ion-list>
+      @for (result of searchResults.value(); track result.id) {
+      <a
+        [routerLink]="['/read', result.book, result.chapter]"
+        [queryParams]="{ verse: result.verse }"
+      >
+        <ion-item>
+          <ion-label>
+            <h2 [innerHTML]="getListHeader(result) | highlightSearch: searchTerm()"></h2>
+            <p [innerHTML]="result.text | highlightSearch: searchTerm()"></p>
+          </ion-label>
+        </ion-item>
+      </a>
+      }
+    </ion-list>
     }
-  </ion-list>
-  }
+  </div>
 </ion-content>

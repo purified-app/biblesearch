@@ -1,16 +1,13 @@
 import { AfterViewInit, Component, inject, resource, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
-  IonList,
-  IonSearchbar,
   IonContent,
   IonItem,
   IonLabel,
-  IonToolbar,
-  IonHeader,
+  IonList,
+  IonSearchbar,
   IonSpinner,
 } from '@ionic/angular/standalone';
-import { HeaderMenuTitleComponent } from 'src/app/components/header-menu-title.component';
 import { Verse } from 'src/app/interfaces';
 import { HighlightPipe } from 'src/app/pipes/highlight.pipe';
 import { ApiService } from 'src/app/services/api.service';
@@ -19,15 +16,12 @@ import { ApiService } from 'src/app/services/api.service';
   imports: [
     HighlightPipe,
     IonContent,
-    IonHeader,
     IonItem,
     IonLabel,
     IonList,
-    IonToolbar,
     IonSearchbar,
     IonSpinner,
     RouterLink,
-    HeaderMenuTitleComponent,
   ],
   styleUrl: './search.page.css',
   templateUrl: './search.page.html',
@@ -47,7 +41,7 @@ export class SearchPage implements AfterViewInit {
   readonly searchbar = viewChild.required(IonSearchbar);
 
   ngAfterViewInit(): void {
-    setTimeout(() => this.searchbar().setFocus());
+    setTimeout(() => this.searchbar().setFocus(), 10);
   }
 
   onSearchInput(event: any) {

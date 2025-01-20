@@ -18,6 +18,12 @@ ion-radio::part(mark) {
   height: 100%;
 }
 
+.highlight-item-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
 .red {
   --color: #F43545;
   --color-checked: #F43545;
@@ -35,15 +41,15 @@ ion-radio::part(mark) {
   --color-checked: #00BA71;
 }
 .blue {
-  --color: blue;
-  --color-checked: blue;
+  --color: #00C2DE;
+  --color-checked: #00C2DE;
 }
 .indigo {
-  --color: indigo;
-  --color-checked: indigo;
+  --color: #00418D;
+  --color-checked: #00418D;
 }
 .violet {
-  --color: violet;
+  --color: #5F2879;
   --color-checked: #5F2879;
 }
 .none{

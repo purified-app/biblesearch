@@ -1,24 +1,19 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   ActionSheetButton,
-  IonBackButton,
   IonButton,
-  IonButtons,
   IonContent,
   IonFab,
   IonFabButton,
-  IonHeader,
   IonIcon,
-  IonMenuButton,
-  IonTitle,
-  IonToolbar,
 } from '@ionic/angular/standalone';
 import { combineLatest, debounceTime } from 'rxjs';
 import { NoteModalService } from 'src/app/components/note-modal/note-modal.service';
 import { VerseActionsModalService } from 'src/app/components/verse-actions-modal/verse-actions-modal.service';
 import { books } from 'src/app/constants/books-chapters';
+import { RainbowColor, RainbowColors } from 'src/app/constants/colors';
 import { Note, RecentRead, Verse } from 'src/app/interfaces';
 import { ApiService } from 'src/app/services/api.service';
 import { BookmarkService } from 'src/app/services/bookmark.service';
@@ -27,28 +22,16 @@ import NoteUtils from 'src/app/utils/note.utils';
 
 @Component({
   selector: 'app-verses',
-  imports: [
-    IonBackButton,
-    IonButton,
-    IonButtons,
-    IonMenuButton,
-    IonContent,
-    IonFab,
-    IonFabButton,
-    IonIcon,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-  ],
+  imports: [IonButton, IonContent, IonFab, IonFabButton, IonIcon],
   templateUrl: './verses.page.html',
   styleUrls: ['./verses.page.scss'],
 })
 export class VersesPage {
   chapter = ''; // John 1
-  verses: Verse[] = [];
+  verses = signal<Verse[]>([]);
   verseFocused = false;
   versesToFocus?: number[];
-  selectedVerses: Verse[] = [];
+  selectedVerses = signal<Verse[]>([]);
   selectedVersesText = '';
   actionSheetButtons: ActionSheetButton[] = [
     {
@@ -90,19 +73,20 @@ export class VersesPage {
   }
 
   async onVerseFabClick() {
-    const modal = await this.verseActionsModalService.openModal(this.selectedVerses);
+    const modal = await this.verseActionsModalService.openModal(this.selectedVerses());
     modal.onDidDismiss().then(({ data, role }) => {
       switch (role) {
         case 'bookmark':
           break;
         case 'highlight':
-          this.verses = this.getVerseWithHighlights(this.verses);
+          const verses = this.getVerseWithHighlights(this.verses());
+          this.verses.set(verses);
           break;
         case 'note':
           this.notes = data;
           break;
       }
-      this.selectedVerses = [];
+      this.selectedVerses.set([]);
     });
   }
 
@@ -112,25 +96,26 @@ export class VersesPage {
   }
 
   onVerseClick(verse: Verse) {
-    const found = this.selectedVerses.find((v) => v.id === verse.id);
-    if (!found) {
-      this.selectedVerses.push(verse);
-    } else {
-      this.selectedVerses = this.selectedVerses.filter((v) => v.id !== verse.id);
-    }
-    if (!this.selectedVerses.length) return;
-    this.selectedVerses.sort((a, b) => a.verse - b.verse);
+    let selectedVerses = this.selectedVerses();
+    const found = selectedVerses.find((v) => v.id === verse.id);
+    if (!found) selectedVerses.push(verse);
+    else selectedVerses = selectedVerses.filter((v) => v.id !== verse.id);
+
+    this.selectedVerses.set(selectedVerses);
+
+    if (!selectedVerses.length) return;
+    selectedVerses.sort((a, b) => a.verse - b.verse);
 
     const book = books.find((b) => b.id === verse.book);
     const chapter = verse.chapter;
-    const firstVerse = this.selectedVerses[0].verse;
-    const lastVerse = this.selectedVerses[this.selectedVerses.length - 1].verse;
-    const verseText = this.selectedVerses.length > 1 ? `${firstVerse}-${lastVerse}` : verse.verse;
+    const firstVerse = selectedVerses[0].verse;
+    const lastVerse = selectedVerses[selectedVerses.length - 1].verse;
+    const verseText = selectedVerses.length > 1 ? `${firstVerse}-${lastVerse}` : verse.verse;
     this.selectedVersesText = `${book?.name} ${chapter}:${verseText}`;
   }
 
   isSelected(verse: Verse): boolean {
-    return !!this.selectedVerses.find((v) => v.id === verse.id);
+    return !!this.selectedVerses().find((v) => v.id === verse.id);
   }
 
   navigateBack() {
@@ -173,13 +158,34 @@ export class VersesPage {
     const bookData = books.find((b) => b.id === Number(book));
     this.chapter = `${bookData?.name} ${chapter}`;
     const verses = await this.apiService.getVerses(book, chapter);
-    this.verses = this.getVerseWithHighlights(verses);
+    this.verses.set(this.getVerseWithHighlights(verses));
     this.focusVerse(verse);
   }
 
   private getVerseHighlights() {
     const { book, chapter } = this.route.snapshot.params;
     return this.storeService.getVerseHighlightsByBook(Number(book), Number(chapter));
+  }
+
+  protected getHighlightTextColor(color: string) {
+    switch (color) {
+      case 'red':
+      case 'indigo':
+      case 'violet':
+        return 'rgba(255, 255, 255, 0.95)';
+      case 'green':
+      case 'blue':
+      case 'orange':
+      case 'yellow':
+      default:
+        return '#333';
+    }
+  }
+
+  protected getHighlightBackgroundColor(color: string) {
+    console.log(color);
+    console.log(RainbowColors[color as keyof typeof RainbowColors]);
+    return RainbowColors[color as keyof typeof RainbowColors];
   }
 
   private getVerseWithHighlights(verses: (Verse & { color?: string })[]) {

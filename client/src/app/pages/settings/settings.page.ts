@@ -1,20 +1,14 @@
 import { Component, signal } from '@angular/core';
 import {
   InputChangeEventDetail,
-  IonBackButton,
-  IonButtons,
   IonContent,
-  IonHeader,
   IonInput,
   IonItem,
   IonLabel,
   IonList,
   IonListHeader,
-  IonMenuButton,
   IonRadio,
   IonRadioGroup,
-  IonTitle,
-  IonToolbar,
 } from '@ionic/angular/standalone';
 import {
   IonInputCustomEvent,
@@ -26,30 +20,17 @@ import { LocalStorage } from 'src/app/constants/localStorage';
 @Component({
   selector: 'app-settings',
   imports: [
-    IonButtons,
     IonContent,
     IonInput,
     IonItem,
     IonLabel,
     IonList,
     IonListHeader,
-    IonMenuButton,
     IonRadio,
     IonRadioGroup,
-    IonHeader,
-    IonTitle,
-    IonToolbar,
   ],
   template: `
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Settings</ion-title>
-        <ion-buttons slot="end" [collapse]="true">
-          <ion-menu-button auto-hide="true"></ion-menu-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-    <ion-content>
+    <ion-content class="ion-padding">
       <ion-list>
         <ion-list-header>
           <ion-label>Bookmark settings</ion-label>

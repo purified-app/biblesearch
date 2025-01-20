@@ -5,6 +5,7 @@ export const apiRoutes = new Hono();
 const db = new Database("bible.db", { create: true });
 
 apiRoutes.get("/search", async (c) => {
+  const LIMIT = 12;
   const term = c.req.query("q") ?? "";
   console.log(term);
   const text = String(term)?.trim().split(" ").join(" OR ");
@@ -13,7 +14,7 @@ apiRoutes.get("/search", async (c) => {
       FROM Verses_fts 
       WHERE Verses_fts MATCH '${text}*' 
       ORDER BY score
-      LIMIT 7
+      LIMIT ${LIMIT};
     `;
 
   // Regular expression to match format "John 3"
@@ -39,7 +40,7 @@ apiRoutes.get("/search", async (c) => {
       FROM Verses_fts 
       WHERE Verses_fts MATCH 'book_name:${bookName}* AND chapter:${chapter} AND verse:${verse}'
       ORDER BY score
-      LIMIT 7;
+      LIMIT ${LIMIT};
     `;
   }
 
