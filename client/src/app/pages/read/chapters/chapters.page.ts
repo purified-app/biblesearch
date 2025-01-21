@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
 import { books } from 'src/app/constants/books-chapters';
@@ -8,9 +9,10 @@ import { books } from 'src/app/constants/books-chapters';
   imports: [IonContent, RouterLink],
   template: `
     <ion-content class="ion-padding">
+      @let translation = routeParamMap()?.get('translation');
       <div class="grid-container">
         @for (chapter of chapters; track chapter) {
-        <a [routerLink]="['/read', bookId, chapter]">
+        <a [routerLink]="['/read', translation, bookId, chapter]">
           <div class="grid-item">{{ chapter }}</div>
         </a>
         }
@@ -48,7 +50,10 @@ export class ChaptersPage {
   books = books;
   chapters: number[] = [];
 
-  constructor(private activatedRoute: ActivatedRoute) {
+  protected activatedRoute = inject(ActivatedRoute);
+  protected routeParamMap = toSignal(this.activatedRoute.paramMap);
+
+  constructor() {
     this.bookId = Number(this.activatedRoute.snapshot.paramMap.get('book'));
     const { chapters } = books.find((b) => b.id === this.bookId) || {};
     if (!chapters) return;

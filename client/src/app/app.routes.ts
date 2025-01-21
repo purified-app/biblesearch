@@ -10,6 +10,7 @@ import { inject } from '@angular/core';
 import { BookmarkService } from './services/bookmark.service';
 import { LayoutComponent } from './components/layout/layout.component';
 import { books } from './constants/books-chapters';
+import { BibleTranslationService } from './services/bible-translation.service';
 
 export const routes: Routes = [
   {
@@ -24,9 +25,12 @@ export const routes: Routes = [
           return 'read';
         case 'recentRead':
           const recentRead = bookmarkService.recentRead();
+          const bibleTranslation = inject(BibleTranslationService);
+          const translation = bibleTranslation.activeTranslation();
+          console.log(translation);
           if (!recentRead) return 'search';
           const { book, chapter } = recentRead;
-          return `read/${book}/${chapter}`;
+          return `read/${translation}/${book}/${chapter}`;
         default:
           return 'search';
       }
@@ -45,17 +49,26 @@ export const routes: Routes = [
       {
         path: 'read',
         pathMatch: 'full',
+        redirectTo: () => {
+          const bibleTranslation = inject(BibleTranslationService);
+          const translation = bibleTranslation.activeTranslation();
+          return `read/${translation}`;
+        },
+      },
+      {
+        path: 'read/:translation',
+        pathMatch: 'full',
         component: BooksPage,
         data: { title: 'Books' },
       },
       {
-        path: 'read/:book',
+        path: 'read/:translation/:book',
         pathMatch: 'full',
         component: ChaptersPage,
         data: { title: 'Chapters' },
       },
       {
-        path: 'read/:book/:chapter',
+        path: 'read/:translation/:book/:chapter',
         pathMatch: 'full',
         component: VersesPage,
         resolve: {

@@ -1,4 +1,3 @@
-import { RainbowColor, RainbowColors } from './../../constants/colors';
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import {
   IonButton,
@@ -11,31 +10,30 @@ import {
   ModalController,
 } from '@ionic/angular/standalone';
 import { Verse } from 'src/app/interfaces';
-import { VerseHighlightService } from './verse-highlight.service';
 import { BookmarkService } from 'src/app/services/bookmark.service';
-import { NoteModalService } from '../note-modal/note-modal.service';
-import NoteUtils from 'src/app/utils/note.utils';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import NoteUtils from 'src/app/utils/note.utils';
+import { NoteModalService } from '../note-modal/note-modal.service';
+import { RainbowColor, RainbowColors } from './../../constants/colors';
+import { VerseHighlightService } from './verse-highlight.service';
 
 @Component({
   selector: 'app-verse-actions-modal',
   imports: [IonButton, IonIcon, IonItem, IonLabel, IonList, IonRadio, IonRadioGroup],
   template: `
     <ion-list>
-      <ion-item [button]="true" (click)="onActionClick('bookmark')">
-        <ion-icon name="bookmark-outline" slot="start"></ion-icon>
-        <ion-label>Bookmark</ion-label>
-      </ion-item>
       <ion-item [button]="true" (click)="onActionClick('note')">
         <ion-icon name="document-text-outline" slot="start"></ion-icon>
         <ion-label>Add note</ion-label>
       </ion-item>
-
-      <!-- <ion-item-group>
-        <ion-item-divider>
-          <ion-label>A</ion-label>
-        </ion-item-divider> -->
-
+      <ion-item [button]="true" (click)="onActionClick('bookmark')">
+        <ion-icon name="bookmark-outline" slot="start"></ion-icon>
+        <ion-label>Bookmark</ion-label>
+      </ion-item>
+      <ion-item [button]="true" (click)="onActionClick('share')">
+        <ion-icon name="share-social-outline" slot="start"></ion-icon>
+        <ion-label>Copy link</ion-label>
+      </ion-item>
       <ion-item>
         <div class="highlight-item-container">
           <ion-radio-group
@@ -61,7 +59,6 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
           </ion-button>
         </div>
       </ion-item>
-      <!-- </ion-item-group> -->
     </ion-list>
   `,
   styleUrl: './verse-actions-modal.component.css',
@@ -85,6 +82,13 @@ export class VerseActionsModalComponent implements OnInit, VerseActionsModalProp
 
   protected async onActionClick(role: string, data?: any) {
     switch (role) {
+      case 'share':
+        const verseQueryParam = this.verses.map((verse) => verse.verse).join(',');
+        const url = `${window.location.href}?verse=${verseQueryParam}`;
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(url);
+        }
+        break;
       case 'note':
         const note = NoteUtils.createNoteFromVerses(this.verses);
         const modal = await this.noteModalService.openModal(note);

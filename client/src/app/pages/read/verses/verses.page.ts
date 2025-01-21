@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   ActionSheetButton,
@@ -13,7 +13,7 @@ import { combineLatest, debounceTime } from 'rxjs';
 import { NoteModalService } from 'src/app/components/note-modal/note-modal.service';
 import { VerseActionsModalService } from 'src/app/components/verse-actions-modal/verse-actions-modal.service';
 import { books } from 'src/app/constants/books-chapters';
-import { RainbowColor, RainbowColors } from 'src/app/constants/colors';
+import { RainbowColors } from 'src/app/constants/colors';
 import { Note, RecentRead, Verse } from 'src/app/interfaces';
 import { ApiService } from 'src/app/services/api.service';
 import { BookmarkService } from 'src/app/services/bookmark.service';
@@ -50,8 +50,11 @@ export class VersesPage {
   private bookmarkService = inject(BookmarkService);
   private noteModalService = inject(NoteModalService);
   private verseActionsModalService = inject(VerseActionsModalService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private routeParamMap = toSignal(this.route.paramMap);
 
-  constructor(private route: ActivatedRoute, private router: Router) {
+  constructor() {
     combineLatest([this.route.params, this.route.queryParams])
       .pipe(debounceTime(0), takeUntilDestroyed())
       .subscribe(([params, queryParams]) => {
@@ -130,8 +133,7 @@ export class VersesPage {
       const previousBook = books.find((b) => b.id === newBook);
       newChapter = previousBook?.chapters || 1;
     }
-
-    this.router.navigate([`/read/${newBook}/${newChapter}`]);
+    this.navigate(newBook, newChapter);
   }
 
   navigateForward() {
@@ -146,11 +148,15 @@ export class VersesPage {
       newBook++;
       newChapter = 1;
     }
-
-    this.router.navigate([`/read/${newBook}/${newChapter}`]);
+    this.navigate(newBook, newChapter);
   }
 
   protected getNotesForVerse = (verse: Verse) => NoteUtils.getNotesForVerse(this.notes, verse);
+
+  private navigate(book: number, chapter: number) {
+    const translation = this.routeParamMap()?.get('translation');
+    this.router.navigate([`/read/${translation}/${book}/${chapter}`]);
+  }
 
   private async getVerses() {
     const { verse } = this.route.snapshot.queryParams;
