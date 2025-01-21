@@ -18,6 +18,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import { BibleTranslationService } from 'src/app/services/bible-translation.service';
 import { BookmarkService } from 'src/app/services/bookmark.service';
 import BookmarkUtils from 'src/app/utils/bookmark.utils';
 
@@ -53,6 +54,7 @@ import BookmarkUtils from 'src/app/utils/bookmark.utils';
           </ion-toolbar>
         </ion-header>
         <ion-content class="ion-padding">
+          @let translation = bibleTranslation.activeTranslation();
           <ion-note>Search engine for bible verses</ion-note>
           <ion-list>
             @for (page of appPages; track $index) {
@@ -85,7 +87,7 @@ import BookmarkUtils from 'src/app/utils/bookmark.utils';
                 lines="none"
                 routerDirection="root"
                 routerLinkActive="selected"
-                [routerLink]="['/read', recentRead.book, recentRead.chapter]"
+                [routerLink]="['/read', translation, recentRead.book, recentRead.chapter]"
               >
                 <ion-icon slot="start" ios="time-outline" md="time-sharp"></ion-icon>
                 <ion-label>
@@ -107,7 +109,7 @@ import BookmarkUtils from 'src/app/utils/bookmark.utils';
                 lines="none"
                 routerDirection="root"
                 routerLinkActive="selected"
-                [routerLink]="['/read', bookmark.book, bookmark.chapter]"
+                [routerLink]="['/read', translation, bookmark.book, bookmark.chapter]"
                 [queryParams]="{ verse: bookmark?.verses?.join(',') }"
               >
                 <ion-icon slot="start" ios="bookmark-outline" md="bookmark-sharp"></ion-icon>
@@ -124,7 +126,7 @@ import BookmarkUtils from 'src/app/utils/bookmark.utils';
       <div class="ion-page" id="main-content">
         <ion-header>
           <ion-toolbar>
-            @let data = this.activeRoute.snapshot.firstChild?.data;
+            @let data = this.activatedRoute.snapshot.firstChild?.data;
             <ion-title>{{ data?.['title'] }}</ion-title>
             <ion-buttons slot="start" [collapse]="true">
               <ion-back-button></ion-back-button>
@@ -149,7 +151,8 @@ export class LayoutComponent {
     { title: 'Notes', url: '/notes', icon: 'document-text' },
   ];
 
-  protected activeRoute = inject(ActivatedRoute);
+  protected activatedRoute = inject(ActivatedRoute);
   protected bookmarkService = inject(BookmarkService);
   protected getBookmarkTitle = BookmarkUtils.getTitle;
+  protected bibleTranslation = inject(BibleTranslationService);
 }

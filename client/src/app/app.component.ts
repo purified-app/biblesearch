@@ -19,6 +19,7 @@ import {
   documentTextSharp,
   trashOutline,
   closeCircle,
+  shareSocialOutline,
 } from 'ionicons/icons';
 import { BookmarkService } from './services/bookmark.service';
 import BookmarkUtils from './utils/bookmark.utils';
@@ -43,22 +44,23 @@ export class AppComponent {
 
   constructor() {
     addIcons({
+      bookOutline,
+      bookSharp,
       chevronBackOutline,
       chevronForwardOutline,
       chevronUpCircle,
       closeCircle,
-      searchOutline,
-      searchSharp,
-      bookOutline,
-      bookSharp,
-      bookmarkOutline,
-      bookmarkSharp,
-      timeOutline,
-      timeSharp,
-      settingsOutline,
-      settingsSharp,
       documentTextOutline,
       documentTextSharp,
+      bookmarkOutline,
+      bookmarkSharp,
+      searchOutline,
+      searchSharp,
+      settingsOutline,
+      settingsSharp,
+      shareSocialOutline,
+      timeOutline,
+      timeSharp,
       trashOutline,
     });
   }
