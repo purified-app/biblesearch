@@ -1,16 +1,29 @@
 export interface Book {
-  id: number;
+  /** 1-66 */
+  bookNumber: number;
+  /** `Genesis`, `Exodus` etc */
   name: string;
   chapters: number;
-  abbreviation: string;
+  /** `Gen`, `Exo` etc */
+  // abbreviation: string;
+  /** `GEN`, `EXO` etc */
+  usfm: string;
+  /** `ot` or `nt` */
+  canon: string;
 }
 
 export interface Bookmark {
-  book: number;
+  /** 1-66 */
+  bookNumber: number;
+  /** `GEN`, `EXO` etc */
+  bookUsfm: string;
+  /** `Genesis`, `Exodus` etc */
   bookName?: string;
   chapter: number;
   verses: number[];
   title?: string;
+  /** `KJV`, `NB` etc */
+  translation: string;
 }
 
 export interface Note {
@@ -23,16 +36,23 @@ export interface Note {
 }
 
 export interface RecentRead {
-  book: number;
+  bookUsfm: string;
   bookName?: string;
   chapter: number;
+  translation: string;
 }
 
 export interface Verse {
   id: number;
-  book_name: string;
-  book: number;
+  /** `Genesis`, `Exodus` etc */
+  bookName: string;
+  /** 1-66 */
+  bookNumber: number;
+  /** `GEN`, `EXO` etc */
+  bookUsfm: string;
   chapter: number;
   verse: number;
   text: string;
+  /** `KJV`, `NB` etc */
+  translation: string;
 }

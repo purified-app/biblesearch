@@ -7,10 +7,12 @@ export default class BookmarkUtils {
     }
 
     // Assuming all verses belong to the same book and chapter
-    const bookName = verses[0].book_name;
-    const book = verses[0].book;
+    const bookName = verses[0].bookName;
+    const bookNumber = verses[0].bookNumber;
+    const bookUsfm = verses[0].bookUsfm;
     const chapter = verses[0].chapter;
     const verseNumbers = verses.map((verse) => verse.verse);
+    const translation = verses[0].translation;
 
     const firstVerse = verseNumbers[0];
     const lastVerse = verseNumbers[verseNumbers.length - 1];
@@ -18,11 +20,13 @@ export default class BookmarkUtils {
     const title = `${bookName} ${chapter}:${verseText}`;
 
     return {
-      book,
       bookName,
+      bookNumber,
+      bookUsfm,
       chapter,
       verses: verseNumbers,
       title,
+      translation,
     };
   }
   static getTitle(bookmark: Bookmark) {

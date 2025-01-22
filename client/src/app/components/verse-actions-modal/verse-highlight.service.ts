@@ -12,8 +12,7 @@ export class VerseHighlightService {
   }
 
   private buildVerseHighlights(verses: Verse[], color: string): VerseHighlight[] {
-    // TODO: get real translation
-    const translation = 'KJV';
+    const translation = verses[0].translation;
     // TODO: get real userId
     const userId = 1;
     const date = new Date();
@@ -23,16 +22,17 @@ export class VerseHighlightService {
     const sys_updatedDate = dateTime;
     const common = { color, sys_createdDate, sys_updatedDate, translation, userId };
 
-    return verses.map((verseObject) => {
-      const { book, chapter, verse } = verseObject;
-      return { ...common, book, chapter, verse };
+    return verses.map((verseObj) => {
+      const { bookNumber, bookUsfm, chapter, verse } = verseObj;
+      return { ...common, bookNumber, bookUsfm, chapter, verse };
     });
   }
 }
 
 export interface VerseHighlight {
   id?: number;
-  book: number;
+  bookNumber: number;
+  bookUsfm: string;
   chapter: number;
   color: string;
   translation: string;

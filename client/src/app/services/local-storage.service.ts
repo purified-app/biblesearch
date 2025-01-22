@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Note } from '../interfaces';
 import { LocalStorage } from '../constants/localStorage';
 import { VerseHighlight } from '../components/verse-actions-modal/verse-highlight.service';
+import { Translation } from './bible-translation.service';
 
 @Injectable({ providedIn: 'root' })
 export class LocalStorageService {
@@ -31,16 +32,25 @@ export class LocalStorageService {
     return notes ? this.sortNotes(JSON.parse(notes)) : [];
   }
 
+  getTranslation(): Translation {
+    const translation = localStorage.getItem(LocalStorage.Translation);
+    return translation ? JSON.parse(translation) : undefined;
+  }
+
   getVerseHighlights(): VerseHighlight[] {
     const highlights = localStorage.getItem(LocalStorage.VerseHighlights);
     return highlights ? JSON.parse(highlights) : [];
   }
 
-  getVerseHighlightsByBook(book: number, chapter: number, translation?: string): VerseHighlight[] {
+  getVerseHighlightsByBook(
+    bookUfsm: string,
+    chapter: number,
+    translation?: string
+  ): VerseHighlight[] {
     const highlights = this.getVerseHighlights();
     return highlights.filter((highlight) => {
       return (
-        highlight.book === book &&
+        highlight.bookUsfm === bookUfsm &&
         highlight.chapter === chapter &&
         (!translation || highlight.translation === translation)
       );
@@ -49,6 +59,10 @@ export class LocalStorageService {
 
   saveNotes(notes: Note[]) {
     localStorage.setItem(LocalStorage.Notes, JSON.stringify(this.sortNotes(notes)));
+  }
+
+  saveTranslation(translation: Translation) {
+    localStorage.setItem(LocalStorage.Translation, JSON.stringify(translation));
   }
 
   saveVerseHighlights(highlights: VerseHighlight[]) {
@@ -60,7 +74,7 @@ export class LocalStorageService {
         const index = existingHighlights.findIndex(
           (existingHighlight) =>
             existingHighlight.translation === highlight.translation &&
-            existingHighlight.book === highlight.book &&
+            existingHighlight.bookUsfm === highlight.bookUsfm &&
             existingHighlight.chapter === highlight.chapter &&
             existingHighlight.verse === highlight.verse
         );
@@ -74,8 +88,8 @@ export class LocalStorageService {
   private sortNotes(notes: Note[]) {
     // sort notes by data.book, data.chapter and first verse
     notes.sort((a, b) => {
-      const bookA = a.bookmark.book;
-      const bookB = b.bookmark.book;
+      const bookA = a.bookmark.bookNumber;
+      const bookB = b.bookmark.bookNumber;
       if (bookA < bookB) return -1;
       if (bookA > bookB) return 1;
       const chapterA = a.bookmark.chapter;

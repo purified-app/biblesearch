@@ -1,29 +1,31 @@
 import { Component, inject } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { IonApp } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  chevronBackOutline,
-  chevronForwardOutline,
-  chevronUpCircle,
-  searchOutline,
-  searchSharp,
   bookOutline,
   bookSharp,
   bookmarkOutline,
   bookmarkSharp,
-  settingsOutline,
-  settingsSharp,
-  timeOutline,
-  timeSharp,
+  chevronBackOutline,
+  chevronForwardOutline,
+  chevronUpCircle,
+  closeCircle,
   documentTextOutline,
   documentTextSharp,
-  trashOutline,
-  closeCircle,
+  earthOutline,
+  languageOutline,
+  searchOutline,
+  searchSharp,
+  settingsOutline,
+  settingsSharp,
   shareSocialOutline,
+  timeOutline,
+  timeSharp,
+  trashOutline,
 } from 'ionicons/icons';
 import { BookmarkService } from './services/bookmark.service';
 import BookmarkUtils from './utils/bookmark.utils';
-import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -46,14 +48,16 @@ export class AppComponent {
     addIcons({
       bookOutline,
       bookSharp,
+      bookmarkOutline,
+      bookmarkSharp,
       chevronBackOutline,
       chevronForwardOutline,
       chevronUpCircle,
       closeCircle,
       documentTextOutline,
       documentTextSharp,
-      bookmarkOutline,
-      bookmarkSharp,
+      earthOutline,
+      languageOutline,
       searchOutline,
       searchSharp,
       settingsOutline,

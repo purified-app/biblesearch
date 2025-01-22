@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   ActionSheetButton,
   IonButton,
@@ -12,12 +12,13 @@ import {
 import { combineLatest, debounceTime } from 'rxjs';
 import { NoteModalService } from 'src/app/components/note-modal/note-modal.service';
 import { VerseActionsModalService } from 'src/app/components/verse-actions-modal/verse-actions-modal.service';
-import { books } from 'src/app/constants/books-chapters';
-import { RainbowColors } from 'src/app/constants/colors';
-import { Note, RecentRead, Verse } from 'src/app/interfaces';
+import { AllBooks } from 'src/app/constants/books';
+import { Note, Verse } from 'src/app/interfaces';
+import { VersePageParams } from 'src/app/interfaces/route-params';
 import { ApiService } from 'src/app/services/api.service';
 import { BookmarkService } from 'src/app/services/bookmark.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import HighlightUtils from 'src/app/utils/highlight.utils';
 import NoteUtils from 'src/app/utils/note.utils';
 
 @Component({
@@ -27,7 +28,6 @@ import NoteUtils from 'src/app/utils/note.utils';
   styleUrls: ['./verses.page.scss'],
 })
 export class VersesPage {
-  chapter = ''; // John 1
   verses = signal<Verse[]>([]);
   verseFocused = false;
   versesToFocus?: number[];
@@ -44,7 +44,7 @@ export class VersesPage {
 
   protected notes: Note[] = [];
 
-  private lastParams: any;
+  private lastParams?: Params;
   private apiService = inject(ApiService);
   private storeService = inject(LocalStorageService);
   private bookmarkService = inject(BookmarkService);
@@ -65,7 +65,11 @@ export class VersesPage {
           this.verseFocused = false;
         }
         if (this.lastParams !== params) {
-          this.bookmarkService.setRecentRead(params as RecentRead);
+          const { bookUsfm, chapter, translation } = params as VersePageParams;
+          const books = AllBooks[translation as keyof typeof AllBooks];
+          const bookName = books.find((b) => b.usfm === bookUsfm)?.name;
+          const recentRead = { bookName, bookUsfm, chapter: Number(chapter), translation };
+          this.bookmarkService.setRecentRead(recentRead);
           this.getVerses();
         } else {
           this.focusVerse(verse);
@@ -109,12 +113,12 @@ export class VersesPage {
     if (!selectedVerses.length) return;
     selectedVerses.sort((a, b) => a.verse - b.verse);
 
-    const book = books.find((b) => b.id === verse.book);
     const chapter = verse.chapter;
+    const bookName = verse.bookName;
     const firstVerse = selectedVerses[0].verse;
     const lastVerse = selectedVerses[selectedVerses.length - 1].verse;
     const verseText = selectedVerses.length > 1 ? `${firstVerse}-${lastVerse}` : verse.verse;
-    this.selectedVersesText = `${book?.name} ${chapter}:${verseText}`;
+    this.selectedVersesText = `${bookName} ${chapter}:${verseText}`;
   }
 
   isSelected(verse: Verse): boolean {
@@ -122,76 +126,59 @@ export class VersesPage {
   }
 
   navigateBack() {
-    const { book, chapter } = this.route.snapshot.params;
-    let newBook = Number(book);
-    let newChapter = Number(chapter);
+    let { bookUsfm, chapter, translation } = this.route.snapshot.params;
+    const books = AllBooks[translation as keyof typeof AllBooks];
+    const currentBook = books.find((b) => b.usfm === bookUsfm);
+    if (!currentBook) return;
+    chapter = Number(chapter);
 
-    if (newChapter > 1) {
-      newChapter--;
-    } else if (newBook > 1) {
-      newBook--;
-      const previousBook = books.find((b) => b.id === newBook);
-      newChapter = previousBook?.chapters || 1;
+    if (chapter > 1) {
+      chapter--;
+    } else if (currentBook.bookNumber > 1) {
+      const prevBook = books.find((b) => b.bookNumber === currentBook.bookNumber - 1);
+      if (!prevBook) return;
+      bookUsfm = prevBook.usfm;
+      chapter = prevBook?.chapters || 1;
     }
-    this.navigate(newBook, newChapter);
+    this.navigate(bookUsfm, chapter);
   }
 
   navigateForward() {
-    const { book, chapter } = this.route.snapshot.params;
-    let newBook = Number(book);
-    let newChapter = Number(chapter);
-    const currentBook = books.find((b) => b.id === newBook);
+    let { bookUsfm, chapter, translation } = this.route.snapshot.params;
+    const books = AllBooks[translation as keyof typeof AllBooks];
+    const currentBook = books.find((b) => b.usfm === bookUsfm);
+    if (!currentBook) return;
+    chapter = Number(chapter);
 
-    if (newChapter < (currentBook?.chapters || 0)) {
-      newChapter++;
-    } else if (newBook < books.length) {
-      newBook++;
-      newChapter = 1;
+    if (chapter < (currentBook?.chapters || 0)) {
+      chapter++;
+    } else if (currentBook.bookNumber < 66) {
+      bookUsfm = books[currentBook.bookNumber + 1].usfm;
+      chapter = 1;
     }
-    this.navigate(newBook, newChapter);
+    this.navigate(bookUsfm, chapter);
   }
 
   protected getNotesForVerse = (verse: Verse) => NoteUtils.getNotesForVerse(this.notes, verse);
+  protected getHighlightTextColor = HighlightUtils.getHighlightTextColor;
+  protected getHighlightBackgroundColor = HighlightUtils.getHighlightBackgroundColor;
 
-  private navigate(book: number, chapter: number) {
+  private navigate(bookUsfm: string, chapter: number) {
     const translation = this.routeParamMap()?.get('translation');
-    this.router.navigate([`/read/${translation}/${book}/${chapter}`]);
+    this.router.navigate([`/read/${translation}/${bookUsfm}/${chapter}`]);
   }
 
   private async getVerses() {
     const { verse } = this.route.snapshot.queryParams;
-    const { book, chapter } = this.route.snapshot.params;
-    const bookData = books.find((b) => b.id === Number(book));
-    this.chapter = `${bookData?.name} ${chapter}`;
-    const verses = await this.apiService.getVerses(book, chapter);
+    const { bookUsfm, chapter, translation } = this.route.snapshot.params;
+    const verses = await this.apiService.getVerses(translation, bookUsfm, chapter);
     this.verses.set(this.getVerseWithHighlights(verses));
     this.focusVerse(verse);
   }
 
   private getVerseHighlights() {
-    const { book, chapter } = this.route.snapshot.params;
-    return this.storeService.getVerseHighlightsByBook(Number(book), Number(chapter));
-  }
-
-  protected getHighlightTextColor(color: string) {
-    switch (color) {
-      case 'red':
-      case 'indigo':
-      case 'violet':
-        return 'rgba(255, 255, 255, 0.95)';
-      case 'green':
-      case 'blue':
-      case 'orange':
-      case 'yellow':
-      default:
-        return '#333';
-    }
-  }
-
-  protected getHighlightBackgroundColor(color: string) {
-    console.log(color);
-    console.log(RainbowColors[color as keyof typeof RainbowColors]);
-    return RainbowColors[color as keyof typeof RainbowColors];
+    const { bookUsfm, chapter, translation } = this.route.snapshot.params;
+    return this.storeService.getVerseHighlightsByBook(bookUsfm, Number(chapter));
   }
 
   private getVerseWithHighlights(verses: (Verse & { color?: string })[]) {

@@ -11,7 +11,7 @@ export default class NoteUtils {
   getNoteByBookmark(bookmark: Bookmark, notes: Note[]): Note | undefined {
     return notes.find(
       (note) =>
-        note.bookmark.book === bookmark.book &&
+        note.bookmark.bookUsfm === bookmark.bookUsfm &&
         note.bookmark.chapter === bookmark.chapter &&
         note.bookmark.verses.length === bookmark.verses.length &&
         note.bookmark.verses.every((verse, index) => verse === bookmark.verses[index])
@@ -20,7 +20,7 @@ export default class NoteUtils {
   static getNotesForVerse(notes: Note[], verse: Verse) {
     return notes.filter((note) => {
       return (
-        note.bookmark.book === verse.book &&
+        note.bookmark.bookUsfm === verse.bookUsfm &&
         note.bookmark.chapter === verse.chapter &&
         note.bookmark.verses.includes(verse.verse)
       );
@@ -32,10 +32,12 @@ export default class NoteUtils {
     const note: Note = {
       id: date.getTime(),
       bookmark: {
-        book: verses[0].book,
-        bookName: verses[0].book_name,
-        verses: verses.map((verse) => verse.verse),
+        bookNumber: verses[0].bookNumber,
+        bookUsfm: verses[0].bookUsfm,
+        bookName: verses[0].bookName,
         chapter: verses[0].chapter,
+        translation: verses[0].translation,
+        verses: verses.map((verse) => verse.verse),
       },
       createdDate: date.toISOString(),
       content: '',
