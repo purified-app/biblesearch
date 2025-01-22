@@ -24,12 +24,13 @@ apiRoutes.get("/search", async (c) => {
 
   if (matchChapter) {
     const [, bookName, chapter] = matchChapter;
+    console.log(bookName, chapter);
     // Override the query to search for verses in the specified book name and chapter
     query = `
     SELECT *, bm25(Verses_fts, 20, 0, 10, 15, 4, 5, 10, 2) as score
       FROM Verses_fts 
       WHERE Verses_fts MATCH 'bookName:${bookName}*' AND chapter=${chapter}
-      ORDER BY book_name, verse;
+      ORDER BY bookName, verse;
     `;
   }
   if (matchVerse) {
