@@ -1,5 +1,4 @@
 import { Injectable, signal } from '@angular/core';
-import { books } from '../constants/books-chapters';
 import { Bookmark, RecentRead, Verse } from '../interfaces';
 import BookmarkUtils from '../utils/bookmark.utils';
 import { LocalStorage } from '../constants/localStorage';
@@ -42,10 +41,7 @@ export class BookmarkService {
   }
 
   setRecentRead(recentRead: RecentRead) {
-    const bookId = Number(recentRead['book']);
-    const book = books.find((b) => b.id === bookId);
-    const recent = { ...recentRead, bookName: book?.name };
-    this.recentRead.set(recent);
-    localStorage.setItem(LocalStorage.RecentRead, JSON.stringify(recent));
+    this.recentRead.set(recentRead);
+    localStorage.setItem(LocalStorage.RecentRead, JSON.stringify(recentRead));
   }
 }

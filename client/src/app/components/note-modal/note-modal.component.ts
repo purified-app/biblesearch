@@ -23,6 +23,7 @@ import {
   ModalController,
 } from '@ionic/angular/standalone';
 import { Note } from 'src/app/interfaces';
+import { BibleTranslationService } from 'src/app/services/bible-translation.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import BookmarkUtils from 'src/app/utils/bookmark.utils';
 
@@ -85,6 +86,7 @@ export class NoteModalComponent implements OnInit, AfterViewInit, NoteModalProps
   private alertControler = inject(AlertController);
   private router = inject(Router);
   private store = inject(LocalStorageService);
+  private bibleTranslation = inject(BibleTranslationService);
 
   ngOnInit(): void {
     this.title = BookmarkUtils.getTitle(this.note.bookmark);
@@ -120,9 +122,10 @@ export class NoteModalComponent implements OnInit, AfterViewInit, NoteModalProps
   }
 
   protected navigateToBookmark() {
-    const { book, chapter, verses } = this.note.bookmark;
+    const { bookUsfm, chapter, verses } = this.note.bookmark;
     this.modalController.dismiss();
-    this.router.navigate([`/read/${book}/${chapter}`], {
+    const translation = this.bibleTranslation.activeTranslation();
+    this.router.navigate([`/read/${translation.usfm}/${bookUsfm}/${chapter}`], {
       queryParams: { verse: verses.join(',') },
     });
   }

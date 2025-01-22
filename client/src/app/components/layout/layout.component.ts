@@ -1,5 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { ActivatedRoute, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
+import {
+  ActivatedRoute,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
+} from '@angular/router';
 import {
   IonBackButton,
   IonButtons,
@@ -21,6 +27,7 @@ import {
 import { BibleTranslationService } from 'src/app/services/bible-translation.service';
 import { BookmarkService } from 'src/app/services/bookmark.service';
 import BookmarkUtils from 'src/app/utils/bookmark.utils';
+import { LanguageSelectComponent } from '../language-select/language-select.component';
 
 @Component({
   selector: 'app-layout',
@@ -44,6 +51,7 @@ import BookmarkUtils from 'src/app/utils/bookmark.utils';
     RouterLink,
     RouterLinkActive,
     RouterOutlet,
+    LanguageSelectComponent,
   ],
   template: `
     <ion-split-pane contentId="main-content">
@@ -54,7 +62,7 @@ import BookmarkUtils from 'src/app/utils/bookmark.utils';
           </ion-toolbar>
         </ion-header>
         <ion-content class="ion-padding">
-          @let translation = bibleTranslation.activeTranslation();
+          @let translation = bibleTranslation.activeTranslation().usfm;
           <ion-note>Search engine for bible verses</ion-note>
           <ion-list>
             @for (page of appPages; track $index) {
@@ -87,7 +95,7 @@ import BookmarkUtils from 'src/app/utils/bookmark.utils';
                 lines="none"
                 routerDirection="root"
                 routerLinkActive="selected"
-                [routerLink]="['/read', translation, recentRead.book, recentRead.chapter]"
+                [routerLink]="['/read', translation, recentRead.bookUsfm, recentRead.chapter]"
               >
                 <ion-icon slot="start" ios="time-outline" md="time-sharp"></ion-icon>
                 <ion-label>
@@ -109,7 +117,7 @@ import BookmarkUtils from 'src/app/utils/bookmark.utils';
                 lines="none"
                 routerDirection="root"
                 routerLinkActive="selected"
-                [routerLink]="['/read', translation, bookmark.book, bookmark.chapter]"
+                [routerLink]="['/read', bookmark.translation, bookmark.bookUsfm, bookmark.chapter]"
                 [queryParams]="{ verse: bookmark?.verses?.join(',') }"
               >
                 <ion-icon slot="start" ios="bookmark-outline" md="bookmark-sharp"></ion-icon>
@@ -132,6 +140,7 @@ import BookmarkUtils from 'src/app/utils/bookmark.utils';
               <ion-back-button></ion-back-button>
             </ion-buttons>
             <ion-buttons slot="end" [collapse]="true">
+              <app-language-select></app-language-select>
               <ion-menu-button auto-hide="true"></ion-menu-button>
             </ion-buttons>
           </ion-toolbar>
@@ -155,4 +164,32 @@ export class LayoutComponent {
   protected bookmarkService = inject(BookmarkService);
   protected getBookmarkTitle = BookmarkUtils.getTitle;
   protected bibleTranslation = inject(BibleTranslationService);
+
+  private router = inject(Router);
+
+  constructor() {
+    effect(() => {
+      const translation = this.bibleTranslation.activeTranslation();
+      this.updateTranslationInRoute(translation.usfm);
+    });
+  }
+
+  updateTranslationInRoute(translation: string) {
+    const currentRoute = this.router.url;
+    const segments = currentRoute.split('/').filter(Boolean); // Remove empty segments
+
+    // Check if we're on a route that includes a translation (like 'read/NB/GEN/3?param=value')
+    if (segments[0] === 'read' && segments.length > 1) {
+      const { queryParams } = this.activatedRoute.snapshot;
+
+      // Construct new route segments, updating only the translation part
+      const newSegments = [segments[0], translation, ...segments.slice(2)];
+      const lastIndex = newSegments.length - 1;
+      // Remove the query parameters from the last segment to not mess up the URL
+      newSegments[lastIndex] = newSegments[lastIndex].split('?')[0];
+
+      // Navigate with preserved query parameters
+      this.router.navigate(newSegments, { queryParams, replaceUrl: true });
+    }
+  }
 }

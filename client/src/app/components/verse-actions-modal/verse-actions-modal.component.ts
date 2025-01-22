@@ -80,7 +80,7 @@ export class VerseActionsModalComponent implements OnInit, VerseActionsModalProp
     this.color = undefined;
   }
 
-  protected async onActionClick(role: string, data?: any) {
+  protected async onActionClick(role: string, data?: string) {
     switch (role) {
       case 'share':
         const verseQueryParam = this.verses.map((verse) => verse.verse).join(',');

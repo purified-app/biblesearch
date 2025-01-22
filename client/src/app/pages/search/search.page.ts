@@ -44,12 +44,13 @@ export class SearchPage implements AfterViewInit {
     setTimeout(() => this.searchbar().setFocus(), 10);
   }
 
-  onSearchInput(event: any) {
-    this.searchTerm.set(event.target.value.trim());
+  onSearchInput(event: Event) {
+    const element = event.target as HTMLInputElement;
+    this.searchTerm.set(element.value.trim());
   }
 
   getListHeader = (data: Verse) => {
-    const { book_name, chapter, verse } = data;
-    return `${book_name} ${chapter}:${verse}`;
+    const { bookName, chapter, verse } = data;
+    return `${bookName} ${chapter}:${verse}`;
   };
 }

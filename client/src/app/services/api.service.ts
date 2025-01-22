@@ -10,9 +10,9 @@ export class ApiService {
     return fetch(url).then((res) => res.json());
   }
 
-  getVerses(book: number, chapter: number): Promise<Verse[]> {
+  getVerses(translation: string, bookUsfm: string, chapter: number): Promise<Verse[]> {
     const { apiUrl } = environment;
-    const url = `${apiUrl}/verses?book=${book}&chapter=${chapter}`;
+    const url = `${apiUrl}/verses?translation=${translation}&bookUsfm=${bookUsfm}&chapter=${chapter}`;
     return fetch(url).then((res) => res.json());
   }
 }

@@ -1,8 +1,8 @@
-import { AfterViewInit, Component, inject, signal, viewChild } from '@angular/core';
+import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { RouterLink, ActivatedRoute } from '@angular/router';
-import { IonItem, IonLabel, IonList, IonSearchbar, IonContent } from '@ionic/angular/standalone';
-import { books } from 'src/app/constants/books-chapters';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { IonContent, IonItem, IonLabel, IonList } from '@ionic/angular/standalone';
+import { AllBooks } from 'src/app/constants/books';
 import { Book } from 'src/app/interfaces';
 
 @Component({
@@ -12,10 +12,10 @@ import { Book } from 'src/app/interfaces';
     <ion-content class="ion-padding">
       @let translation = routeParamMap()?.get('translation');
       <ion-list>
-        @for (book of books(); track book.id) {
+        @for (book of books(); track book.bookNumber) {
         <ion-item
           routerDirection="forward"
-          [routerLink]="['/read', translation, book.id]"
+          [routerLink]="['/read', translation, book.usfm]"
           detail="true"
         >
           <ion-label>{{ book.name }}</ion-label>
@@ -24,28 +24,30 @@ import { Book } from 'src/app/interfaces';
       </ion-list>
     </ion-content>
   `,
-  styles: [
-    `
-      ion-item {
-        cursor: pointer;
-      }
-    `,
-  ],
+  styles: ['ion-item { cursor: pointer;}'],
 })
-export class BooksPage implements AfterViewInit {
-  books = signal<Book[]>(books);
-  readonly searchbar = viewChild.required(IonSearchbar);
+export class BooksPage {
+  books: WritableSignal<Book[]>;
+  // readonly searchbar = viewChild.required(IonSearchbar);
   protected activatedRoute = inject(ActivatedRoute);
   protected routeParamMap = toSignal(this.activatedRoute.paramMap);
 
-  ngAfterViewInit(): void {
-    setTimeout(() => this.searchbar().setFocus());
+  constructor() {
+    const { translation } = this.activatedRoute.snapshot.params;
+    const books = AllBooks[translation as keyof typeof AllBooks];
+    this.books = signal(books);
   }
 
-  onSearch(event: any) {
-    const booksFiltered = books.filter((book) =>
-      book.name.toLowerCase().includes(event.target.value.toLowerCase())
-    );
-    this.books.set(booksFiltered);
-  }
+  // ngAfterViewInit(): void {
+  //   setTimeout(() => this.searchbar().setFocus());
+  // }
+
+  // onSearch(event: any) {
+  //   const translation = this.routeParamMap()?.get('translation');
+  //   const books = allBooks[translation as keyof typeof allBooks];
+  //   const booksFiltered = books.filter((book) =>
+  //     book.name.toLowerCase().includes(event.target.value.toLowerCase())
+  //   );
+  //   this.books.set(booksFiltered);
+  // }
 }

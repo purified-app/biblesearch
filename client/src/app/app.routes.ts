@@ -1,40 +1,17 @@
-import { ActivatedRouteSnapshot, Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import { SearchPage } from './pages/search/search.page';
 import { BooksPage } from './pages/read/books/books.page';
 import { ChaptersPage } from './pages/read/chapters/chapters.page';
 import { VersesPage } from './pages/read/verses/verses.page';
 import { SettingsPage } from './pages/settings/settings.page';
 import { NotesPage } from './pages/notes/notes.page';
-import { LocalStorage } from './constants/localStorage';
-import { inject } from '@angular/core';
-import { BookmarkService } from './services/bookmark.service';
 import { LayoutComponent } from './components/layout/layout.component';
-import { books } from './constants/books-chapters';
-import { BibleTranslationService } from './services/bible-translation.service';
+import RouteUtils from './utils/route.utils';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: () => {
-      const bookmarkService = inject(BookmarkService);
-      const startPage = localStorage.getItem(LocalStorage.StartPage);
-      switch (startPage) {
-        case 'search':
-          return 'search';
-        case 'read':
-          return 'read';
-        case 'recentRead':
-          const recentRead = bookmarkService.recentRead();
-          const bibleTranslation = inject(BibleTranslationService);
-          const translation = bibleTranslation.activeTranslation();
-          console.log(translation);
-          if (!recentRead) return 'search';
-          const { book, chapter } = recentRead;
-          return `read/${translation}/${book}/${chapter}`;
-        default:
-          return 'search';
-      }
-    },
+    redirectTo: RouteUtils.redirectPathRoot,
     pathMatch: 'full',
   },
   {
@@ -49,11 +26,7 @@ export const routes: Routes = [
       {
         path: 'read',
         pathMatch: 'full',
-        redirectTo: () => {
-          const bibleTranslation = inject(BibleTranslationService);
-          const translation = bibleTranslation.activeTranslation();
-          return `read/${translation}`;
-        },
+        redirectTo: RouteUtils.redirectPathRead,
       },
       {
         path: 'read/:translation',
@@ -62,21 +35,17 @@ export const routes: Routes = [
         data: { title: 'Books' },
       },
       {
-        path: 'read/:translation/:book',
+        path: 'read/:translation/:bookUsfm',
         pathMatch: 'full',
         component: ChaptersPage,
         data: { title: 'Chapters' },
       },
       {
-        path: 'read/:translation/:book/:chapter',
+        path: 'read/:translation/:bookUsfm/:chapter',
         pathMatch: 'full',
         component: VersesPage,
         resolve: {
-          title: (route: ActivatedRouteSnapshot) => {
-            const { book, chapter } = route.params;
-            const bookName = books.find((b) => b.id === Number(book))?.name;
-            return `${bookName} ${chapter}`;
-          },
+          title: RouteUtils.getVersePageTitle,
         },
       },
       {

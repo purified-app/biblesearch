@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
-import { books } from 'src/app/constants/books-chapters';
+import { AllBooks } from 'src/app/constants/books';
 
 @Component({
   selector: 'app-chapters',
@@ -12,7 +12,7 @@ import { books } from 'src/app/constants/books-chapters';
       @let translation = routeParamMap()?.get('translation');
       <div class="grid-container">
         @for (chapter of chapters; track chapter) {
-        <a [routerLink]="['/read', translation, bookId, chapter]">
+        <a [routerLink]="['/read', translation, bookUsfm, chapter]">
           <div class="grid-item">{{ chapter }}</div>
         </a>
         }
@@ -46,16 +46,18 @@ import { books } from 'src/app/constants/books-chapters';
   ],
 })
 export class ChaptersPage {
-  bookId: number;
-  books = books;
+  bookUsfm: string;
   chapters: number[] = [];
 
   protected activatedRoute = inject(ActivatedRoute);
   protected routeParamMap = toSignal(this.activatedRoute.paramMap);
 
   constructor() {
-    this.bookId = Number(this.activatedRoute.snapshot.paramMap.get('book'));
-    const { chapters } = books.find((b) => b.id === this.bookId) || {};
+    const { bookUsfm, translation } = this.activatedRoute.snapshot.params;
+    this.bookUsfm = bookUsfm;
+
+    const books = AllBooks[translation as keyof typeof AllBooks];
+    const { chapters } = books.find((b) => b.usfm === bookUsfm) || {};
     if (!chapters) return;
     this.chapters = Array.from({ length: chapters }, (_, index) => index + 1);
   }
