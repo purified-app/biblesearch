@@ -156,8 +156,8 @@ export class LayoutComponent {
   protected appPages = [
     { title: 'Search', url: '/search', icon: 'search' },
     { title: 'Read', url: '/read', icon: 'book' },
-    { title: 'Settings', url: '/settings', icon: 'settings' },
     { title: 'Notes', url: '/notes', icon: 'document-text' },
+    { title: 'Settings', url: '/settings', icon: 'settings' },
   ];
 
   protected activatedRoute = inject(ActivatedRoute);

@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, inject, resource, signal, viewChild } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   IonContent,
   IonItem,
@@ -39,14 +39,20 @@ export class SearchPage implements AfterViewInit {
   });
 
   readonly searchbar = viewChild.required(IonSearchbar);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   ngAfterViewInit(): void {
+    const { q } = this.route.snapshot.queryParams;
+    if (q) this.searchTerm.set(q);
     setTimeout(() => this.searchbar().setFocus(), 10);
   }
 
   onSearchInput(event: Event) {
     const element = event.target as HTMLInputElement;
-    this.searchTerm.set(element.value.trim());
+    const value = element.value.trim();
+    this.searchTerm.set(value);
+    this.router.navigate(['/search'], { queryParams: { q: value } });
   }
 
   getListHeader = (data: Verse) => {

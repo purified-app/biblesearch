@@ -4,6 +4,7 @@
     placeholder="Rom 8 or God so loved"
     slot="fixed"
     (ionInput)="onSearchInput($event)"
+    [value]="searchTerm()"
   ></ion-searchbar>
   <div class="search-results">
     @if (searchResults.isLoading()) {
