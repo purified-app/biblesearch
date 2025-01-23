@@ -1,11 +1,5 @@
-import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
-import {
-  ActivatedRoute,
-  Router,
-  RouterLink,
-  RouterLinkActive,
-  RouterOutlet,
-} from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ActivatedRoute, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {
   IonBackButton,
   IonButtons,
@@ -62,7 +56,6 @@ import { LanguageSelectComponent } from '../language-select/language-select.comp
           </ion-toolbar>
         </ion-header>
         <ion-content class="ion-padding">
-          @let translation = bibleTranslation.activeTranslation().usfm;
           <ion-note>Search engine for bible verses</ion-note>
           <ion-list>
             @for (page of appPages; track $index) {
@@ -95,7 +88,7 @@ import { LanguageSelectComponent } from '../language-select/language-select.comp
                 lines="none"
                 routerDirection="root"
                 routerLinkActive="selected"
-                [routerLink]="['/read', translation, recentRead.bookUsfm, recentRead.chapter]"
+                [routerLink]="['/read', translation(), recentRead.bookUsfm, recentRead.chapter]"
               >
                 <ion-icon slot="start" ios="time-outline" md="time-sharp"></ion-icon>
                 <ion-label>
@@ -153,6 +146,13 @@ import { LanguageSelectComponent } from '../language-select/language-select.comp
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LayoutComponent {
+  protected translation = computed(() => {
+    const activeTranslation = this.bibleTranslation.activeTranslation();
+    const { translation } = this.activatedRoute.snapshot.firstChild?.params ?? {};
+    const returnValue = this.isFirstTrigger && translation ? translation : activeTranslation.usfm;
+    this.isFirstTrigger = false;
+    return returnValue;
+  });
   protected appPages = [
     { title: 'Search', url: '/search', icon: 'search' },
     { title: 'Read', url: '/read', icon: 'book' },
@@ -165,31 +165,5 @@ export class LayoutComponent {
   protected getBookmarkTitle = BookmarkUtils.getTitle;
   protected bibleTranslation = inject(BibleTranslationService);
 
-  private router = inject(Router);
-
-  constructor() {
-    effect(() => {
-      const translation = this.bibleTranslation.activeTranslation();
-      this.updateTranslationInRoute(translation.usfm);
-    });
-  }
-
-  updateTranslationInRoute(translation: string) {
-    const currentRoute = this.router.url;
-    const segments = currentRoute.split('/').filter(Boolean); // Remove empty segments
-
-    // Check if we're on a route that includes a translation (like 'read/NB/GEN/3?param=value')
-    if (segments[0] === 'read' && segments.length > 1) {
-      const { queryParams } = this.activatedRoute.snapshot;
-
-      // Construct new route segments, updating only the translation part
-      const newSegments = [segments[0], translation, ...segments.slice(2)];
-      const lastIndex = newSegments.length - 1;
-      // Remove the query parameters from the last segment to not mess up the URL
-      newSegments[lastIndex] = newSegments[lastIndex].split('?')[0];
-
-      // Navigate with preserved query parameters
-      this.router.navigate(newSegments, { queryParams, replaceUrl: true });
-    }
-  }
+  private isFirstTrigger = true;
 }

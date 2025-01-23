@@ -122,10 +122,9 @@ export class NoteModalComponent implements OnInit, AfterViewInit, NoteModalProps
   }
 
   protected navigateToBookmark() {
-    const { bookUsfm, chapter, verses } = this.note.bookmark;
+    const { bookUsfm, chapter, translation, verses } = this.note.bookmark;
     this.modalController.dismiss();
-    const translation = this.bibleTranslation.activeTranslation();
-    this.router.navigate([`/read/${translation.usfm}/${bookUsfm}/${chapter}`], {
+    this.router.navigate([`/read/${translation}/${bookUsfm}/${chapter}`], {
       queryParams: { verse: verses.join(',') },
     });
   }

@@ -17,11 +17,9 @@ export default class RouteUtils {
         return 'read';
       case 'recentRead':
         const recentRead = bookmarkService.recentRead();
-        const bibleTranslation = inject(BibleTranslationService);
-        const translation = bibleTranslation.activeTranslation();
         if (!recentRead) return 'search';
-        const { bookUsfm: bookUfsm, chapter } = recentRead;
-        return `read/${translation.usfm}/${bookUfsm}/${chapter}`;
+        const { bookUsfm, chapter, translation } = recentRead;
+        return `read/${translation}/${bookUsfm}/${chapter}`;
       default:
         return 'search';
     }
