@@ -39,7 +39,7 @@ import { AllBooks } from 'src/app/constants/books';
         border: 1px solid rgba(0, 0, 0, 0.5);
         border-radius: 8px;
         display: flex;
-        font-size: 30px;
+        font-size: 2rem;
         justify-content: center;
       }
     `,
