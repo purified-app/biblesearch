@@ -1,16 +1,14 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
 import { LocalStorageService } from './local-storage.service';
+import { translations } from '../constants/translations';
 
 @Injectable({ providedIn: 'root' })
 export class BibleTranslationService {
   private localStorage = inject(LocalStorageService);
 
-  translations = signal<Translation[]>([
-    { lang: 'eng', name: 'King James Version', usfm: 'KJV' },
-    { lang: 'no', name: 'Norsk Bibel 88/07', usfm: 'NB' },
-  ]);
+  translations = signal<Translation[]>(translations);
   activeTranslation = signal<Translation>(
-    this.localStorage.getTranslation() ?? this.translations()[0]
+    this.localStorage.getTranslation() ?? this.getInitTranslation()
   );
 
   constructor() {
@@ -18,6 +16,13 @@ export class BibleTranslationService {
       const translations = this.activeTranslation();
       this.localStorage.saveTranslation(translations);
     });
+  }
+
+  /** Try to get the translation based on the browser language */
+  private getInitTranslation() {
+    const lang = navigator.language.slice(0, 2);
+    const translation = translations.find((t) => t.lang === lang);
+    return translation ?? translations[0];
   }
 }
 
