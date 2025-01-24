@@ -1,5 +1,6 @@
 export const no = {
   AddNote: 'Legg til notat',
+  Appearance: 'Utseende',
   AppDescription: 'Søkemotor for bibelvers',
   AppTitle: 'Biblesearch (prototype)',
   Bookmark: 'Bokmerke',
@@ -16,6 +17,7 @@ export const no = {
   Language: 'Språk',
   Notes: 'Notater',
   NumberOfBookmarks: 'Antall bokmerker å beholde',
+  Of: 'av',
   Read: 'Les',
   RecentRead: 'Nylig lest',
   Save: 'Lagre',
@@ -24,5 +26,6 @@ export const no = {
   SelectChapter: 'Velg kapittel',
   SelectTranslation: 'Velg oversettelse',
   Settings: 'Innstillinger',
+  Showing: 'Viser',
   StartPage: 'Startside',
 };

@@ -2,7 +2,6 @@ import { Component, effect, inject, signal } from '@angular/core';
 import {
   InputChangeEventDetail,
   IonContent,
-  IonIcon,
   IonInput,
   IonItem,
   IonLabel,
@@ -10,29 +9,27 @@ import {
   IonListHeader,
   IonRadio,
   IonRadioGroup,
-  IonRange,
   IonSelect,
   IonSelectOption,
 } from '@ionic/angular/standalone';
 import {
   IonInputCustomEvent,
   IonRadioGroupCustomEvent,
-  IonRangeCustomEvent,
   IonSelectCustomEvent,
   RadioGroupChangeEventDetail,
-  RangeChangeEventDetail,
   SelectChangeEventDetail,
 } from '@ionic/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { languages } from 'src/app/constants/languages';
 import { LocalStorage } from 'src/app/constants/localStorage';
 import { TextKey } from './../../constants/text-key';
+import { SettingsAppearanceComponent } from 'src/app/components/settings-appearance/settings-appearance.component';
 
 @Component({
   selector: 'app-settings',
   imports: [
+    SettingsAppearanceComponent,
     IonContent,
-    IonIcon,
     IonInput,
     IonItem,
     IonLabel,
@@ -40,7 +37,6 @@ import { TextKey } from './../../constants/text-key';
     IonListHeader,
     IonRadio,
     IonRadioGroup,
-    IonRange,
     IonSelect,
     IonSelectOption,
     TranslatePipe,
@@ -93,46 +89,24 @@ import { TextKey } from './../../constants/text-key';
           >
           </ion-input>
         </ion-item>
-        <ion-list-header>
-          <ion-label>{{ TextKey.FontSize | translate }}</ion-label>
-        </ion-list-header>
-        <ion-item>
-          <ion-range
-            min="14"
-            max="20"
-            step="1"
-            snaps
-            [value]="fontSize() + 'px'"
-            (ionInput)="onFontSideVerseChange($event)"
-          >
-            <ion-icon slot="start" name="text-outline" style="font-size: 14px;"></ion-icon>
-            <ion-icon slot="end" name="text-outline" style="font-size: 20px;"></ion-icon>
-          </ion-range>
-        </ion-item>
       </ion-list>
+      <app-settings-appearance></app-settings-appearance>
     </ion-content>
   `,
-  styles: ['ion-label { font-size: 1.2em;font-weight: bold; }'],
 })
 export class SettingsPage {
   bookmarksLimit = signal<number>(Number(localStorage.getItem('bookmarkCount') || 5));
-  fontSize = signal<number>(Number(localStorage.getItem(LocalStorage.FontSize) || 16));
   language = signal<string>(
     localStorage.getItem(LocalStorage.Language) || navigator.language.slice(0, 2)
   );
   languages = signal<{ value: string; description: string }[]>(languages);
-  startPage = signal<string>(localStorage.getItem('startPage') || 'search');
+  startPage = signal<string>(localStorage.getItem(LocalStorage.StartPage) || 'search');
 
   protected TextKey = TextKey;
 
   private translation = inject(TranslateService);
 
   constructor() {
-    effect(() => {
-      const fontSize = this.fontSize();
-      document.documentElement.style.fontSize = `${fontSize}px`;
-      localStorage.setItem(LocalStorage.FontSize, String(fontSize));
-    });
     effect(() => {
       const language = this.language();
       this.translation.use(language);
@@ -157,9 +131,5 @@ export class SettingsPage {
     const { value } = event.detail;
     this.startPage.set(value);
     localStorage.setItem(LocalStorage.StartPage, value);
-  }
-
-  onFontSideVerseChange(event: IonRangeCustomEvent<RangeChangeEventDetail>) {
-    this.fontSize.set(Number(event.detail.value));
   }
 }

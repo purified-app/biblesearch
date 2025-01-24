@@ -12,7 +12,8 @@
     } @if(searchResults.value()?.verses) {
     <ion-text class="search-results-count">
       <sub>
-        Showing {{ searchResults.value()?.verses?.length }} of {{ searchResults.value()?.count }}
+        {{ TextKey.Showing | translate}} {{ searchResults.value()?.verses?.length }} {{ TextKey.Of |
+        translate }} {{ searchResults.value()?.count }}
       </sub>
     </ion-text>
     <ion-list>

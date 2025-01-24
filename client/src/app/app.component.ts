@@ -27,10 +27,7 @@ import {
 } from 'ionicons/icons';
 import { BookmarkService } from './services/bookmark.service';
 import BookmarkUtils from './utils/bookmark.utils';
-import { TranslateService } from '@ngx-translate/core';
-import { en } from 'src/assets/i18n/en';
-import { no } from 'src/assets/i18n/no';
-import { LocalStorage } from './constants/localStorage';
+import { UserSettingsService } from './services/user-settings.service';
 
 @Component({
   selector: 'app-root',
@@ -42,7 +39,7 @@ export class AppComponent {
   protected bookmarkService = inject(BookmarkService);
   protected getBookmarkTitle = BookmarkUtils.getTitle;
 
-  private translation = inject(TranslateService);
+  private userSettings = inject(UserSettingsService);
 
   constructor() {
     addIcons({
@@ -68,8 +65,6 @@ export class AppComponent {
       timeSharp,
       trashOutline,
     });
-    this.translation.setTranslation('en', en);
-    this.translation.setTranslation('no', no);
-    this.translation.setDefaultLang(localStorage.getItem(LocalStorage.Language) || 'en');
+    this.userSettings.initSettings();
   }
 }

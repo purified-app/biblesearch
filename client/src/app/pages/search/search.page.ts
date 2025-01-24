@@ -1,7 +1,7 @@
+import { TextKey } from './../../constants/text-key';
 import { AfterViewInit, Component, inject, resource, signal, viewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
-  IonChip,
   IonContent,
   IonItem,
   IonLabel,
@@ -10,6 +10,7 @@ import {
   IonSpinner,
   IonText,
 } from '@ionic/angular/standalone';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Verse } from 'src/app/interfaces';
 import { HighlightPipe } from 'src/app/pipes/highlight.pipe';
 import { ApiService, SearchResponse } from 'src/app/services/api.service';
@@ -17,7 +18,6 @@ import { ApiService, SearchResponse } from 'src/app/services/api.service';
 @Component({
   imports: [
     HighlightPipe,
-    IonChip,
     IonContent,
     IonItem,
     IonLabel,
@@ -26,6 +26,7 @@ import { ApiService, SearchResponse } from 'src/app/services/api.service';
     IonSpinner,
     IonText,
     RouterLink,
+    TranslatePipe,
   ],
   styleUrl: './search.page.css',
   templateUrl: './search.page.html',
@@ -41,6 +42,8 @@ export class SearchPage implements AfterViewInit {
       return await this.apiService.search(request.search);
     },
   });
+
+  protected TextKey = TextKey;
 
   readonly searchbar = viewChild.required(IonSearchbar);
   private route = inject(ActivatedRoute);

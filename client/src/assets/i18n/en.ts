@@ -1,6 +1,7 @@
 export const en = {
   AddNote: 'Add note',
   AppDescription: 'Search engine for bible verses',
+  Appearance: 'Appearance',
   AppTitle: 'Biblesearch (prototype)',
   Bookmark: 'Bookmark',
   Bookmarks: 'Bookmarks',
@@ -13,6 +14,7 @@ export const en = {
   DeleteNote: 'Delete note',
   DeleteNoteMessage: 'Are you sure you want to delete this note?',
   FontSize: 'Font size',
+  Of: 'of',
   Notes: 'Notes',
   NumberOfBookmarks: 'Number of bookmarks to keep',
   Language: 'Language',
@@ -24,5 +26,6 @@ export const en = {
   SelectChapter: 'Select Chapter',
   SelectTranslation: 'Select Translation',
   Settings: 'Settings',
+  Showing: 'Showing',
   StartPage: 'Start page',
 };
