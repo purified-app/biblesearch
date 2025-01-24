@@ -1,18 +1,35 @@
 import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { IonContent, IonItem, IonLabel, IonList } from '@ionic/angular/standalone';
+import { IonContent, IonItem, IonLabel, IonList, IonListHeader } from '@ionic/angular/standalone';
 import { AllBooks } from 'src/app/constants/books';
 import { Book } from 'src/app/interfaces';
 
 @Component({
   selector: 'app-books',
-  imports: [IonContent, IonItem, IonList, IonLabel, RouterLink],
+  imports: [IonContent, IonItem, IonList, IonListHeader, IonLabel, RouterLink],
   template: `
     <ion-content class="ion-padding">
       @let translation = routeParamMap()?.get('translation');
       <ion-list>
-        @for (book of books(); track book.bookNumber) {
+        <ion-list-header style="font-size: 1.2em; font-weight: bold;">
+          {{ oldTestament }}
+        </ion-list-header>
+        @for (book of booksOT(); track book.bookNumber) {
+        <ion-item
+          routerDirection="forward"
+          [routerLink]="['/read', translation, book.usfm]"
+          detail="true"
+        >
+          <ion-label>{{ book.name }}</ion-label>
+        </ion-item>
+        }
+      </ion-list>
+      <ion-list>
+        <ion-list-header style="font-size: 1.2em; font-weight: bold;">
+          {{ newTestament }}
+        </ion-list-header>
+        @for (book of booksNT(); track book.bookNumber) {
         <ion-item
           routerDirection="forward"
           [routerLink]="['/read', translation, book.usfm]"
@@ -27,7 +44,10 @@ import { Book } from 'src/app/interfaces';
   styles: ['ion-item { cursor: pointer;}'],
 })
 export class BooksPage {
-  books: WritableSignal<Book[]>;
+  booksNT: WritableSignal<Book[]>;
+  booksOT: WritableSignal<Book[]>;
+  newTestament = 'New Testament';
+  oldTestament = 'Old Testament';
   // readonly searchbar = viewChild.required(IonSearchbar);
   protected activatedRoute = inject(ActivatedRoute);
   protected routeParamMap = toSignal(this.activatedRoute.paramMap);
@@ -35,7 +55,10 @@ export class BooksPage {
   constructor() {
     const { translation } = this.activatedRoute.snapshot.params;
     const books = AllBooks[translation as keyof typeof AllBooks];
-    this.books = signal(books);
+    const booksNT = books.filter((b) => b.canon === 'nt');
+    const booksOT = books.filter((b) => b.canon === 'ot');
+    this.booksNT = signal(booksNT);
+    this.booksOT = signal(booksOT);
   }
 
   // ngAfterViewInit(): void {

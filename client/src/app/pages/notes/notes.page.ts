@@ -15,6 +15,8 @@ import { Note } from 'src/app/interfaces';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import BookmarkUtils from 'src/app/utils/bookmark.utils';
 import NoteUtils from 'src/app/utils/note.utils';
+import { TextKey } from 'src/app/constants/text-key';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-notes',
@@ -28,6 +30,7 @@ import NoteUtils from 'src/app/utils/note.utils';
     IonList,
     IonNote,
     DatePipe,
+    TranslatePipe,
   ],
   template: `
     <ion-content class="ion-padding">
@@ -45,9 +48,9 @@ import NoteUtils from 'src/app/utils/note.utils';
           </ion-item>
 
           <ion-item-options>
-            <ion-item-option color="danger" (click)="[onDeleteNote(note), sliding.close()]"
-              >Delete</ion-item-option
-            >
+            <ion-item-option color="danger" (click)="[onDeleteNote(note), sliding.close()]">{{
+              TextKey.Delete | translate
+            }}</ion-item-option>
           </ion-item-options>
         </ion-item-sliding>
         }
@@ -67,6 +70,7 @@ export class NotesPage {
   });
   protected noteModalService = inject(NoteModalService);
   protected getNoteTitle = (note: Note) => BookmarkUtils.getTitle(note.bookmark);
+  protected TextKey = TextKey;
 
   protected async onNoteClick(note: Note) {
     const modal = await this.noteModalService.openModal(note);

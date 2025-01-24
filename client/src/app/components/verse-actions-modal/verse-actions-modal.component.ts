@@ -16,23 +16,25 @@ import NoteUtils from 'src/app/utils/note.utils';
 import { NoteModalService } from '../note-modal/note-modal.service';
 import { RainbowColor, RainbowColors } from './../../constants/colors';
 import { VerseHighlightService } from './verse-highlight.service';
+import { TranslatePipe } from '@ngx-translate/core';
+import { TextKey } from 'src/app/constants/text-key';
 
 @Component({
   selector: 'app-verse-actions-modal',
-  imports: [IonButton, IonIcon, IonItem, IonLabel, IonList, IonRadio, IonRadioGroup],
+  imports: [IonButton, IonIcon, IonItem, IonLabel, IonList, IonRadio, IonRadioGroup, TranslatePipe],
   template: `
     <ion-list>
       <ion-item [button]="true" (click)="onActionClick('note')">
         <ion-icon name="document-text-outline" slot="start"></ion-icon>
-        <ion-label>Add note</ion-label>
+        <ion-label>{{ TextKey.AddNote | translate }}</ion-label>
       </ion-item>
       <ion-item [button]="true" (click)="onActionClick('bookmark')">
         <ion-icon name="bookmark-outline" slot="start"></ion-icon>
-        <ion-label>Bookmark</ion-label>
+        <ion-label>{{ TextKey.Bookmark | translate }}</ion-label>
       </ion-item>
       <ion-item [button]="true" (click)="onActionClick('share')">
         <ion-icon name="share-social-outline" slot="start"></ion-icon>
-        <ion-label>Copy link</ion-label>
+        <ion-label>{{ TextKey.CopyLink | translate }}</ion-label>
       </ion-item>
       <ion-item>
         <div class="highlight-item-container">
@@ -69,6 +71,7 @@ export class VerseActionsModalComponent implements OnInit, VerseActionsModalProp
   protected color?: string;
   protected RainbowColors = RainbowColors;
   protected RainbowColor = RainbowColor;
+  protected TextKey = TextKey;
 
   private bookmarkService = inject(BookmarkService);
   private highlightService = inject(VerseHighlightService);

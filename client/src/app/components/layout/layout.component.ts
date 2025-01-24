@@ -22,6 +22,8 @@ import { BibleTranslationService } from 'src/app/services/bible-translation.serv
 import { BookmarkService } from 'src/app/services/bookmark.service';
 import BookmarkUtils from 'src/app/utils/bookmark.utils';
 import { LanguageSelectComponent } from '../language-select/language-select.component';
+import { TranslatePipe } from '@ngx-translate/core';
+import { TextKey } from 'src/app/constants/text-key';
 
 @Component({
   selector: 'app-layout',
@@ -46,17 +48,18 @@ import { LanguageSelectComponent } from '../language-select/language-select.comp
     RouterLinkActive,
     RouterOutlet,
     LanguageSelectComponent,
+    TranslatePipe,
   ],
   template: `
     <ion-split-pane contentId="main-content">
       <ion-menu contentId="main-content" type="overlay">
         <ion-header>
           <ion-toolbar>
-            <ion-title>Biblesearch (prototype)</ion-title>
+            <ion-title>{{ TextKey.AppTitle | translate }}</ion-title>
           </ion-toolbar>
         </ion-header>
         <ion-content class="ion-padding">
-          <ion-note>Search engine for bible verses</ion-note>
+          <ion-note>{{ TextKey.AppDescription | translate }}</ion-note>
           <ion-list>
             @for (page of appPages; track $index) {
             <ion-menu-toggle auto-hide="false">
@@ -73,7 +76,7 @@ import { LanguageSelectComponent } from '../language-select/language-select.comp
                   [ios]="page.icon + '-outline'"
                   [md]="page.icon + '-sharp'"
                 ></ion-icon>
-                <ion-label>{{ page.title }}</ion-label>
+                <ion-label>{{ page.title | translate }}</ion-label>
               </ion-item>
             </ion-menu-toggle>
             }
@@ -81,7 +84,7 @@ import { LanguageSelectComponent } from '../language-select/language-select.comp
           @let recentRead = this.bookmarkService.recentRead();
           <ion-list class="bookmarks-list">
             <ion-menu-toggle auto-hide="false">
-              <ion-list-header>Recent read</ion-list-header>
+              <ion-list-header>{{ TextKey.RecentRead | translate }}</ion-list-header>
               @if(recentRead){
               <ion-item
                 detail="false"
@@ -102,7 +105,7 @@ import { LanguageSelectComponent } from '../language-select/language-select.comp
 
           <ion-list class="bookmarks-list">
             <ion-menu-toggle auto-hide="false">
-              <ion-list-header>Bookmarks</ion-list-header>
+              <ion-list-header>{{ TextKey.Bookmarks | translate }}</ion-list-header>
 
               @for (bookmark of this.bookmarkService.bookmarks(); track $index) {
               <ion-item
@@ -128,7 +131,7 @@ import { LanguageSelectComponent } from '../language-select/language-select.comp
         <ion-header>
           <ion-toolbar>
             @let data = this.activatedRoute.snapshot.firstChild?.data;
-            <ion-title>{{ data?.['title'] }}</ion-title>
+            <ion-title>{{ data?.['title'] | translate }}</ion-title>
             <ion-buttons slot="start" [collapse]="true">
               <ion-back-button></ion-back-button>
             </ion-buttons>
@@ -161,9 +164,10 @@ export class LayoutComponent {
   ];
 
   protected activatedRoute = inject(ActivatedRoute);
+  protected bibleTranslation = inject(BibleTranslationService);
   protected bookmarkService = inject(BookmarkService);
   protected getBookmarkTitle = BookmarkUtils.getTitle;
-  protected bibleTranslation = inject(BibleTranslationService);
+  protected TextKey = TextKey;
 
   private isFirstTrigger = true;
 }

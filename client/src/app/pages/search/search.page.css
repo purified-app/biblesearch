@@ -5,3 +5,8 @@ ion-list a{
 .search-results {
   margin-top: 48px;
 }
+.verse-header{
+  display: flex;
+  gap: 8px;
+  /* justify-content: space-between; */
+}

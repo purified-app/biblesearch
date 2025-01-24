@@ -7,6 +7,7 @@ import { SettingsPage } from './pages/settings/settings.page';
 import { NotesPage } from './pages/notes/notes.page';
 import { LayoutComponent } from './components/layout/layout.component';
 import RouteUtils from './utils/route.utils';
+import { TextKey } from './constants/text-key';
 
 export const routes: Routes = [
   {
@@ -21,7 +22,7 @@ export const routes: Routes = [
       {
         path: 'search',
         component: SearchPage,
-        data: { title: 'Search' },
+        data: { title: TextKey.Search },
       },
       {
         path: 'read',
@@ -32,13 +33,13 @@ export const routes: Routes = [
         path: 'read/:translation',
         pathMatch: 'full',
         component: BooksPage,
-        data: { title: 'Books' },
+        data: { title: TextKey.Books },
       },
       {
         path: 'read/:translation/:bookUsfm',
         pathMatch: 'full',
         component: ChaptersPage,
-        data: { title: 'Chapters' },
+        data: { title: TextKey.Chapters },
       },
       {
         path: 'read/:translation/:bookUsfm/:chapter',
@@ -51,12 +52,12 @@ export const routes: Routes = [
       {
         path: 'settings',
         component: SettingsPage,
-        data: { title: 'Settings' },
+        data: { title: TextKey.Settings },
       },
       {
         path: 'notes',
         component: NotesPage,
-        data: { title: 'Notes' },
+        data: { title: TextKey.Notes },
       },
     ],
   },

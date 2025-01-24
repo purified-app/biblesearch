@@ -50,6 +50,7 @@ export interface Verse {
   bookNumber: number;
   /** `GEN`, `EXO` etc */
   bookUsfm: string;
+  canon: string;
   chapter: number;
   verse: number;
   text: string;

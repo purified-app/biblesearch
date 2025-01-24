@@ -22,8 +22,9 @@ import {
   IonToolbar,
   ModalController,
 } from '@ionic/angular/standalone';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TextKey } from 'src/app/constants/text-key';
 import { Note } from 'src/app/interfaces';
-import { BibleTranslationService } from 'src/app/services/bible-translation.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import BookmarkUtils from 'src/app/utils/bookmark.utils';
 
@@ -40,6 +41,7 @@ import BookmarkUtils from 'src/app/utils/bookmark.utils';
     IonIcon,
     IonToolbar,
     IonTitle,
+    TranslatePipe,
   ],
   template: `
     <ion-header collapse="fade">
@@ -49,8 +51,10 @@ import BookmarkUtils from 'src/app/utils/bookmark.utils';
           <ion-button (click)="navigateToBookmark()">
             <ion-icon name="book-outline" slot="icon-only"></ion-icon>
           </ion-button>
-          <ion-button (click)="modalController.dismiss()"> Cancel </ion-button>
-          <ion-button (click)="onNoteModalConfirm()"> Save </ion-button>
+          <ion-button (click)="modalController.dismiss()">
+            {{ TextKey.Cancel | translate }}
+          </ion-button>
+          <ion-button (click)="onNoteModalConfirm()"> {{ TextKey.Save | translate }} </ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -82,11 +86,12 @@ export class NoteModalComponent implements OnInit, AfterViewInit, NoteModalProps
   title?: string;
 
   protected modalController = inject(ModalController);
+  protected TextKey = TextKey;
 
   private alertControler = inject(AlertController);
   private router = inject(Router);
   private store = inject(LocalStorageService);
-  private bibleTranslation = inject(BibleTranslationService);
+  private translation = inject(TranslateService);
 
   ngOnInit(): void {
     this.title = BookmarkUtils.getTitle(this.note.bookmark);
@@ -101,16 +106,16 @@ export class NoteModalComponent implements OnInit, AfterViewInit, NoteModalProps
 
   protected async onDeleteNote() {
     const alert = await this.alertControler.create({
-      header: 'Delete Note',
-      message: 'Are you sure you want to delete this note?',
+      header: this.translation.instant(TextKey.DeleteNote),
+      message: this.translation.instant(TextKey.DeleteNoteMessage),
       buttons: [
         {
-          text: 'Cancel',
+          text: this.translation.instant(TextKey.Cancel),
           role: 'cancel',
           cssClass: 'secondary',
         },
         {
-          text: 'Delete',
+          text: this.translation.instant(TextKey.Delete),
           handler: () => {
             this.store.deleteNote(this.note.id);
             this.modalController.dismiss(this.note, 'delete');

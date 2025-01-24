@@ -27,6 +27,10 @@ import {
 } from 'ionicons/icons';
 import { BookmarkService } from './services/bookmark.service';
 import BookmarkUtils from './utils/bookmark.utils';
+import { TranslateService } from '@ngx-translate/core';
+import { en } from 'src/assets/i18n/en';
+import { no } from 'src/assets/i18n/no';
+import { LocalStorage } from './constants/localStorage';
 
 @Component({
   selector: 'app-root',
@@ -35,15 +39,10 @@ import BookmarkUtils from './utils/bookmark.utils';
   imports: [IonApp, RouterOutlet],
 })
 export class AppComponent {
-  protected appPages = [
-    { title: 'Search', url: '/search', icon: 'search' },
-    { title: 'Read', url: '/read', icon: 'book' },
-    { title: 'Settings', url: '/settings', icon: 'settings' },
-    { title: 'Notes', url: '/notes', icon: 'document-text' },
-  ];
-
   protected bookmarkService = inject(BookmarkService);
   protected getBookmarkTitle = BookmarkUtils.getTitle;
+
+  private translation = inject(TranslateService);
 
   constructor() {
     addIcons({
@@ -69,5 +68,8 @@ export class AppComponent {
       timeSharp,
       trashOutline,
     });
+    this.translation.setTranslation('en', en);
+    this.translation.setTranslation('no', no);
+    this.translation.setDefaultLang(localStorage.getItem(LocalStorage.Language) || 'en');
   }
 }
