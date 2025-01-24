@@ -8,7 +8,7 @@ export const apiRoutes = new Hono();
 const db = new Database("bible.db", { create: true });
 
 apiRoutes.get("/search", async (c) => {
-  const LIMIT = 40;
+  const LIMIT = 72;
   const term = c.req.query("q") ?? "";
   console.log(term);
   const text = String(term)?.trim().split(" ").join(" OR ");
