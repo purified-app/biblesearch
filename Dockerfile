@@ -1,5 +1,5 @@
 # Stage 1: Install Node.js for building the Angular app
-FROM node:lts AS build-stage
+FROM node:alpine AS build-stage
 # Set working directory for the client
 WORKDIR /app/client
 # Copy only necessary files for npm install
