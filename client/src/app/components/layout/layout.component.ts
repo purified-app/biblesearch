@@ -14,6 +14,7 @@ import {
   IonMenuButton,
   IonMenuToggle,
   IonNote,
+  IonSearchbar,
   IonSplitPane,
   IonTitle,
   IonToolbar,
@@ -41,6 +42,7 @@ import { TextKey } from 'src/app/constants/text-key';
     IonMenuButton,
     IonMenuToggle,
     IonNote,
+    IonSearchbar,
     IonSplitPane,
     IonTitle,
     IonToolbar,
@@ -140,6 +142,7 @@ import { TextKey } from 'src/app/constants/text-key';
               <ion-menu-button auto-hide="true"></ion-menu-button>
             </ion-buttons>
           </ion-toolbar>
+          <ion-toolbar class="toolbar-search" id="toolbar-search"> </ion-toolbar>
         </ion-header>
         <router-outlet />
       </div>

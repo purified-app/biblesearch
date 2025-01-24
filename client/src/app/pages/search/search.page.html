@@ -18,20 +18,18 @@
     </ion-text>
     <ion-list>
       @for (verse of searchResults.value()?.verses; track verse.id) {
-      <a
+      <ion-item
         [routerLink]="['/read', verse.translation, verse.bookUsfm, verse.chapter]"
         [queryParams]="{ verse: verse.verse }"
       >
-        <ion-item>
-          <ion-label>
-            <div class="verse-header">
-              <h2 [innerHTML]="getListHeader(verse) | highlightSearch: searchTerm()"></h2>
-              <!-- <h3>{{ verse.canon.toUpperCase()}}</h3> -->
-            </div>
-            <p [innerHTML]="verse.text | highlightSearch: searchTerm()"></p>
-          </ion-label>
-        </ion-item>
-      </a>
+        <ion-label>
+          <div class="verse-header">
+            <h2 [innerHTML]="getListHeader(verse) | highlightSearch: searchTerm()"></h2>
+            <!-- <h3>{{ verse.canon.toUpperCase()}}</h3> -->
+          </div>
+          <p [innerHTML]="verse.text | highlightSearch: searchTerm()"></p>
+        </ion-label>
+      </ion-item>
       }
     </ion-list>
     }

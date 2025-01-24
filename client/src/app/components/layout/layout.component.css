@@ -18,3 +18,9 @@ ion-note{
 ::ng-deep router-outlet + * {
   height: 100%;
 }
+.toolbar-search {
+  display: none;
+}
+.toolbar-search:has(ion-searchbar) {
+  display: block;
+}

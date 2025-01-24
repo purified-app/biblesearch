@@ -3,7 +3,7 @@ import { LocalStorage } from '../constants/localStorage';
 export class LocalStorageUtils {
   static getDarkMode(): boolean {
     let darkModeRaw = localStorage.getItem(LocalStorage.DarkMode);
-    return darkModeRaw === null ? true : Boolean(darkModeRaw);
+    return darkModeRaw === null ? true : darkModeRaw === 'true';
   }
   static getFontSize(): number {
     return Number(localStorage.getItem(LocalStorage.FontSize) || 16);
