@@ -10,3 +10,6 @@ ion-list a{
   gap: 8px;
   /* justify-content: space-between; */
 }
+.search-results-count{
+  padding-left: 8px;
+}

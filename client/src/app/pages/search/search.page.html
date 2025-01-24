@@ -1,17 +1,22 @@
 <ion-content>
   <ion-searchbar
+    slot="fixed"
     color="light"
     placeholder="Rom 8 | God so loved"
-    slot="fixed"
     (ionInput)="onSearchInput($event)"
     [value]="searchTerm()"
   ></ion-searchbar>
   <div class="search-results">
     @if (searchResults.isLoading()) {
     <ion-spinner></ion-spinner>
-    } @if(searchResults.value()?.length) {
+    } @if(searchResults.value()?.verses) {
+    <ion-text class="search-results-count">
+      <sub>
+        Showing {{ searchResults.value()?.verses?.length }} of {{ searchResults.value()?.count }}
+      </sub>
+    </ion-text>
     <ion-list>
-      @for (verse of searchResults.value(); track verse.id) {
+      @for (verse of searchResults.value()?.verses; track verse.id) {
       <a
         [routerLink]="['/read', verse.translation, verse.bookUsfm, verse.chapter]"
         [queryParams]="{ verse: verse.verse }"

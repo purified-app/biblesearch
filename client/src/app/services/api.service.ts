@@ -4,7 +4,7 @@ import { Verse } from '../interfaces';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  search(query: string): Promise<Verse[]> {
+  search(query: string): Promise<SearchResponse> {
     const { apiUrl } = environment;
     const url = `${apiUrl}/search?q=${query}`;
     return fetch(url).then((res) => res.json());
@@ -15,4 +15,10 @@ export class ApiService {
     const url = `${apiUrl}/verses?translation=${translation}&bookUsfm=${bookUsfm}&chapter=${chapter}`;
     return fetch(url).then((res) => res.json());
   }
+}
+
+export interface SearchResponse {
+  /** Total hint on search term */
+  count: number;
+  verses: Verse[];
 }

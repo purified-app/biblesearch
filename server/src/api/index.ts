@@ -55,10 +55,10 @@ apiRoutes.get("/search", async (c) => {
 
   const statement = db.query(query).as(Verses_fts);
   const verses = statement.all(LIMIT);
-  // const countQuery = `SELECT COUNT(*) as count FROM Verses_fts  WHERE ${WHERE}`;
-  // const countStatement = db.query(countQuery);
-  // const count = countStatement.get();
-  return c.json(verses);
+  const countQuery = `SELECT COUNT(*) as count FROM Verses_fts  WHERE ${WHERE}`;
+  const countStatement = db.query(countQuery);
+  const count = countStatement.get() as { count: number };
+  return c.json({ ...count, verses });
 });
 
 // Route for all books:

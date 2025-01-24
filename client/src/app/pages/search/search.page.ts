@@ -1,26 +1,30 @@
 import { AfterViewInit, Component, inject, resource, signal, viewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
+  IonChip,
   IonContent,
   IonItem,
   IonLabel,
   IonList,
   IonSearchbar,
   IonSpinner,
+  IonText,
 } from '@ionic/angular/standalone';
 import { Verse } from 'src/app/interfaces';
 import { HighlightPipe } from 'src/app/pipes/highlight.pipe';
-import { ApiService } from 'src/app/services/api.service';
+import { ApiService, SearchResponse } from 'src/app/services/api.service';
 
 @Component({
   imports: [
     HighlightPipe,
+    IonChip,
     IonContent,
     IonItem,
     IonLabel,
     IonList,
     IonSearchbar,
     IonSpinner,
+    IonText,
     RouterLink,
   ],
   styleUrl: './search.page.css',
@@ -30,10 +34,10 @@ export class SearchPage implements AfterViewInit {
   apiService = inject(ApiService);
 
   searchTerm = signal<string>('');
-  searchResults = resource<Verse[], { search: string }>({
+  searchResults = resource<SearchResponse, { search: string }>({
     request: () => ({ search: this.searchTerm() }),
     loader: async ({ request }) => {
-      if (request.search.length < 2) return [];
+      if (request.search.length < 2) return { verses: [], count: 0 };
       return await this.apiService.search(request.search);
     },
   });
