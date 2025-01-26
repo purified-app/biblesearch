@@ -1,4 +1,4 @@
-import { enableProdMode, importProvidersFrom } from '@angular/core';
+import { enableProdMode } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import {
   RouteReuseStrategy,
@@ -13,7 +13,7 @@ import { AppComponent } from './app/app.component';
 import { environment } from './environments/environment';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { slowRequestsInterceptor } from './app/interceptors/slow-requests.interceptor';
-import { provideTranslateService, TranslateModule } from '@ngx-translate/core';
+import { provideTranslateService } from '@ngx-translate/core';
 
 if (environment.production) {
   enableProdMode();
@@ -27,6 +27,7 @@ bootstrapApplication(AppComponent, {
     provideHttpClient(withInterceptors([slowRequestsInterceptor])),
     provideTranslateService({
       defaultLanguage: 'en',
+      useDefaultLang: true,
     }),
   ],
 });
