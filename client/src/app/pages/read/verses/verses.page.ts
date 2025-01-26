@@ -150,10 +150,10 @@ export class VersesPage {
     if (!currentBook) return;
     chapter = Number(chapter);
 
-    if (chapter < (currentBook?.chapters || 0)) {
+    if (chapter < currentBook.chapters) {
       chapter++;
     } else if (currentBook.bookNumber < 66) {
-      bookUsfm = books[currentBook.bookNumber + 1].usfm;
+      bookUsfm = books.find((b) => b.bookNumber === currentBook.bookNumber + 1)?.usfm;
       chapter = 1;
     }
     this.navigate(bookUsfm, chapter);

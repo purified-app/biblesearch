@@ -42,7 +42,6 @@ import { TextKey } from 'src/app/constants/text-key';
     IonMenuButton,
     IonMenuToggle,
     IonNote,
-    IonSearchbar,
     IonSplitPane,
     IonTitle,
     IonToolbar,
