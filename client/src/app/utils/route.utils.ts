@@ -5,6 +5,7 @@ import { inject } from '@angular/core';
 import { LocalStorage } from '../constants/localStorage';
 import { BibleTranslationService } from '../services/bible-translation.service';
 import { BookmarkService } from '../services/bookmark.service';
+import { UrlPath } from '../constants/url-path';
 
 export default class RouteUtils {
   static redirectPathRoot = () => {
@@ -12,23 +13,22 @@ export default class RouteUtils {
     const startPage = localStorage.getItem(LocalStorage.StartPage);
     switch (startPage) {
       case 'search':
-        return 'search';
+        return UrlPath.search;
       case 'read':
-        return 'read';
+        return UrlPath.read;
       case 'recentRead':
         const recentRead = bookmarkService.recentRead();
-        if (!recentRead) return 'search';
+        if (!recentRead) return UrlPath.search;
         const { bookUsfm, chapter, translation } = recentRead;
-        return `read/${translation}/${bookUsfm}/${chapter}`;
+        return `${UrlPath.read}/${translation}/${bookUsfm}/${chapter}`;
       default:
-        return 'search';
+        return UrlPath.search;
     }
   };
 
   static redirectPathRead = () => {
     const bibleTranslation = inject(BibleTranslationService);
-    const translation = bibleTranslation.activeTranslation();
-    return `read/${translation.usfm}`;
+    return `read/${bibleTranslation.translation()}`;
   };
 
   static getVersePageTitle = (route: ActivatedRouteSnapshot) => {

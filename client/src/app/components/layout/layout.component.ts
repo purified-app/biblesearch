@@ -14,7 +14,6 @@ import {
   IonMenuButton,
   IonMenuToggle,
   IonNote,
-  IonSearchbar,
   IonSplitPane,
   IonTitle,
   IonToolbar,
@@ -152,9 +151,9 @@ import { TextKey } from 'src/app/constants/text-key';
 })
 export class LayoutComponent {
   protected translation = computed(() => {
-    const activeTranslation = this.bibleTranslation.activeTranslation();
     const { translation } = this.activatedRoute.snapshot.firstChild?.params ?? {};
-    const returnValue = this.isFirstTrigger && translation ? translation : activeTranslation.usfm;
+    const returnValue =
+      this.isFirstTrigger && translation ? translation : this.bibleTranslation.translation();
     this.isFirstTrigger = false;
     return returnValue;
   });

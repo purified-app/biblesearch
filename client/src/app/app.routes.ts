@@ -8,6 +8,7 @@ import { NotesPage } from './pages/notes/notes.page';
 import { LayoutComponent } from './components/layout/layout.component';
 import RouteUtils from './utils/route.utils';
 import { TextKey } from './constants/text-key';
+import { UrlPath } from './constants/url-path';
 
 export const routes: Routes = [
   {
@@ -20,29 +21,29 @@ export const routes: Routes = [
     component: LayoutComponent,
     children: [
       {
-        path: 'search',
+        path: UrlPath.search,
         component: SearchPage,
         data: { title: TextKey.Search },
       },
       {
-        path: 'read',
+        path: UrlPath.read,
         pathMatch: 'full',
         redirectTo: RouteUtils.redirectPathRead,
       },
       {
-        path: 'read/:translation',
+        path: `${UrlPath.read}/:translation`,
         pathMatch: 'full',
         component: BooksPage,
         data: { title: TextKey.Books },
       },
       {
-        path: 'read/:translation/:bookUsfm',
+        path: `${UrlPath.read}/:translation/:bookUsfm`,
         pathMatch: 'full',
         component: ChaptersPage,
         data: { title: TextKey.Chapters },
       },
       {
-        path: 'read/:translation/:bookUsfm/:chapter',
+        path: `${UrlPath.read}/:translation/:bookUsfm/:chapter`,
         pathMatch: 'full',
         component: VersesPage,
         resolve: {
@@ -50,12 +51,12 @@ export const routes: Routes = [
         },
       },
       {
-        path: 'settings',
+        path: UrlPath.settings,
         component: SettingsPage,
         data: { title: TextKey.Settings },
       },
       {
-        path: 'notes',
+        path: UrlPath.notes,
         component: NotesPage,
         data: { title: TextKey.Notes },
       },
