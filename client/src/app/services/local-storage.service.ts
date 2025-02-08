@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Note } from '../interfaces';
 import { LocalStorage } from '../constants/localStorage';
 import { VerseHighlight } from '../components/verse-actions-modal/verse-highlight.service';
-import { Translation } from './bible-translation.service';
 
 @Injectable({ providedIn: 'root' })
 export class LocalStorageService {
@@ -32,9 +31,8 @@ export class LocalStorageService {
     return notes ? this.sortNotes(JSON.parse(notes)) : [];
   }
 
-  getTranslation(): Translation {
-    const translation = localStorage.getItem(LocalStorage.Translation);
-    return translation ? JSON.parse(translation) : undefined;
+  getTranslation(): string {
+    return localStorage.getItem(LocalStorage.Translation) || 'KJV';
   }
 
   getVerseHighlights(): VerseHighlight[] {
@@ -61,8 +59,8 @@ export class LocalStorageService {
     localStorage.setItem(LocalStorage.Notes, JSON.stringify(this.sortNotes(notes)));
   }
 
-  saveTranslation(translation: Translation) {
-    localStorage.setItem(LocalStorage.Translation, JSON.stringify(translation));
+  saveTranslation(translation: string) {
+    localStorage.setItem(LocalStorage.Translation, translation);
   }
 
   saveVerseHighlights(highlights: VerseHighlight[]) {
