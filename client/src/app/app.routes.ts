@@ -34,18 +34,19 @@ export const routes: Routes = [
         path: `${UrlPath.read}/:translation`,
         pathMatch: 'full',
         component: BooksPage,
-        data: { title: TextKey.Books },
+        data: { enableTranslationsSelect: true, title: TextKey.Books },
       },
       {
         path: `${UrlPath.read}/:translation/:bookUsfm`,
         pathMatch: 'full',
         component: ChaptersPage,
-        data: { title: TextKey.Chapters },
+        data: { enableTranslationsSelect: true, title: TextKey.Chapters },
       },
       {
         path: `${UrlPath.read}/:translation/:bookUsfm/:chapter`,
         pathMatch: 'full',
         component: VersesPage,
+        data: { enableTranslationsSelect: true },
         resolve: {
           title: RouteUtils.getVersePageTitle,
         },

@@ -1,5 +1,5 @@
-import { TextKey } from './../../constants/text-key';
-import { AfterViewInit, Component, inject, resource, signal, viewChild } from '@angular/core';
+import { AfterViewInit, Component, computed, inject, resource, viewChild } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   IonContent,
@@ -14,6 +14,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { Verse } from 'src/app/interfaces';
 import { HighlightPipe } from 'src/app/pipes/highlight.pipe';
 import { ApiService, SearchResponse } from 'src/app/services/api.service';
+import { TextKey } from '../../constants/text-key';
 
 @Component({
   imports: [
@@ -34,7 +35,15 @@ import { ApiService, SearchResponse } from 'src/app/services/api.service';
 export class SearchPage implements AfterViewInit {
   apiService = inject(ApiService);
 
-  searchTerm = signal<string>('');
+  protected TextKey = TextKey;
+
+  readonly searchbar = viewChild.required(IonSearchbar);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+
+  queryParams = toSignal(this.route.queryParams);
+  searchTerm = computed(() => this.queryParams()?.['q'] || '');
+
   searchResults = resource<SearchResponse, { search: string }>({
     request: () => ({ search: this.searchTerm() }),
     loader: async ({ request }) => {
@@ -43,27 +52,27 @@ export class SearchPage implements AfterViewInit {
     },
   });
 
-  protected TextKey = TextKey;
-
-  readonly searchbar = viewChild.required(IonSearchbar);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-
   ngAfterViewInit(): void {
-    const { q } = this.route.snapshot.queryParams;
-    if (q) this.searchTerm.set(q);
     setTimeout(() => this.searchbar().setFocus(), 10);
   }
 
   onSearchInput(event: Event) {
     const element = event.target as HTMLInputElement;
     const value = element.value.trim();
-    this.searchTerm.set(value);
-    this.router.navigate(['/search'], { queryParams: { q: value } });
+    this.updateSearchQueryParam(value);
   }
 
   getListHeader = (data: Verse) => {
     const { bookName, chapter, verse } = data;
     return `${bookName} ${chapter}:${verse}`;
   };
+
+  private updateSearchQueryParam(value: string): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { q: value || null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
 }
