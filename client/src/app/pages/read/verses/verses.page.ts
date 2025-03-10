@@ -1,6 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { Component, computed, effect, inject, resource, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   ActionSheetButton,
   IonButton,
@@ -9,10 +9,10 @@ import {
   IonFabButton,
   IonIcon,
 } from '@ionic/angular/standalone';
-import { combineLatest, debounceTime } from 'rxjs';
 import { NoteModalService } from 'src/app/components/note-modal/note-modal.service';
 import { VerseActionsModalService } from 'src/app/components/verse-actions-modal/verse-actions-modal.service';
 import { AllBooks } from 'src/app/constants/books';
+import { UrlPath } from 'src/app/constants/url-path';
 import { Note, Verse } from 'src/app/interfaces';
 import { VersePageParams } from 'src/app/interfaces/route-params';
 import { ApiService } from 'src/app/services/api.service';
@@ -28,9 +28,8 @@ import NoteUtils from 'src/app/utils/note.utils';
   styleUrls: ['./verses.page.scss'],
 })
 export class VersesPage {
-  verses = signal<Verse[]>([]);
-  verseFocused = false;
-  versesToFocus?: number[];
+  private route = inject(ActivatedRoute);
+
   selectedVerses = signal<Verse[]>([]);
   selectedVersesText = '';
   actionSheetButtons: ActionSheetButton[] = [
@@ -43,39 +42,40 @@ export class VersesPage {
   ];
 
   protected notes: Note[] = [];
+  protected routeQueryParams = toSignal(this.route.queryParams);
+  protected routeParams = toSignal(this.route.params);
+  protected versesToFocus = computed(() => {
+    const { verse } = this.routeQueryParams() || {};
+    return verse?.split(',').map(Number);
+  });
 
-  private lastParams?: Params;
   private apiService = inject(ApiService);
   private storeService = inject(LocalStorageService);
   private bookmarkService = inject(BookmarkService);
   private noteModalService = inject(NoteModalService);
   private verseActionsModalService = inject(VerseActionsModalService);
-  private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private routeParamMap = toSignal(this.route.paramMap);
+
+  protected verses = resource<Verse[], VersePageParams>({
+    request: () => this.routeParams() as VersePageParams,
+    loader: async ({ request }) => {
+      const { translation, bookUsfm, chapter } = request;
+      if (!request) return [];
+      const verses = await this.apiService.getVerses(translation, bookUsfm, chapter);
+      this.addHighlightToVerses(verses);
+      this.focusVerse();
+      return verses;
+    },
+  });
 
   constructor() {
-    combineLatest([this.route.params, this.route.queryParams])
-      .pipe(debounceTime(0), takeUntilDestroyed())
-      .subscribe(([params, queryParams]) => {
-        const { verse } = queryParams;
-        const verses = verse?.split(',').map(Number);
-        if (verses && verses !== this.versesToFocus) {
-          this.versesToFocus = verses;
-          this.verseFocused = false;
-        }
-        if (this.lastParams !== params) {
-          const { bookUsfm, chapter, translation } = params as VersePageParams;
-          const books = AllBooks[translation as keyof typeof AllBooks];
-          const bookName = books.find((b) => b.usfm === bookUsfm)?.name;
-          const recentRead = { bookName, bookUsfm, chapter: Number(chapter), translation };
-          this.bookmarkService.setRecentRead(recentRead);
-          this.getVerses();
-        } else {
-          this.focusVerse(verse);
-        }
-        this.lastParams = params;
-      });
+    effect(() => {
+      const { bookUsfm, chapter, translation } = this.routeParams() || {};
+      const books = AllBooks[translation as keyof typeof AllBooks];
+      const bookName = books.find((b) => b.usfm === bookUsfm)?.name;
+      const recentRead = { bookName, bookUsfm, chapter: Number(chapter), translation };
+      this.bookmarkService.setRecentRead(recentRead);
+    });
     this.notes = this.storeService.getNotes();
   }
 
@@ -86,8 +86,7 @@ export class VersesPage {
         case 'bookmark':
           break;
         case 'highlight':
-          const verses = this.getVerseWithHighlights(this.verses());
-          this.verses.set(verses);
+          this.addHighlightToVerses(this.verses.value()!);
           break;
         case 'note':
           this.notes = data;
@@ -113,8 +112,7 @@ export class VersesPage {
     if (!selectedVerses.length) return;
     selectedVerses.sort((a, b) => a.verse - b.verse);
 
-    const chapter = verse.chapter;
-    const bookName = verse.bookName;
+    const { bookName, chapter } = verse;
     const firstVerse = selectedVerses[0].verse;
     const lastVerse = selectedVerses[selectedVerses.length - 1].verse;
     const verseText = selectedVerses.length > 1 ? `${firstVerse}-${lastVerse}` : verse.verse;
@@ -164,43 +162,29 @@ export class VersesPage {
   protected getHighlightBackgroundColor = HighlightUtils.getHighlightBackgroundColor;
 
   private navigate(bookUsfm: string, chapter: number) {
-    const translation = this.routeParamMap()?.get('translation');
-    this.router.navigate([`/read/${translation}/${bookUsfm}/${chapter}`]);
-  }
-
-  private async getVerses() {
-    const { verse } = this.route.snapshot.queryParams;
-    const { bookUsfm, chapter, translation } = this.route.snapshot.params;
-    const verses = await this.apiService.getVerses(translation, bookUsfm, chapter);
-    this.verses.set(this.getVerseWithHighlights(verses));
-    this.focusVerse(verse);
+    const { translation } = this.route.snapshot.params;
+    this.router.navigate([`/${UrlPath.read}/${translation}/${bookUsfm}/${chapter}`]);
   }
 
   private getVerseHighlights() {
-    const { bookUsfm, chapter, translation } = this.route.snapshot.params;
+    const { bookUsfm, chapter } = this.route.snapshot.params;
     return this.storeService.getVerseHighlightsByBook(bookUsfm, Number(chapter));
   }
 
-  private getVerseWithHighlights(verses: (Verse & { color?: string })[]) {
+  private addHighlightToVerses(verses: (Verse & { color?: string })[]) {
     const highlights = this.getVerseHighlights();
     verses.forEach((verse) => {
       const highlight = highlights.find((highlight) => highlight.verse === verse.verse);
       verse.color = highlight?.color;
     });
-    return verses;
   }
 
-  private focusVerse(verse: string) {
-    // verse format is either '1' or '1,2,3'
-    const firstVerse = verse?.split(',')?.[0];
-    if (firstVerse && !this.verseFocused) {
-      setTimeout(() => {
-        const element = document.getElementById(`verse-${firstVerse}`);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-          this.verseFocused = true;
-        }
-      });
-    }
+  private focusVerse() {
+    setTimeout(() => {
+      const firstVerse = this.versesToFocus()?.[0];
+      if (!firstVerse) return;
+      const element = document.getElementById(`verse-${firstVerse}`);
+      element?.scrollIntoView({ behavior: 'smooth' });
+    });
   }
 }

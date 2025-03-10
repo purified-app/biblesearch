@@ -5,7 +5,7 @@
     </ion-fab-button>
   </ion-fab>
   <p class="verse-text-container">
-    @for (verse of verses(); track verse.id) {
+    @for (verse of verses.value(); track verse.id) {
       @let notes = getNotesForVerse(verse);
       @let color = $any(verse).color;
       <div class="verse-container"  [class.selected]="isSelected(verse)" (click)="onVerseClick(verse)">
@@ -20,7 +20,7 @@
         </span>
         <span
           class="verse-text"
-          [class.highlight]="versesToFocus?.includes(verse.verse)" 
+          [class.highlight]="versesToFocus()?.includes(verse.verse)" 
           [style.background]="color? getHighlightBackgroundColor(color) : ''"
           [style.color]="color? getHighlightTextColor(color) : ''">
           {{ verse.text }}

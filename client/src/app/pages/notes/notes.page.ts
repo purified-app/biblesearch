@@ -64,10 +64,7 @@ export class NotesPage {
   protected store = inject(LocalStorageService);
   protected notes = signal<Note[]>(this.store.getNotes());
   protected selectedNote = signal<Note | undefined>(undefined);
-  protected selectedNoteTitle = computed(() => {
-    const note = this.selectedNote();
-    return note ? NoteUtils.getNoteTitle(note) : '';
-  });
+  protected selectedNoteTitle = computed(() => NoteUtils.getNoteTitle(this.selectedNote()));
   protected noteModalService = inject(NoteModalService);
   protected getNoteTitle = (note: Note) => BookmarkUtils.getTitle(note.bookmark);
   protected TextKey = TextKey;

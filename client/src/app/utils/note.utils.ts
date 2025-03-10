@@ -1,7 +1,7 @@
 import { Bookmark, Note, Verse } from '../interfaces';
 
 export default class NoteUtils {
-  static getNoteTitle(note: Note) {
+  static getNoteTitle(note?: Note) {
     if (!note) return '';
     const { verses } = note.bookmark;
     const verseText = verses.length === 1 ? verses[0] : `${verses[0]}-${verses[verses.length - 1]}`;

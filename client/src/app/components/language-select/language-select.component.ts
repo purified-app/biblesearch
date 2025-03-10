@@ -41,8 +41,6 @@ export class LanguageSelectComponent {
   });
   protected translations = this.bibleTranslation.translations();
 
-  constructor() {}
-
   protected selectTranslation($event: IonSelectCustomEvent<SelectChangeEventDetail>) {
     const usfm = $event.detail.value;
     this.bibleTranslation.updateTranslation(usfm);

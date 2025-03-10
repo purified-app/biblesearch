@@ -1,5 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { ActivatedRoute, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import {
+  ActivatedRoute,
+  NavigationEnd,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
+} from '@angular/router';
 import {
   IonBackButton,
   IonButtons,
@@ -18,12 +26,13 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import { TranslatePipe } from '@ngx-translate/core';
+import { filter } from 'rxjs';
+import { TextKey } from 'src/app/constants/text-key';
 import { BibleTranslationService } from 'src/app/services/bible-translation.service';
 import { BookmarkService } from 'src/app/services/bookmark.service';
 import BookmarkUtils from 'src/app/utils/bookmark.utils';
 import { LanguageSelectComponent } from '../language-select/language-select.component';
-import { TranslatePipe } from '@ngx-translate/core';
-import { TextKey } from 'src/app/constants/text-key';
 
 @Component({
   selector: 'app-layout',
@@ -130,13 +139,14 @@ import { TextKey } from 'src/app/constants/text-key';
       <div class="ion-page" id="main-content">
         <ion-header>
           <ion-toolbar>
-            @let data = this.activatedRoute.snapshot.firstChild?.data;
-            <ion-title>{{ data?.['title'] | translate }}</ion-title>
+            <ion-title>{{ routeFirstChildData()?.['title'] | translate }}</ion-title>
             <ion-buttons slot="start" [collapse]="true">
               <ion-back-button></ion-back-button>
             </ion-buttons>
             <ion-buttons slot="end" [collapse]="true">
+              @if (routeFirstChildData()?.['enableTranslationsSelect']) {
               <app-language-select></app-language-select>
+              }
               <ion-menu-button auto-hide="true"></ion-menu-button>
             </ion-buttons>
           </ion-toolbar>
@@ -150,25 +160,35 @@ import { TextKey } from 'src/app/constants/text-key';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LayoutComponent {
-  protected translation = computed(() => {
-    const { translation } = this.activatedRoute.snapshot.firstChild?.params ?? {};
-    const returnValue =
-      this.isFirstTrigger && translation ? translation : this.bibleTranslation.translation();
-    this.isFirstTrigger = false;
-    return returnValue;
-  });
-  protected appPages = [
+  // Injected services
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  protected readonly bibleTranslation = inject(BibleTranslationService);
+  protected readonly bookmarkService = inject(BookmarkService);
+
+  // Properties
+  protected readonly appPages = [
     { title: 'Search', url: '/search', icon: 'search' },
     { title: 'Read', url: '/read', icon: 'book' },
     { title: 'Notes', url: '/notes', icon: 'document-text' },
     { title: 'Settings', url: '/settings', icon: 'settings' },
   ];
+  protected readonly TextKey = TextKey;
 
-  protected activatedRoute = inject(ActivatedRoute);
-  protected bibleTranslation = inject(BibleTranslationService);
-  protected bookmarkService = inject(BookmarkService);
+  // Signals
+  protected routeFirstChildParams = toSignal(this.route.firstChild?.params!);
   protected getBookmarkTitle = BookmarkUtils.getTitle;
-  protected TextKey = TextKey;
+  protected routerNavigationEnd = toSignal(
+    this.router.events.pipe(filter((e) => e instanceof NavigationEnd))
+  );
 
-  private isFirstTrigger = true;
+  // Computed signals
+  protected translation = computed(() => {
+    const { translation } = this.routeFirstChildParams() ?? {};
+    return translation || this.bibleTranslation.translation();
+  });
+  protected routeFirstChildData = computed(() => {
+    this.routerNavigationEnd();
+    return this.route.snapshot.firstChild?.data;
+  });
 }

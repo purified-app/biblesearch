@@ -24,3 +24,9 @@ ion-note{
 .toolbar-search:has(ion-searchbar) {
   display: block;
 }
+
+ion-title {
+  font-size: 1.2rem;
+  padding-inline-end: unset;
+  -webkit-padding-end: unset;
+}
