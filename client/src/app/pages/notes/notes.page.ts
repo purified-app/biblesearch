@@ -12,11 +12,11 @@ import {
   IonNote,
 } from '@ionic/angular/standalone';
 import { Note } from 'src/app/interfaces';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
 import BookmarkUtils from 'src/app/utils/bookmark.utils';
 import NoteUtils from 'src/app/utils/note.utils';
 import { TextKey } from 'src/app/constants/text-key';
 import { TranslatePipe } from '@ngx-translate/core';
+import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
 
 @Component({
   selector: 'app-notes',
@@ -61,8 +61,7 @@ import { TranslatePipe } from '@ngx-translate/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NotesPage {
-  protected store = inject(LocalStorageService);
-  protected notes = signal<Note[]>(this.store.getNotes());
+  protected notes = signal<Note[]>(LocalStorageUtils.getNotes());
   protected selectedNote = signal<Note | undefined>(undefined);
   protected selectedNoteTitle = computed(() => NoteUtils.getNoteTitle(this.selectedNote()));
   protected noteModalService = inject(NoteModalService);
@@ -75,14 +74,14 @@ export class NotesPage {
     switch (role) {
       case 'confirm':
       case 'delete':
-        this.notes.set(this.store.getNotes());
+        this.notes.set(LocalStorageUtils.getNotes());
         break;
     }
     this.selectedNote.set(undefined);
   }
 
   protected onDeleteNote(note: Note) {
-    this.store.deleteNote(note.id);
-    this.notes.set(this.store.getNotes());
+    LocalStorageUtils.removeNote(note.id);
+    this.notes.set(LocalStorageUtils.getNotes());
   }
 }

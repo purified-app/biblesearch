@@ -4,11 +4,10 @@ import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 import { BibleTranslation, translations } from '../constants/translations';
 import { UrlPath } from '../constants/url-path';
-import { LocalStorageService } from './local-storage.service';
+import { LocalStorageUtils } from '../utils/local-storage.utils';
 
 @Injectable({ providedIn: 'root' })
 export class BibleTranslationService {
-  private localStorage = inject(LocalStorageService);
   private router = inject(Router);
 
   translations = signal<BibleTranslation[]>(translations);
@@ -19,7 +18,7 @@ export class BibleTranslationService {
     if (segments[0]?.path === UrlPath.read && segments[1]) {
       return segments[1].path;
     }
-    return this.localStorage.getTranslation();
+    return LocalStorageUtils.getTranslation();
   });
 
   private routerEvents = toSignal(
@@ -28,7 +27,7 @@ export class BibleTranslationService {
 
   constructor() {
     effect(() => {
-      this.localStorage.saveTranslation(this.translation());
+      LocalStorageUtils.saveTranslation(this.translation());
     });
   }
 

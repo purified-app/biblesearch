@@ -10,7 +10,6 @@ import {
   IonToggle,
 } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { LocalStorage } from 'src/app/constants/localStorage';
 import { TextKey } from './../../constants/text-key';
 import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
 
@@ -70,12 +69,12 @@ export class SettingsAppearanceComponent {
     effect(() => {
       const fontSize = this.fontSize();
       document.documentElement.style.fontSize = `${fontSize}px`;
-      localStorage.setItem(LocalStorage.FontSize, String(fontSize));
+      LocalStorageUtils.saveFontSize(String(fontSize));
     });
     effect(() => {
       const darkMode = this.darkMode();
       document.documentElement.classList.toggle('ion-palette-dark', darkMode);
-      localStorage.setItem(LocalStorage.DarkMode, String(darkMode));
+      LocalStorageUtils.saveDarkMode(darkMode);
     });
   }
 }

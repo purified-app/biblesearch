@@ -1,14 +1,12 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Verse } from 'src/app/interfaces';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
 
 @Injectable({ providedIn: 'root' })
 export class VerseHighlightService {
-  private store = inject(LocalStorageService);
-
   saveVerseHighlights(selectedVerses: Verse[], color: string) {
     const highlights = this.buildVerseHighlights(selectedVerses, color);
-    this.store.saveVerseHighlights(highlights);
+    LocalStorageUtils.saveVerseHighlights(highlights);
   }
 
   private buildVerseHighlights(verses: Verse[], color: string): VerseHighlight[] {

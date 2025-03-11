@@ -1,47 +1,36 @@
-import { Injectable, signal } from '@angular/core';
+import { effect, Injectable, signal } from '@angular/core';
 import { Bookmark, RecentRead, Verse } from '../interfaces';
 import BookmarkUtils from '../utils/bookmark.utils';
-import { LocalStorage } from '../constants/localStorage';
+import { LocalStorageUtils } from '../utils/local-storage.utils';
 
 @Injectable({ providedIn: 'root' })
 export class BookmarkService {
-  recentRead = signal<RecentRead | undefined>(undefined);
-  bookmarks = signal<Bookmark[]>([]);
+  recentRead = signal<RecentRead | undefined>(LocalStorageUtils.getRecentRead());
+  bookmarks = signal<Bookmark[]>(LocalStorageUtils.getBookmarks());
 
   constructor() {
-    this.bookmarks.set(this.getBookmarks());
-    this.recentRead.set(this.getRecentRead());
+    effect(() => {
+      // TODO: skip save for init value
+      LocalStorageUtils.saveBookmarks(this.bookmarks());
+    });
+    effect(() => {
+      // TODO: skip save for init value
+      LocalStorageUtils.saveRecentRead(this.recentRead()!);
+    });
   }
 
   saveVersesAsBookmark(verses: Verse[]) {
     const bookmark = BookmarkUtils.createBookmarkFromVerses(verses);
     // Retrieve the array from localStorage
-    const bookmarks = this.getBookmarks();
-    const bookmarsLimit = Number(localStorage.getItem(LocalStorage.BookmarksLimit) || 5);
+    const bookmarks = LocalStorageUtils.getBookmarks();
+    const bookmarksLimit = LocalStorageUtils.getBookmarkLimit();
     // Check the length of the array
-    if (bookmarks.length >= bookmarsLimit) {
+    if (bookmarks.length >= bookmarksLimit) {
       // Remove the last element if the array is at max length
       bookmarks.pop();
     }
     // Add the new value to the beginning of the array
     bookmarks.unshift(bookmark);
     this.bookmarks.set(bookmarks);
-    // Store the updated array back to localStorage
-    localStorage.setItem(LocalStorage.Bookmarks, JSON.stringify(bookmarks));
-  }
-
-  getBookmarks(): Bookmark[] {
-    const bookmarks = localStorage.getItem(LocalStorage.Bookmarks);
-    return bookmarks ? JSON.parse(bookmarks) : [];
-  }
-
-  getRecentRead(): RecentRead | undefined {
-    const recentRead = localStorage.getItem(LocalStorage.RecentRead);
-    return recentRead ? JSON.parse(recentRead) : undefined;
-  }
-
-  setRecentRead(recentRead: RecentRead) {
-    this.recentRead.set(recentRead);
-    localStorage.setItem(LocalStorage.RecentRead, JSON.stringify(recentRead));
   }
 }

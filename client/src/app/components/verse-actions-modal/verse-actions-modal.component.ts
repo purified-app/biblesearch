@@ -11,13 +11,13 @@ import {
 } from '@ionic/angular/standalone';
 import { Verse } from 'src/app/interfaces';
 import { BookmarkService } from 'src/app/services/bookmark.service';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
 import NoteUtils from 'src/app/utils/note.utils';
 import { NoteModalService } from '../note-modal/note-modal.service';
 import { RainbowColor, RainbowColors } from './../../constants/colors';
 import { VerseHighlightService } from './verse-highlight.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TextKey } from 'src/app/constants/text-key';
+import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
 
 @Component({
   selector: 'app-verse-actions-modal',
@@ -77,7 +77,6 @@ export class VerseActionsModalComponent implements OnInit, VerseActionsModalProp
   private highlightService = inject(VerseHighlightService);
   private modalController = inject(ModalController);
   private noteModalService = inject(NoteModalService);
-  private storeService = inject(LocalStorageService);
 
   ngOnInit(): void {
     this.color = undefined;
@@ -97,7 +96,7 @@ export class VerseActionsModalComponent implements OnInit, VerseActionsModalProp
         const modal = await this.noteModalService.openModal(note);
         modal.onDidDismiss().then((event) => {
           if (event.role === 'confirm') {
-            const notes = this.storeService.getNotes();
+            const notes = LocalStorageUtils.getNotes();
             this.modalController.dismiss(notes, role);
           }
         });

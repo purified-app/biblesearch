@@ -25,8 +25,8 @@ import {
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TextKey } from 'src/app/constants/text-key';
 import { Note } from 'src/app/interfaces';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
 import BookmarkUtils from 'src/app/utils/bookmark.utils';
+import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
 
 @Component({
   selector: 'app-note-modal',
@@ -90,7 +90,6 @@ export class NoteModalComponent implements OnInit, AfterViewInit, NoteModalProps
 
   private alertControler = inject(AlertController);
   private router = inject(Router);
-  private store = inject(LocalStorageService);
   private translation = inject(TranslateService);
 
   ngOnInit(): void {
@@ -117,7 +116,7 @@ export class NoteModalComponent implements OnInit, AfterViewInit, NoteModalProps
         {
           text: this.translation.instant(TextKey.Delete),
           handler: () => {
-            this.store.deleteNote(this.note.id);
+            LocalStorageUtils.removeNote(this.note.id);
             this.modalController.dismiss(this.note, 'delete');
           },
         },
@@ -139,7 +138,7 @@ export class NoteModalComponent implements OnInit, AfterViewInit, NoteModalProps
     if (noteContent !== undefined) {
       this.note.content = noteContent;
     }
-    this.store.saveNote(this.note);
+    LocalStorageUtils.saveNote(this.note);
     this.modalController.dismiss(this.note, 'confirm');
   }
 

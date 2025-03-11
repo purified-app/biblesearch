@@ -17,8 +17,8 @@ import { Note, Verse } from 'src/app/interfaces';
 import { VersePageParams } from 'src/app/interfaces/route-params';
 import { ApiService } from 'src/app/services/api.service';
 import { BookmarkService } from 'src/app/services/bookmark.service';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
 import HighlightUtils from 'src/app/utils/highlight.utils';
+import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
 import NoteUtils from 'src/app/utils/note.utils';
 
 @Component({
@@ -50,7 +50,6 @@ export class VersesPage {
   });
 
   private apiService = inject(ApiService);
-  private storeService = inject(LocalStorageService);
   private bookmarkService = inject(BookmarkService);
   private noteModalService = inject(NoteModalService);
   private verseActionsModalService = inject(VerseActionsModalService);
@@ -74,9 +73,9 @@ export class VersesPage {
       const books = AllBooks[translation as keyof typeof AllBooks];
       const bookName = books.find((b) => b.usfm === bookUsfm)?.name;
       const recentRead = { bookName, bookUsfm, chapter: Number(chapter), translation };
-      this.bookmarkService.setRecentRead(recentRead);
+      this.bookmarkService.recentRead.set(recentRead);
     });
-    this.notes = this.storeService.getNotes();
+    this.notes = LocalStorageUtils.getNotes();
   }
 
   async onVerseFabClick() {
@@ -168,7 +167,7 @@ export class VersesPage {
 
   private getVerseHighlights() {
     const { bookUsfm, chapter } = this.route.snapshot.params;
-    return this.storeService.getVerseHighlightsByBook(bookUsfm, Number(chapter));
+    return LocalStorageUtils.getVerseHighlightsByBook(bookUsfm, Number(chapter));
   }
 
   private addHighlightToVerses(verses: (Verse & { color?: string })[]) {

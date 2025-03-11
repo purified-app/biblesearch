@@ -2,15 +2,15 @@ import { ActivatedRouteSnapshot } from '@angular/router';
 import { AllBooks } from '../constants/books';
 import { VersePageParams } from '../interfaces/route-params';
 import { inject } from '@angular/core';
-import { LocalStorage } from '../constants/localStorage';
 import { BibleTranslationService } from '../services/bible-translation.service';
 import { BookmarkService } from '../services/bookmark.service';
 import { UrlPath } from '../constants/url-path';
+import { LocalStorageUtils } from './local-storage.utils';
 
 export default class RouteUtils {
   static redirectPathRoot = () => {
     const bookmarkService = inject(BookmarkService);
-    const startPage = localStorage.getItem(LocalStorage.StartPage);
+    const startPage = LocalStorageUtils.getStartPage();
     switch (startPage) {
       case 'search':
         return UrlPath.search;
