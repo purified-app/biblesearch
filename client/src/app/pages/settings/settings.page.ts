@@ -24,10 +24,12 @@ import { languages } from 'src/app/constants/languages';
 import { TextKey } from './../../constants/text-key';
 import { SettingsAppearanceComponent } from 'src/app/components/settings-appearance/settings-appearance.component';
 import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
+import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-settings',
   imports: [
+    PageHeaderComponent,
     SettingsAppearanceComponent,
     IonContent,
     IonInput,
@@ -42,6 +44,7 @@ import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
     TranslatePipe,
   ],
   template: `
+    <app-page-header></app-page-header>
     <ion-content class="ion-padding">
       <ion-list>
         <ion-list-header>

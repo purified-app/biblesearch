@@ -1,4 +1,4 @@
-import { ActivatedRouteSnapshot } from '@angular/router';
+import { ActivatedRouteSnapshot, Params } from '@angular/router';
 import { AllBooks } from '../constants/books';
 import { VersePageParams } from '../interfaces/route-params';
 import { inject } from '@angular/core';
@@ -36,5 +36,19 @@ export default class RouteUtils {
     const books = AllBooks[translation as keyof typeof AllBooks];
     const bookName = books.find((b) => b.usfm === bookUsfm)?.name;
     return `${bookName} ${chapter}`;
+  };
+
+  static getChapterInfo = (params: Params) => {
+    const { bookUsfm, chapter, translation } = params;
+    const bookData = AllBooks[translation as keyof typeof AllBooks].find(
+      (b) => b.usfm === bookUsfm
+    );
+    return { ...bookData!, chapter: Number(chapter) };
+  };
+  static getChapterPageTitle = (route: ActivatedRouteSnapshot) => {
+    const { bookUsfm, translation } = route.params as VersePageParams;
+    const books = AllBooks[translation as keyof typeof AllBooks];
+    const bookName = books.find((b) => b.usfm === bookUsfm)?.name;
+    return bookName;
   };
 }

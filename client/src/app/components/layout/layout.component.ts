@@ -1,16 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
 import {
-  ActivatedRoute,
-  NavigationEnd,
-  Router,
-  RouterLink,
-  RouterLinkActive,
-  RouterOutlet,
-} from '@angular/router';
-import {
-  IonBackButton,
-  IonButtons,
   IonContent,
   IonHeader,
   IonIcon,
@@ -19,26 +10,24 @@ import {
   IonList,
   IonListHeader,
   IonMenu,
-  IonMenuButton,
   IonMenuToggle,
   IonNote,
+  IonRouterLink,
+  IonRouterOutlet,
   IonSplitPane,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { filter } from 'rxjs';
 import { TextKey } from 'src/app/constants/text-key';
 import { BibleTranslationService } from 'src/app/services/bible-translation.service';
 import { BookmarkService } from 'src/app/services/bookmark.service';
+import { RouterNavigationService } from 'src/app/services/router-navigation.service';
 import BookmarkUtils from 'src/app/utils/bookmark.utils';
-import { LanguageSelectComponent } from '../language-select/language-select.component';
 
 @Component({
   selector: 'app-layout',
   imports: [
-    IonBackButton,
-    IonButtons,
     IonContent,
     IonHeader,
     IonIcon,
@@ -47,16 +36,15 @@ import { LanguageSelectComponent } from '../language-select/language-select.comp
     IonList,
     IonListHeader,
     IonMenu,
-    IonMenuButton,
     IonMenuToggle,
     IonNote,
+    IonRouterLink,
+    IonRouterOutlet,
     IonSplitPane,
     IonTitle,
     IonToolbar,
     RouterLink,
     RouterLinkActive,
-    RouterOutlet,
-    LanguageSelectComponent,
     TranslatePipe,
   ],
   template: `
@@ -137,7 +125,7 @@ import { LanguageSelectComponent } from '../language-select/language-select.comp
       </ion-menu>
 
       <div class="ion-page" id="main-content">
-        <ion-header>
+        <!-- <ion-header>
           <ion-toolbar>
             <ion-title>{{ routeFirstChildData()?.['title'] | translate }}</ion-title>
             <ion-buttons slot="start" [collapse]="true">
@@ -151,8 +139,8 @@ import { LanguageSelectComponent } from '../language-select/language-select.comp
             </ion-buttons>
           </ion-toolbar>
           <ion-toolbar class="toolbar-search" id="toolbar-search"> </ion-toolbar>
-        </ion-header>
-        <router-outlet />
+        </ion-header> -->
+        <ion-router-outlet></ion-router-outlet>
       </div>
     </ion-split-pane>
   `,
@@ -162,25 +150,22 @@ import { LanguageSelectComponent } from '../language-select/language-select.comp
 export class LayoutComponent {
   // Injected services
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+  private readonly routerNavigationService = inject(RouterNavigationService);
   protected readonly bibleTranslation = inject(BibleTranslationService);
   protected readonly bookmarkService = inject(BookmarkService);
 
   // Properties
   protected readonly appPages = [
-    { title: 'Search', url: '/search', icon: 'search' },
-    { title: 'Read', url: '/read', icon: 'book' },
-    { title: 'Notes', url: '/notes', icon: 'document-text' },
-    { title: 'Settings', url: '/settings', icon: 'settings' },
+    { title: TextKey.Search, url: '/search', icon: 'search' },
+    { title: TextKey.Read, url: '/read', icon: 'book' },
+    { title: TextKey.Notes, url: '/notes', icon: 'document-text' },
+    { title: TextKey.Settings, url: '/settings', icon: 'settings' },
   ];
   protected readonly TextKey = TextKey;
 
   // Signals
   protected routeFirstChildParams = toSignal(this.route.firstChild?.params!);
   protected getBookmarkTitle = BookmarkUtils.getTitle;
-  protected routerNavigationEnd = toSignal(
-    this.router.events.pipe(filter((e) => e instanceof NavigationEnd))
-  );
 
   // Computed signals
   protected translation = computed(() => {
@@ -188,7 +173,7 @@ export class LayoutComponent {
     return translation || this.bibleTranslation.translation();
   });
   protected routeFirstChildData = computed(() => {
-    this.routerNavigationEnd();
+    this.routerNavigationService.navigationEnd();
     return this.route.snapshot.firstChild?.data;
   });
 }

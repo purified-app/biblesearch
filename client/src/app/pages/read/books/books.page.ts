@@ -1,16 +1,39 @@
 import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { IonContent, IonItem, IonLabel, IonList, IonListHeader } from '@ionic/angular/standalone';
+import {
+  IonContent,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonListHeader,
+  IonRouterLink,
+} from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
+import { LanguageSelectComponent } from 'src/app/components/language-select/language-select.component';
+import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
 import { AllBooks } from 'src/app/constants/books';
 import { TextKey } from 'src/app/constants/text-key';
 import { Book } from 'src/app/interfaces';
 
 @Component({
   selector: 'app-books',
-  imports: [IonContent, IonItem, IonList, IonListHeader, IonLabel, RouterLink, TranslatePipe],
+  imports: [
+    LanguageSelectComponent,
+    PageHeaderComponent,
+    IonContent,
+    IonItem,
+    IonList,
+    IonListHeader,
+    IonLabel,
+    IonRouterLink,
+    RouterLink,
+    TranslatePipe,
+  ],
   template: `
+    <app-page-header>
+      <app-language-select toolbarEnd></app-language-select>
+    </app-page-header>
     <ion-content class="ion-padding">
       @let translation = routeParamMap()?.get('translation');
       <ion-list>

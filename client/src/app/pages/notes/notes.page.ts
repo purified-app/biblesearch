@@ -17,10 +17,12 @@ import NoteUtils from 'src/app/utils/note.utils';
 import { TextKey } from 'src/app/constants/text-key';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
+import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-notes',
   imports: [
+    PageHeaderComponent,
     IonContent,
     IonItem,
     IonItemOption,
@@ -33,6 +35,7 @@ import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
     TranslatePipe,
   ],
   template: `
+    <app-page-header></app-page-header>
     <ion-content class="ion-padding">
       <ion-list>
         @for (note of notes(); track $index) {

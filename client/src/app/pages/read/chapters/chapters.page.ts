@@ -1,17 +1,22 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
-import { AllBooks } from 'src/app/constants/books';
+import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
+import RouteUtils from 'src/app/utils/route.utils';
+import { LanguageSelectComponent } from '../../../components/language-select/language-select.component';
 
 @Component({
   selector: 'app-chapters',
-  imports: [IonContent, RouterLink],
+  imports: [LanguageSelectComponent, PageHeaderComponent, IonContent, RouterLink],
   template: `
+    @let bookUsfm = routeParams()?.['bookUsfm']; @let translation = routeParams()?.['translation'];
+    <app-page-header>
+      <app-language-select toolbarEnd></app-language-select>
+    </app-page-header>
     <ion-content class="ion-padding">
-      @let translation = routeParamMap()?.get('translation');
       <div class="grid-container">
-        @for (chapter of chapters; track chapter) {
+        @for (chapter of chapters(); track chapter) {
         <a [routerLink]="['/read', translation, bookUsfm, chapter]">
           <div class="grid-item">{{ chapter }}</div>
         </a>
@@ -46,19 +51,10 @@ import { AllBooks } from 'src/app/constants/books';
   ],
 })
 export class ChaptersPage {
-  bookUsfm: string;
-  chapters: number[] = [];
-
   protected activatedRoute = inject(ActivatedRoute);
-  protected routeParamMap = toSignal(this.activatedRoute.paramMap);
-
-  constructor() {
-    const { bookUsfm, translation } = this.activatedRoute.snapshot.params;
-    this.bookUsfm = bookUsfm;
-
-    const books = AllBooks[translation as keyof typeof AllBooks];
-    const { chapters } = books.find((b) => b.usfm === bookUsfm) || {};
-    if (!chapters) return;
-    this.chapters = Array.from({ length: chapters }, (_, index) => index + 1);
-  }
+  protected routeParams = toSignal(this.activatedRoute.params);
+  chapters = computed(() => {
+    const { chapters } = RouteUtils.getChapterInfo(this.routeParams()!);
+    return chapters ? Array.from({ length: chapters }, (_, index) => index + 1) : [];
+  });
 }

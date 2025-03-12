@@ -1,4 +1,13 @@
-import { Component, computed, effect, inject, resource, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  resource,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -8,27 +17,48 @@ import {
   IonFab,
   IonFabButton,
   IonIcon,
+  IonPopover,
+  IonSearchbar,
 } from '@ionic/angular/standalone';
+import { TranslatePipe } from '@ngx-translate/core';
+import { LanguageSelectComponent } from 'src/app/components/language-select/language-select.component';
 import { NoteModalService } from 'src/app/components/note-modal/note-modal.service';
+import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
 import { VerseActionsModalService } from 'src/app/components/verse-actions-modal/verse-actions-modal.service';
 import { AllBooks } from 'src/app/constants/books';
+import { TextKey } from 'src/app/constants/text-key';
 import { UrlPath } from 'src/app/constants/url-path';
 import { Note, Verse } from 'src/app/interfaces';
 import { VersePageParams } from 'src/app/interfaces/route-params';
+import { HighlightPipe } from 'src/app/pipes/highlight.pipe';
 import { ApiService } from 'src/app/services/api.service';
 import { BookmarkService } from 'src/app/services/bookmark.service';
 import HighlightUtils from 'src/app/utils/highlight.utils';
 import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
 import NoteUtils from 'src/app/utils/note.utils';
+import RouteUtils from 'src/app/utils/route.utils';
 
 @Component({
   selector: 'app-verses',
-  imports: [IonButton, IonContent, IonFab, IonFabButton, IonIcon],
+  imports: [
+    LanguageSelectComponent,
+    PageHeaderComponent,
+    HighlightPipe,
+    IonButton,
+    IonContent,
+    IonFab,
+    IonFabButton,
+    IonIcon,
+    IonPopover,
+    IonSearchbar,
+    TranslatePipe,
+  ],
   templateUrl: './verses.page.html',
   styleUrls: ['./verses.page.scss'],
 })
 export class VersesPage {
   private route = inject(ActivatedRoute);
+  private elRef = inject(ElementRef<HTMLElement>);
 
   selectedVerses = signal<Verse[]>([]);
   selectedVersesText = '';
@@ -44,6 +74,8 @@ export class VersesPage {
   protected notes: Note[] = [];
   protected routeQueryParams = toSignal(this.route.queryParams);
   protected routeParams = toSignal(this.route.params);
+  protected routeData = toSignal(this.route.data);
+  protected TextKey = TextKey;
   protected versesToFocus = computed(() => {
     const { verse } = this.routeQueryParams() || {};
     return verse?.split(',').map(Number);
@@ -55,6 +87,7 @@ export class VersesPage {
   private verseActionsModalService = inject(VerseActionsModalService);
   private router = inject(Router);
 
+  // Signals
   protected verses = resource<Verse[], VersePageParams>({
     request: () => this.routeParams() as VersePageParams,
     loader: async ({ request }) => {
@@ -66,16 +99,31 @@ export class VersesPage {
       return verses;
     },
   });
+  protected ionSearchbar = viewChild(IonSearchbar);
+  protected search = signal('');
+  protected chapterInfo = computed(() => RouteUtils.getChapterInfo(this.routeParams()!));
 
   constructor() {
     effect(() => {
-      const { bookUsfm, chapter, translation } = this.routeParams() || {};
-      const books = AllBooks[translation as keyof typeof AllBooks];
-      const bookName = books.find((b) => b.usfm === bookUsfm)?.name;
-      const recentRead = { bookName, bookUsfm, chapter: Number(chapter), translation };
+      const { chapter, name, translation, usfm } = this.chapterInfo();
+      const recentRead = { bookName: name, bookUsfm: usfm, chapter, translation };
       this.bookmarkService.recentRead.set(recentRead);
     });
     this.notes = LocalStorageUtils.getNotes();
+  }
+
+  onSearch(event: any) {
+    this.search.set(event.detail.value);
+    setTimeout(() => {
+      const element = this.elRef.nativeElement as HTMLElement;
+      const scrollEl = element
+        .getElementsByTagName('ion-content')[0]
+        .getElementsByClassName('scroll-y')[0];
+      const firstSearchHit = element.getElementsByTagName('b')[0];
+      firstSearchHit
+        ? firstSearchHit.scrollIntoView({ behavior: 'smooth' })
+        : scrollEl.scrollTo({ top: 0 });
+    });
   }
 
   async onVerseFabClick() {

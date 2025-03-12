@@ -40,7 +40,10 @@ export const routes: Routes = [
         path: `${UrlPath.read}/:translation/:bookUsfm`,
         pathMatch: 'full',
         component: ChaptersPage,
-        data: { enableTranslationsSelect: true, title: TextKey.Chapters },
+        data: { enableTranslationsSelect: true },
+        resolve: {
+          title: RouteUtils.getChapterPageTitle,
+        },
       },
       {
         path: `${UrlPath.read}/:translation/:bookUsfm/:chapter`,

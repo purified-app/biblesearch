@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { IonApp } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
+  arrowBack,
   bookOutline,
   bookSharp,
   bookmarkOutline,
@@ -43,6 +44,7 @@ export class AppComponent {
 
   constructor() {
     addIcons({
+      arrowBack,
       bookOutline,
       bookSharp,
       bookmarkOutline,
