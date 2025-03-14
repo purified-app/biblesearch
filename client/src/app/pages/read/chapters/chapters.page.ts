@@ -1,17 +1,21 @@
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { IonContent } from '@ionic/angular/standalone';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { IonButton, IonContent } from '@ionic/angular/standalone';
 import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
 import RouteUtils from 'src/app/utils/route.utils';
 import { LanguageSelectComponent } from '../../../components/language-select/language-select.component';
+import { UrlPath } from 'src/app/constants/url-path';
 
 @Component({
   selector: 'app-chapters',
-  imports: [LanguageSelectComponent, PageHeaderComponent, IonContent, RouterLink],
+  imports: [LanguageSelectComponent, PageHeaderComponent, IonButton, IonContent, RouterLink],
   template: `
     @let bookUsfm = routeParams()?.['bookUsfm']; @let translation = routeParams()?.['translation'];
-    <app-page-header>
+    <app-page-header toolbarTitle="">
+      <ion-button toolbarButton (click)="goBackToChapters()">
+        {{ activatedRoute.snapshot.data['title'] }}
+      </ion-button>
       <app-language-select toolbarEnd></app-language-select>
     </app-page-header>
     <ion-content class="ion-padding">
@@ -52,9 +56,15 @@ import { LanguageSelectComponent } from '../../../components/language-select/lan
 })
 export class ChaptersPage {
   protected activatedRoute = inject(ActivatedRoute);
+  private router = inject(Router);
   protected routeParams = toSignal(this.activatedRoute.params);
-  chapters = computed(() => {
+  protected chapters = computed(() => {
     const { chapters } = RouteUtils.getChapterInfo(this.routeParams()!);
     return chapters ? Array.from({ length: chapters }, (_, index) => index + 1) : [];
   });
+
+  protected goBackToChapters() {
+    const { translation } = this.routeParams()!;
+    this.router.navigate([`/${UrlPath.read}/${translation}`]);
+  }
 }

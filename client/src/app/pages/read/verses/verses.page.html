@@ -16,7 +16,8 @@
   </ng-template>
 </ion-popover>
 
-<app-page-header>
+<app-page-header toolbarTitle="">
+  <ion-button toolbarButton (click)="goBackToChapters()">{{routeData()?.['title']}}</ion-button>
   <ion-button toolbarEnd id="click-trigger">
     <ion-icon slot="icon-only" name="search-sharp"></ion-icon>
   </ion-button>

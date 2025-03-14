@@ -57,37 +57,33 @@ import RouteUtils from 'src/app/utils/route.utils';
   styleUrls: ['./verses.page.scss'],
 })
 export class VersesPage {
-  private route = inject(ActivatedRoute);
-  private elRef = inject(ElementRef<HTMLElement>);
-
-  selectedVerses = signal<Verse[]>([]);
-  selectedVersesText = '';
-  actionSheetButtons: ActionSheetButton[] = [
-    {
-      icon: 'bookmark-outline',
-      text: 'Bookmark',
-      role: 'bookmark',
-    },
-    { icon: 'document-text-outline', text: 'Add note', role: 'notes' },
-  ];
-
-  protected notes: Note[] = [];
-  protected routeQueryParams = toSignal(this.route.queryParams);
-  protected routeParams = toSignal(this.route.params);
-  protected routeData = toSignal(this.route.data);
-  protected TextKey = TextKey;
-  protected versesToFocus = computed(() => {
-    const { verse } = this.routeQueryParams() || {};
-    return verse?.split(',').map(Number);
-  });
-
   private apiService = inject(ApiService);
   private bookmarkService = inject(BookmarkService);
+  private elRef = inject(ElementRef<HTMLElement>);
   private noteModalService = inject(NoteModalService);
-  private verseActionsModalService = inject(VerseActionsModalService);
+  private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private verseActionsModalService = inject(VerseActionsModalService);
+
+  protected actionSheetButtons: ActionSheetButton[] = [
+    {
+      icon: 'bookmark-outline',
+      text: TextKey.Bookmark,
+      role: 'bookmark',
+    },
+    { icon: 'document-text-outline', text: TextKey.AddNote, role: 'notes' },
+  ];
+  protected notes: Note[] = [];
+  protected TextKey = TextKey;
 
   // Signals
+  protected chapterInfo = computed(() => RouteUtils.getChapterInfo(this.routeParams()!));
+  protected ionSearchbar = viewChild(IonSearchbar);
+  protected routeData = toSignal(this.route.data);
+  protected routeParams = toSignal(this.route.params);
+  protected routeQueryParams = toSignal(this.route.queryParams);
+  protected search = signal('');
+  protected selectedVerses = signal<Verse[]>([]);
   protected verses = resource<Verse[], VersePageParams>({
     request: () => this.routeParams() as VersePageParams,
     loader: async ({ request }) => {
@@ -99,9 +95,10 @@ export class VersesPage {
       return verses;
     },
   });
-  protected ionSearchbar = viewChild(IonSearchbar);
-  protected search = signal('');
-  protected chapterInfo = computed(() => RouteUtils.getChapterInfo(this.routeParams()!));
+  protected versesToFocus = computed(() => {
+    const { verse } = this.routeQueryParams() || {};
+    return verse?.split(',').map(Number);
+  });
 
   constructor() {
     effect(() => {
@@ -163,7 +160,6 @@ export class VersesPage {
     const firstVerse = selectedVerses[0].verse;
     const lastVerse = selectedVerses[selectedVerses.length - 1].verse;
     const verseText = selectedVerses.length > 1 ? `${firstVerse}-${lastVerse}` : verse.verse;
-    this.selectedVersesText = `${bookName} ${chapter}:${verseText}`;
   }
 
   isSelected(verse: Verse): boolean {
@@ -171,7 +167,7 @@ export class VersesPage {
   }
 
   navigateBack() {
-    let { bookUsfm, chapter, translation } = this.route.snapshot.params;
+    let { bookUsfm, chapter, translation } = this.routeParams()!;
     const books = AllBooks[translation as keyof typeof AllBooks];
     const currentBook = books.find((b) => b.usfm === bookUsfm);
     if (!currentBook) return;
@@ -189,7 +185,7 @@ export class VersesPage {
   }
 
   navigateForward() {
-    let { bookUsfm, chapter, translation } = this.route.snapshot.params;
+    let { bookUsfm, chapter, translation } = this.routeParams()!;
     const books = AllBooks[translation as keyof typeof AllBooks];
     const currentBook = books.find((b) => b.usfm === bookUsfm);
     if (!currentBook) return;
@@ -204,17 +200,22 @@ export class VersesPage {
     this.navigate(bookUsfm, chapter);
   }
 
+  protected goBackToChapters() {
+    const { translation, bookUsfm } = this.routeParams()!;
+    this.router.navigate([`/${UrlPath.read}/${translation}/${bookUsfm}`]);
+  }
+
   protected getNotesForVerse = (verse: Verse) => NoteUtils.getNotesForVerse(this.notes, verse);
   protected getHighlightTextColor = HighlightUtils.getHighlightTextColor;
   protected getHighlightBackgroundColor = HighlightUtils.getHighlightBackgroundColor;
 
   private navigate(bookUsfm: string, chapter: number) {
-    const { translation } = this.route.snapshot.params;
+    const { translation } = this.routeParams()!;
     this.router.navigate([`/${UrlPath.read}/${translation}/${bookUsfm}/${chapter}`]);
   }
 
   private getVerseHighlights() {
-    const { bookUsfm, chapter } = this.route.snapshot.params;
+    const { bookUsfm, chapter } = this.routeParams()!;
     return LocalStorageUtils.getVerseHighlightsByBook(bookUsfm, Number(chapter));
   }
 
