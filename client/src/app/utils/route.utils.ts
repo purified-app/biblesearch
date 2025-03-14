@@ -34,7 +34,7 @@ export default class RouteUtils {
   static getVersePageTitle = (route: ActivatedRouteSnapshot) => {
     const { bookUsfm, chapter, translation } = route.params as VersePageParams;
     const books = AllBooks[translation as keyof typeof AllBooks];
-    const bookName = books.find((b) => b.usfm === bookUsfm)?.name;
+    const bookName = books?.find((b) => b.usfm === bookUsfm)?.name;
     return `${bookName} ${chapter}`;
   };
 

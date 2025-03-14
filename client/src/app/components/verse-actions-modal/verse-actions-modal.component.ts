@@ -42,14 +42,16 @@ import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
             [value]="color"
             (ionChange)="onActionClick('highlight', $any($event).target.value)"
           >
-            <!-- <ion-icon name="document-text-outline" slot="start"></ion-icon> -->
-            <ion-radio class="red" [value]="RainbowColor.red"></ion-radio>
-            <ion-radio class="orange" [value]="RainbowColor.orange"></ion-radio>
-            <ion-radio class="yellow" [value]="RainbowColor.yellow"></ion-radio>
-            <ion-radio class="green" [value]="RainbowColor.green"></ion-radio>
-            <ion-radio class="blue" [value]="RainbowColor.blue"></ion-radio>
-            <ion-radio class="indigo" [value]="RainbowColor.indigo"></ion-radio>
-            <ion-radio class="violet" [value]="RainbowColor.violet"></ion-radio>
+            <div>
+              <!-- <ion-icon name="document-text-outline" slot="start"></ion-icon> -->
+              <ion-radio class="red" [value]="RainbowColor.red"></ion-radio>
+              <ion-radio class="orange" [value]="RainbowColor.orange"></ion-radio>
+              <ion-radio class="yellow" [value]="RainbowColor.yellow"></ion-radio>
+              <ion-radio class="green" [value]="RainbowColor.green"></ion-radio>
+              <ion-radio class="blue" [value]="RainbowColor.blue"></ion-radio>
+              <ion-radio class="indigo" [value]="RainbowColor.indigo"></ion-radio>
+              <ion-radio class="violet" [value]="RainbowColor.violet"></ion-radio>
+            </div>
           </ion-radio-group>
           <ion-button
             color="medium"

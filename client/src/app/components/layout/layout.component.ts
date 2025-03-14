@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
 import {
+  AnimationBuilder,
   IonContent,
   IonHeader,
   IonIcon,
@@ -140,7 +141,7 @@ import BookmarkUtils from 'src/app/utils/bookmark.utils';
           </ion-toolbar>
           <ion-toolbar class="toolbar-search" id="toolbar-search"> </ion-toolbar>
         </ion-header> -->
-        <ion-router-outlet></ion-router-outlet>
+        <ion-router-outlet [animation]="pageTurnAnimation"></ion-router-outlet>
       </div>
     </ion-split-pane>
   `,
@@ -176,4 +177,52 @@ export class LayoutComponent {
     this.routerNavigationService.navigationEnd();
     return this.route.snapshot.firstChild?.data;
   });
+  pageTurnAnimation = slideAnimation;
 }
+// custom-route-animation.ts
+import { AnimationController, Animation } from '@ionic/angular';
+
+export const slideAnimation = (baseEl: HTMLElement, opts?: any): Animation => {
+  const animationCtrl = new AnimationController();
+  const rootAnimation = animationCtrl.create();
+
+  const enteringEl = opts?.enteringEl;
+  const leavingEl = opts?.leavingEl;
+  const direction = opts?.direction;
+
+  // If elements are missing, return empty animation
+  if (!enteringEl || !leavingEl) {
+    return rootAnimation;
+  }
+
+  // Entering page animation
+  const enteringAnimation = animationCtrl
+    .create()
+    .addElement(enteringEl)
+    .duration(300)
+    .easing('ease-in-out')
+    .beforeRemoveClass('ion-page-invisible'); // Ensure visibility
+
+  // Leaving page animation
+  const leavingAnimation = animationCtrl
+    .create()
+    .addElement(leavingEl)
+    .duration(300)
+    .easing('ease-in-out');
+
+  // Define slide direction based on navigation
+  if (direction === 'forward') {
+    enteringAnimation.fromTo('transform', 'translateX(100%)', 'translateX(0)');
+    leavingAnimation.fromTo('transform', 'translateX(0)', 'translateX(-100%)');
+  } else if (direction === 'back') {
+    enteringAnimation.fromTo('transform', 'translateX(-100%)', 'translateX(0)');
+    leavingAnimation.fromTo('transform', 'translateX(0)', 'translateX(100%)');
+  } else {
+    // Fallback for undefined direction (e.g., initial load)
+    enteringAnimation.fromTo('transform', 'translateX(0)', 'translateX(0)');
+    leavingAnimation.fromTo('transform', 'translateX(0)', 'translateX(0)');
+  }
+
+  // Combine animations
+  return rootAnimation.addAnimation([enteringAnimation, leavingAnimation]);
+};

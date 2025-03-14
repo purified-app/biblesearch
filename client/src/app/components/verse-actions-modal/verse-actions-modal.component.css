@@ -1,11 +1,7 @@
-:host {
-  display: block;
-}
-
-
-ion-radio-group{
+ion-radio-group div{
   display: flex;
   gap: 8px;
+  height: 100%;
   margin-right: 8px;
 }
 

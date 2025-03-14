@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { IonButton, IonContent } from '@ionic/angular/standalone';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { IonButton, IonContent, NavController } from '@ionic/angular/standalone';
 import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
 import RouteUtils from 'src/app/utils/route.utils';
 import { LanguageSelectComponent } from '../../../components/language-select/language-select.component';
@@ -56,7 +56,7 @@ import { UrlPath } from 'src/app/constants/url-path';
 })
 export class ChaptersPage {
   protected activatedRoute = inject(ActivatedRoute);
-  private router = inject(Router);
+  private navController = inject(NavController);
   protected routeParams = toSignal(this.activatedRoute.params);
   protected chapters = computed(() => {
     const { chapters } = RouteUtils.getChapterInfo(this.routeParams()!);
@@ -65,6 +65,6 @@ export class ChaptersPage {
 
   protected goBackToChapters() {
     const { translation } = this.routeParams()!;
-    this.router.navigate([`/${UrlPath.read}/${translation}`]);
+    this.navController.navigateBack([`/${UrlPath.read}/${translation}`]);
   }
 }

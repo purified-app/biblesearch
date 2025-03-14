@@ -19,6 +19,7 @@ import {
   IonIcon,
   IonPopover,
   IonSearchbar,
+  NavController,
 } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LanguageSelectComponent } from 'src/app/components/language-select/language-select.component';
@@ -28,6 +29,7 @@ import { VerseActionsModalService } from 'src/app/components/verse-actions-modal
 import { AllBooks } from 'src/app/constants/books';
 import { TextKey } from 'src/app/constants/text-key';
 import { UrlPath } from 'src/app/constants/url-path';
+import { PageSwipeDirective } from 'src/app/directives/page-swipe.directive';
 import { Note, Verse } from 'src/app/interfaces';
 import { VersePageParams } from 'src/app/interfaces/route-params';
 import { HighlightPipe } from 'src/app/pipes/highlight.pipe';
@@ -42,8 +44,9 @@ import RouteUtils from 'src/app/utils/route.utils';
   selector: 'app-verses',
   imports: [
     LanguageSelectComponent,
-    PageHeaderComponent,
     HighlightPipe,
+    PageHeaderComponent,
+    PageSwipeDirective,
     IonButton,
     IonContent,
     IonFab,
@@ -60,6 +63,7 @@ export class VersesPage {
   private apiService = inject(ApiService);
   private bookmarkService = inject(BookmarkService);
   private elRef = inject(ElementRef<HTMLElement>);
+  private navController = inject(NavController);
   private noteModalService = inject(NoteModalService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -155,11 +159,6 @@ export class VersesPage {
 
     if (!selectedVerses.length) return;
     selectedVerses.sort((a, b) => a.verse - b.verse);
-
-    const { bookName, chapter } = verse;
-    const firstVerse = selectedVerses[0].verse;
-    const lastVerse = selectedVerses[selectedVerses.length - 1].verse;
-    const verseText = selectedVerses.length > 1 ? `${firstVerse}-${lastVerse}` : verse.verse;
   }
 
   isSelected(verse: Verse): boolean {
@@ -181,7 +180,7 @@ export class VersesPage {
       bookUsfm = prevBook.usfm;
       chapter = prevBook?.chapters || 1;
     }
-    this.navigate(bookUsfm, chapter);
+    this.navigate(chapter);
   }
 
   navigateForward() {
@@ -197,21 +196,25 @@ export class VersesPage {
       bookUsfm = books.find((b) => b.bookNumber === currentBook.bookNumber + 1)?.usfm;
       chapter = 1;
     }
-    this.navigate(bookUsfm, chapter);
+    this.navigate(chapter);
   }
 
   protected goBackToChapters() {
     const { translation, bookUsfm } = this.routeParams()!;
-    this.router.navigate([`/${UrlPath.read}/${translation}/${bookUsfm}`]);
+    this.navController.navigateBack([`/${UrlPath.read}/${translation}/${bookUsfm}`]);
   }
 
   protected getNotesForVerse = (verse: Verse) => NoteUtils.getNotesForVerse(this.notes, verse);
   protected getHighlightTextColor = HighlightUtils.getHighlightTextColor;
   protected getHighlightBackgroundColor = HighlightUtils.getHighlightBackgroundColor;
 
-  private navigate(bookUsfm: string, chapter: number) {
-    const { translation } = this.routeParams()!;
-    this.router.navigate([`/${UrlPath.read}/${translation}/${bookUsfm}/${chapter}`]);
+  private navigate(chapter: number) {
+    const { bookUsfm, translation } = this.routeParams()!;
+    const url = `/${UrlPath.read}/${translation}/${bookUsfm}/${chapter}`;
+    const direction = chapter > Number(this.routeParams()!['chapter']) ? 'forward' : 'backward';
+    direction === 'forward'
+      ? this.navController.navigateForward(url)
+      : this.navController.navigateBack(url);
   }
 
   private getVerseHighlights() {
