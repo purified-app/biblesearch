@@ -1,0 +1,8 @@
+:host {
+  display: block;
+}
+
+ion-popover {
+  --offset-x: -12px;
+  --width: 100%;
+}

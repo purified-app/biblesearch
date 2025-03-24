@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
 import {
-  AnimationBuilder,
   IonContent,
   IonHeader,
   IonIcon,
@@ -29,6 +28,7 @@ import BookmarkUtils from 'src/app/utils/bookmark.utils';
 @Component({
   selector: 'app-layout',
   imports: [
+    SearchComponent,
     IonContent,
     IonHeader,
     IonIcon,
@@ -49,6 +49,7 @@ import BookmarkUtils from 'src/app/utils/bookmark.utils';
     TranslatePipe,
   ],
   template: `
+    <app-search></app-search>
     <ion-split-pane contentId="main-content">
       <ion-menu contentId="main-content" type="overlay">
         <ion-header>
@@ -180,7 +181,8 @@ export class LayoutComponent {
   pageTurnAnimation = slideAnimation;
 }
 // custom-route-animation.ts
-import { AnimationController, Animation } from '@ionic/angular';
+import { Animation, AnimationController } from '@ionic/angular';
+import { SearchComponent } from '../search/search.component';
 
 export const slideAnimation = (baseEl: HTMLElement, opts?: any): Animation => {
   const animationCtrl = new AnimationController();

@@ -9,7 +9,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import {
   ActionSheetButton,
   IonButton,
@@ -17,14 +17,13 @@ import {
   IonFab,
   IonFabButton,
   IonIcon,
-  IonPopover,
   IonSearchbar,
   NavController,
 } from '@ionic/angular/standalone';
-import { TranslatePipe } from '@ngx-translate/core';
 import { LanguageSelectComponent } from 'src/app/components/language-select/language-select.component';
 import { NoteModalService } from 'src/app/components/note-modal/note-modal.service';
 import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
+import { SearchService } from 'src/app/components/search/search.service';
 import { VerseActionsModalService } from 'src/app/components/verse-actions-modal/verse-actions-modal.service';
 import { AllBooks } from 'src/app/constants/books';
 import { TextKey } from 'src/app/constants/text-key';
@@ -52,9 +51,6 @@ import RouteUtils from 'src/app/utils/route.utils';
     IonFab,
     IonFabButton,
     IonIcon,
-    IonPopover,
-    IonSearchbar,
-    TranslatePipe,
   ],
   templateUrl: './verses.page.html',
   styleUrls: ['./verses.page.scss'],
@@ -66,8 +62,8 @@ export class VersesPage {
   private navController = inject(NavController);
   private noteModalService = inject(NoteModalService);
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
   private verseActionsModalService = inject(VerseActionsModalService);
+  protected searchService = inject(SearchService);
 
   protected actionSheetButtons: ActionSheetButton[] = [
     {

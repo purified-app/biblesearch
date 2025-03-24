@@ -1,24 +1,6 @@
-
-<ion-popover 
-  side="left" 
-  alignment="start" 
-  trigger="click-trigger" 
-  triggerAction="click"
-  [showBackdrop]="false"
-  (didPresent)="ionSearchbar()?.setFocus()">
-  <ng-template>
-      <ion-searchbar
-        color="light"
-        [placeholder]="TextKey.Search | translate" 
-        [value]="search()" 
-        (ionInput)="onSearch($event)">
-      </ion-searchbar>
-  </ng-template>
-</ion-popover>
-
 <app-page-header toolbarTitle="">
   <ion-button toolbarButton (click)="goBackToChapters()">{{routeData()?.['title']}}</ion-button>
-  <ion-button toolbarEnd id="click-trigger">
+  <ion-button toolbarEnd (click)="searchService.togglePopover(true)">
     <ion-icon slot="icon-only" name="search-sharp"></ion-icon>
   </ion-button>
 

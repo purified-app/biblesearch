@@ -31,11 +31,13 @@ export class LocalStorageUtils {
 
   static getRecentRead(): RecentRead | undefined {
     const recentRead = localStorage.getItem(LocalStorage.RecentRead);
-    return recentRead ? JSON.parse(recentRead) : undefined;
+    return recentRead
+      ? JSON.parse(recentRead)
+      : { bookUsfm: 'GEN', chapter: 1, translation: 'KJV' };
   }
 
   static getStartPage(): string {
-    return localStorage.getItem(LocalStorage.StartPage) || 'search';
+    return localStorage.getItem(LocalStorage.StartPage) || 'recentRead';
   }
 
   static getTranslation(): string {
