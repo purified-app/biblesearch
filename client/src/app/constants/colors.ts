@@ -9,6 +9,8 @@ export const RainbowColor = {
 };
 
 export const RainbowColors = {
+  white: 'white',
+  gray: 'gray',
   red: '#F43545',
   orange: '#FA8901',
   yellow: '#FAD717',

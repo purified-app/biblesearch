@@ -1,34 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { IonApp } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import {
-  arrowBack,
-  bookOutline,
-  bookSharp,
-  bookmarkOutline,
-  bookmarkSharp,
-  chevronBackOutline,
-  chevronForwardOutline,
-  chevronUpCircle,
-  closeCircle,
-  documentTextOutline,
-  documentTextSharp,
-  earthOutline,
-  languageOutline,
-  searchOutline,
-  searchSharp,
-  settingsOutline,
-  settingsSharp,
-  shareSocialOutline,
-  textOutline,
-  timeOutline,
-  timeSharp,
-  trashOutline,
-} from 'ionicons/icons';
+import { initializeAppIcons } from './app.icons';
 import { BookmarkService } from './services/bookmark.service';
-import BookmarkUtils from './utils/bookmark.utils';
 import { UserSettingsService } from './services/user-settings.service';
+import BookmarkUtils from './utils/bookmark.utils';
 
 @Component({
   selector: 'app-root',
@@ -43,30 +19,7 @@ export class AppComponent {
   private userSettings = inject(UserSettingsService);
 
   constructor() {
-    addIcons({
-      arrowBack,
-      bookOutline,
-      bookSharp,
-      bookmarkOutline,
-      bookmarkSharp,
-      chevronBackOutline,
-      chevronForwardOutline,
-      chevronUpCircle,
-      closeCircle,
-      documentTextOutline,
-      documentTextSharp,
-      earthOutline,
-      languageOutline,
-      searchOutline,
-      searchSharp,
-      settingsOutline,
-      settingsSharp,
-      shareSocialOutline,
-      textOutline,
-      timeOutline,
-      timeSharp,
-      trashOutline,
-    });
+    initializeAppIcons();
     this.userSettings.initSettings();
   }
 }

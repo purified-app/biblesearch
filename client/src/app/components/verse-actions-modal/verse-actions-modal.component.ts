@@ -37,31 +37,31 @@ import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
         <ion-label>{{ TextKey.CopyLink | translate }}</ion-label>
       </ion-item>
       <ion-item>
-        <div class="highlight-item-container">
-          <ion-radio-group
-            [value]="color"
-            (ionChange)="onActionClick('highlight', $any($event).target.value)"
-          >
-            <div>
-              <!-- <ion-icon name="document-text-outline" slot="start"></ion-icon> -->
-              <ion-radio class="red" [value]="RainbowColor.red"></ion-radio>
-              <ion-radio class="orange" [value]="RainbowColor.orange"></ion-radio>
-              <ion-radio class="yellow" [value]="RainbowColor.yellow"></ion-radio>
-              <ion-radio class="green" [value]="RainbowColor.green"></ion-radio>
-              <ion-radio class="blue" [value]="RainbowColor.blue"></ion-radio>
-              <ion-radio class="indigo" [value]="RainbowColor.indigo"></ion-radio>
-              <ion-radio class="violet" [value]="RainbowColor.violet"></ion-radio>
-            </div>
-          </ion-radio-group>
-          <ion-button
-            color="medium"
-            shape="round"
-            size="medium"
-            (click)="onActionClick('highlight', undefined)"
-          >
-            <ion-icon slot="icon-only" name="close-circle"></ion-icon>
-          </ion-button>
-        </div>
+        <ion-radio-group
+          [value]="color"
+          (ionChange)="onActionClick('highlight', $any($event).target.value)"
+        >
+          <div>
+            <ion-radio class="red" [value]="RainbowColor.red"></ion-radio>
+            <ion-radio class="orange" [value]="RainbowColor.orange"></ion-radio>
+            <ion-radio class="yellow" [value]="RainbowColor.yellow"></ion-radio>
+            <ion-radio class="green" [value]="RainbowColor.green"></ion-radio>
+            <ion-radio class="blue" [value]="RainbowColor.blue"></ion-radio>
+            <ion-radio class="indigo" [value]="RainbowColor.indigo"></ion-radio>
+            <ion-radio class="violet" [value]="RainbowColor.violet"></ion-radio>
+            <ion-radio class="white" value="white"></ion-radio>
+            <ion-radio class="gray" value="gray"></ion-radio>
+            <ion-button
+              color="medium"
+              shape="round"
+              size="medium"
+              (click)="onActionClick('highlight', undefined)"
+            >
+              <ion-icon slot="icon-only" name="close-circle"></ion-icon>
+            </ion-button>
+          </div>
+          <!-- <ion-icon name="document-text-outline" slot="start"></ion-icon> -->
+        </ion-radio-group>
       </ion-item>
     </ion-list>
   `,
@@ -69,7 +69,7 @@ import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VerseActionsModalComponent implements OnInit, VerseActionsModalProps {
-  verses!: Verse[];
+  verses!: (Verse & { color?: string })[];
   protected color?: string;
   protected RainbowColors = RainbowColors;
   protected RainbowColor = RainbowColor;
@@ -81,7 +81,7 @@ export class VerseActionsModalComponent implements OnInit, VerseActionsModalProp
   private noteModalService = inject(NoteModalService);
 
   ngOnInit(): void {
-    this.color = undefined;
+    this.color = this.verses.length === 1 ? this.verses[0]?.['color'] : undefined;
   }
 
   protected async onActionClick(role: string, data?: string) {

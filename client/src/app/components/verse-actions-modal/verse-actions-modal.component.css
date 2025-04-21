@@ -1,8 +1,20 @@
-ion-radio-group div{
+ion-radio-group {
   display: flex;
+  overflow-x: auto;
+  width: 100%;
+}
+ion-radio-group div {
+  display: flex;
+  flex-direction: row;
   gap: 8px;
   height: 100%;
-  margin-right: 8px;
+  padding-right: 8px;
+  overflow-x: auto;
+  width: 100%;
+}
+
+ion-radio {
+  --border-width: 0.2rem;
 }
 
 ion-radio::part(container) {
@@ -14,41 +26,43 @@ ion-radio::part(mark) {
   height: 100%;
 }
 
-.highlight-item-container {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
-
 .red {
-  --color: #F43545;
-  --color-checked: #F43545;
+  --color: #f43545;
+  --color-checked: #f43545;
 }
 .orange {
-  --color: #FA8901;
-  --color-checked: #FA8901;
+  --color: #fa8901;
+  --color-checked: #fa8901;
 }
 .yellow {
-  --color: #FAD717;
-  --color-checked: #FAD717;
+  --color: #fad717;
+  --color-checked: #fad717;
 }
 .green {
-  --color: #00BA71;
-  --color-checked: #00BA71;
+  --color: #00ba71;
+  --color-checked: #00ba71;
 }
 .blue {
-  --color: #00C2DE;
-  --color-checked: #00C2DE;
+  --color: #00c2de;
+  --color-checked: #00c2de;
 }
 .indigo {
-  --color: #00418D;
-  --color-checked: #00418D;
+  --color: #00418d;
+  --color-checked: #00418d;
 }
 .violet {
-  --color: #5F2879;
-  --color-checked: #5F2879;
+  --color: #5f2879;
+  --color-checked: #5f2879;
 }
-.none{
-  --color: none;  
+.white {
+  --color: white;
+  --color-checked: white;
+}
+.gray {
+  --color: gray;
+  --color-checked: gray;
+}
+.none {
+  --color: none;
   --color-checked: none;
 }

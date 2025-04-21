@@ -18,18 +18,29 @@ apiRoutes.get("/search", async (c) => {
 
   // Regular expression to match format "John 3"
   const matchChapter = term.match(/(\w+)\s+(\d+)/);
-  // Regular expression to match both formats: "John 3:16" and "John 3 16"
-  const matchVerse = term.match(/(\w+)\s+(\d+)(?::|\s+)(\d+)?/);
+  // Regular expression to match formats: "John 3:16", "John 3 16"
+  const matchBookChapterVerse = term.match(/^(\w+)\s+(\d+)(?::|\s+)(\d+)$/);
+  // Regular expression to match "chapter:verse" only
+  const matchChapterVerseOnly = term.match(/^(\d+):(\d+)$/);
 
-  if (matchVerse) {
-    const [, bookName, chapter, verse] = matchVerse;
-    // Override the query to search for verses in the specified book name, chapter, and verse
+  if (matchBookChapterVerse) {
+    const [, bookName, chapter, verse] = matchBookChapterVerse;
     WHERE = `Verses_fts MATCH 'bookName:${bookName}*' AND chapter=${chapter} AND verse=${verse}`;
     query = `
-    SELECT *, bm25(Verses_fts, 20, 0, 10, 15, 4, 5, 10, 2) as score
-      FROM Verses_fts 
+    SELECT *
+      FROM Verses_fts
       WHERE ${WHERE}
       ORDER BY score
+      LIMIT ?;
+    `;
+  } else if (matchChapterVerseOnly) {
+    const [, chapter, verse] = matchChapterVerseOnly;
+    WHERE = `chapter=${chapter} AND verse=${verse}`;
+    query = `
+    SELECT *
+      FROM Verses
+      WHERE ${WHERE}
+      ORDER BY bookNumber
       LIMIT ?;
     `;
   } else if (matchChapter) {
@@ -37,21 +48,23 @@ apiRoutes.get("/search", async (c) => {
     // Override the query to search for verses in the specified book name and chapter
     WHERE = `Verses_fts MATCH 'bookName:${bookName}*' AND chapter=${chapter}`;
     query = `
-    SELECT *, bm25(Verses_fts, 20, 0, 10, 15, 4, 5, 10, 2) as score
-      FROM Verses_fts 
+    SELECT *, bm25(Verses_fts, 20, 0, 15, 10, 5, 15, 20, 5) as score
+      FROM Verses_fts
       WHERE ${WHERE}
       ORDER BY bookName, verse;
     `;
   } else {
     WHERE = `Verses_fts MATCH '${text}*'`;
     query = `
-      SELECT *, bm25(Verses_fts, 20, 0, 10, 15, 4, 5, 10, 2) as score
-      FROM Verses_fts 
+    SELECT *, bm25(Verses_fts, 20, 0, 15, 10, 5, 15, 20, 5) as score
+      FROM Verses_fts
       WHERE ${WHERE}
       ORDER BY score
       LIMIT ?;
     `;
   }
+
+  console.log("Query:", query);
 
   const statement = db.query(query).as(Verses_fts);
   const verses = statement.all(LIMIT);
