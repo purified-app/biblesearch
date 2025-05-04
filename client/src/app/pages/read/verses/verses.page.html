@@ -6,14 +6,21 @@
 
   <app-language-select toolbarEnd></app-language-select>
 </app-page-header>
-<ion-content class="ion-padding" appPageSwipe (swipeLeft)="navigateForward()" (swipeRight)="navigateBack()">
-  <ion-fab slot="fixed" vertical="center" horizontal="start" (click)="navigateBack( { animated: false })">
-    <ion-fab-button color="dark">
-      <ion-icon name="chevron-back-outline"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+<ion-content class="ion-padding" 
+  appPageSwipe 
+  [scrollEvents]="true"
+  (ionScroll)="onScroll($event)"
+  (swipeLeft)="navigateForward()" 
+  (swipeRight)="navigateBack()">
+  @if (showFabs()) {
+    <ion-fab slot="fixed" vertical="center" horizontal="start" (click)="navigateBack( { animated: false })">
+      <ion-fab-button color="dark">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  }
   <p class="verse-text-container">
-    @for (verse of verses(); track verse.id) {
+    @for (verse of verses.value(); track verse.id) {
       @let notes = getNotesForVerse(verse);
       @let color = $any(verse).color;
       <div class="verse-container"  [class.selected]="isSelected(verse)" (click)="onVerseClick(verse)">
@@ -42,11 +49,13 @@
       </div>
     }
   </p>
-  <ion-fab slot="fixed" vertical="center" horizontal="end" (click)="navigateForward( { animated: false })">
-    <ion-fab-button color="dark">
-      <ion-icon name="chevron-forward-outline"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+  @if (showFabs()) {
+    <ion-fab slot="fixed" vertical="center" horizontal="end" (click)="navigateForward( { animated: false })">
+      <ion-fab-button color="dark">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+}
 
   @if (selectedVerses().length) {
     <ion-fab slot="fixed" vertical="bottom" horizontal="center">

@@ -5,6 +5,7 @@ import {
   effect,
   ElementRef,
   inject,
+  resource,
   signal,
   viewChild,
 } from '@angular/core';
@@ -21,6 +22,7 @@ import {
   IonSearchbar,
   NavController,
 } from '@ionic/angular/standalone';
+import { IonContentCustomEvent, ScrollDetail } from '@ionic/core';
 import { LanguageSelectComponent } from 'src/app/components/language-select/language-select.component';
 import { NoteModalService } from 'src/app/components/note-modal/note-modal.service';
 import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
@@ -31,7 +33,9 @@ import { TextKey } from 'src/app/constants/text-key';
 import { UrlPath } from 'src/app/constants/url-path';
 import { PageSwipeDirective } from 'src/app/directives/page-swipe.directive';
 import { Note, Verse } from 'src/app/interfaces';
+import { VersePageParams } from 'src/app/interfaces/route-params';
 import { HighlightPipe } from 'src/app/pipes/highlight.pipe';
+import { ApiService } from 'src/app/services/api.service';
 import { BookmarkService } from 'src/app/services/bookmark.service';
 import HighlightUtils from 'src/app/utils/highlight.utils';
 import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
@@ -55,6 +59,7 @@ import RouteUtils from 'src/app/utils/route.utils';
   styleUrls: ['./verses.page.scss'],
 })
 export class VersesPage implements AfterViewInit {
+  private apiService = inject(ApiService);
   private bookmarkService = inject(BookmarkService);
   private elRef = inject(ElementRef<HTMLElement>);
   private navController = inject(NavController);
@@ -82,10 +87,17 @@ export class VersesPage implements AfterViewInit {
   protected routeQueryParams = toSignal(this.route.queryParams);
   protected search = signal('');
   protected selectedVerses = signal<Verse[]>([]);
-  protected verses = computed(() => {
-    const { verses } = this.routeData() || {};
-    this.addHighlightToVerses(verses);
-    return verses;
+  protected showFabs = signal(true);
+
+  protected verses = resource<Verse[], VersePageParams>({
+    request: () => this.routeParams() as VersePageParams,
+    loader: async ({ request }) => {
+      const { translation, bookUsfm, chapter } = request;
+      if (!request) return [];
+      const verses = await this.apiService.getVerses(translation, bookUsfm, chapter);
+      this.addHighlightToVerses(verses);
+      return verses;
+    },
   });
   protected versesToFocus = computed(() => {
     const { verse } = this.routeQueryParams() || {};
@@ -102,7 +114,7 @@ export class VersesPage implements AfterViewInit {
     });
 
     effect(() => {
-      if (!this.isViewInitialized() || !this.versesToFocus()) return;
+      if (!this.isViewInitialized() || !this.verses.value()) return;
       this.focusVerse();
     });
     this.notes = LocalStorageUtils.getNotes();
@@ -133,7 +145,7 @@ export class VersesPage implements AfterViewInit {
         case 'bookmark':
           break;
         case 'highlight':
-          this.addHighlightToVerses(this.verses()!);
+          this.addHighlightToVerses(this.verses.value()!);
           break;
         case 'note':
           this.notes = data;
@@ -196,6 +208,10 @@ export class VersesPage implements AfterViewInit {
       chapter = 1;
     }
     this.navigate(bookUsfm, chapter, options);
+  }
+
+  protected onScroll(event: IonContentCustomEvent<ScrollDetail>) {
+    this.showFabs.set(event.detail.deltaY <= 0);
   }
 
   protected goBackToChapters() {

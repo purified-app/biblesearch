@@ -53,7 +53,7 @@ export const routes: Routes = [
         data: { enableTranslationsSelect: true },
         resolve: {
           title: RouteUtils.getVersePageTitle,
-          verses: versesInChapterResolver,
+          // verses: versesInChapterResolver, // Rolled back to speed up the navigation
         },
       },
       {
