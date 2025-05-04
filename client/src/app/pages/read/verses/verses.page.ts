@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
+import { NavigationOptions } from '@ionic/angular/common/providers/nav-controller';
 import {
   ActionSheetButton,
   IonButton,
@@ -163,7 +164,7 @@ export class VersesPage implements AfterViewInit {
     return !!this.selectedVerses().find((v) => v.id === verse.id);
   }
 
-  navigateBack() {
+  navigateBack(options?: NavigationOptions) {
     let { bookUsfm, chapter, translation } = this.routeParams()!;
     const books = AllBooks[translation as keyof typeof AllBooks];
     const currentBook = books.find((b) => b.usfm === bookUsfm);
@@ -178,10 +179,10 @@ export class VersesPage implements AfterViewInit {
       bookUsfm = prevBook.usfm;
       chapter = prevBook?.chapters || 1;
     }
-    this.navigate(chapter);
+    this.navigate(chapter, options);
   }
 
-  navigateForward() {
+  navigateForward(options?: NavigationOptions) {
     let { bookUsfm, chapter, translation } = this.routeParams()!;
     const books = AllBooks[translation as keyof typeof AllBooks];
     const currentBook = books.find((b) => b.usfm === bookUsfm);
@@ -194,7 +195,7 @@ export class VersesPage implements AfterViewInit {
       bookUsfm = books.find((b) => b.bookNumber === currentBook.bookNumber + 1)?.usfm;
       chapter = 1;
     }
-    this.navigate(chapter);
+    this.navigate(chapter, options);
   }
 
   protected goBackToChapters() {
@@ -206,13 +207,13 @@ export class VersesPage implements AfterViewInit {
   protected getHighlightTextColor = HighlightUtils.getHighlightTextColor;
   protected getHighlightBackgroundColor = HighlightUtils.getHighlightBackgroundColor;
 
-  private navigate(chapter: number) {
+  private navigate(chapter: number, options?: NavigationOptions) {
     const { bookUsfm, translation } = this.routeParams()!;
     const url = `/${UrlPath.read}/${translation}/${bookUsfm}/${chapter}`;
     const direction = chapter > Number(this.routeParams()!['chapter']) ? 'forward' : 'backward';
     direction === 'forward'
-      ? this.navController.navigateForward(url)
-      : this.navController.navigateBack(url);
+      ? this.navController.navigateForward(url, options)
+      : this.navController.navigateBack(url, options);
   }
 
   private getVerseHighlights() {

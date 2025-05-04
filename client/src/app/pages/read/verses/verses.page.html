@@ -7,7 +7,7 @@
   <app-language-select toolbarEnd></app-language-select>
 </app-page-header>
 <ion-content class="ion-padding" appPageSwipe (swipeLeft)="navigateForward()" (swipeRight)="navigateBack()">
-  <ion-fab slot="fixed" vertical="center" horizontal="start" (click)="navigateBack()">
+  <ion-fab slot="fixed" vertical="center" horizontal="start" (click)="navigateBack( { animated: false })">
     <ion-fab-button color="dark">
       <ion-icon name="chevron-back-outline"></ion-icon>
     </ion-fab-button>
@@ -42,7 +42,7 @@
       </div>
     }
   </p>
-  <ion-fab slot="fixed" vertical="center" horizontal="end" (click)="navigateForward()">
+  <ion-fab slot="fixed" vertical="center" horizontal="end" (click)="navigateForward( { animated: false })">
     <ion-fab-button color="dark">
       <ion-icon name="chevron-forward-outline"></ion-icon>
     </ion-fab-button>
