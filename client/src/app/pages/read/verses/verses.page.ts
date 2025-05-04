@@ -1,10 +1,10 @@
 import {
+  AfterViewInit,
   Component,
   computed,
   effect,
   ElementRef,
   inject,
-  resource,
   signal,
   viewChild,
 } from '@angular/core';
@@ -30,9 +30,7 @@ import { TextKey } from 'src/app/constants/text-key';
 import { UrlPath } from 'src/app/constants/url-path';
 import { PageSwipeDirective } from 'src/app/directives/page-swipe.directive';
 import { Note, Verse } from 'src/app/interfaces';
-import { VersePageParams } from 'src/app/interfaces/route-params';
 import { HighlightPipe } from 'src/app/pipes/highlight.pipe';
-import { ApiService } from 'src/app/services/api.service';
 import { BookmarkService } from 'src/app/services/bookmark.service';
 import HighlightUtils from 'src/app/utils/highlight.utils';
 import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
@@ -55,8 +53,7 @@ import RouteUtils from 'src/app/utils/route.utils';
   templateUrl: './verses.page.html',
   styleUrls: ['./verses.page.scss'],
 })
-export class VersesPage {
-  private apiService = inject(ApiService);
+export class VersesPage implements AfterViewInit {
   private bookmarkService = inject(BookmarkService);
   private elRef = inject(ElementRef<HTMLElement>);
   private navController = inject(NavController);
@@ -84,21 +81,17 @@ export class VersesPage {
   protected routeQueryParams = toSignal(this.route.queryParams);
   protected search = signal('');
   protected selectedVerses = signal<Verse[]>([]);
-  protected verses = resource<Verse[], VersePageParams>({
-    request: () => this.routeParams() as VersePageParams,
-    loader: async ({ request }) => {
-      const { translation, bookUsfm, chapter } = request;
-      if (!request) return [];
-      const verses = await this.apiService.getVerses(translation, bookUsfm, chapter);
-      this.addHighlightToVerses(verses);
-      this.focusVerse();
-      return verses;
-    },
+  protected verses = computed(() => {
+    const { verses } = this.routeData() || {};
+    this.addHighlightToVerses(verses);
+    return verses;
   });
   protected versesToFocus = computed(() => {
     const { verse } = this.routeQueryParams() || {};
     return verse?.split(',').map(Number);
   });
+
+  private isViewInitialized = signal(false);
 
   constructor() {
     effect(() => {
@@ -106,7 +99,16 @@ export class VersesPage {
       const recentRead = { bookName: name, bookUsfm: usfm, chapter, translation };
       this.bookmarkService.recentRead.set(recentRead);
     });
+
+    effect(() => {
+      if (!this.isViewInitialized() || !this.versesToFocus()) return;
+      this.focusVerse();
+    });
     this.notes = LocalStorageUtils.getNotes();
+  }
+
+  ngAfterViewInit(): void {
+    this.isViewInitialized.set(true);
   }
 
   onSearch(event: any) {
@@ -130,7 +132,7 @@ export class VersesPage {
         case 'bookmark':
           break;
         case 'highlight':
-          this.addHighlightToVerses(this.verses.value()!);
+          this.addHighlightToVerses(this.verses()!);
           break;
         case 'note':
           this.notes = data;
@@ -232,6 +234,6 @@ export class VersesPage {
       if (!firstVerse) return;
       const element = document.getElementById(`verse-${firstVerse}`);
       element?.scrollIntoView({ behavior: 'smooth' });
-    });
+    }, 100);
   }
 }

@@ -35,9 +35,10 @@ export class BibleTranslationService {
   }
 
   public updateTranslation(newTranslation: string): void {
-    // Get current URL segments
     const urlTree = this.router.parseUrl(this.router.url);
     const segments = urlTree.root.children['primary']?.segments || [];
+    const currentTranslation = segments.length > 1 ? segments[1].path : null;
+    if (newTranslation === currentTranslation) return;
     const newSegments = [UrlPath.read, newTranslation, ...segments.slice(2).map((s) => s.path)];
     const { queryParams } = urlTree;
     const fragment = urlTree.fragment || undefined;

@@ -13,7 +13,7 @@
     </ion-fab-button>
   </ion-fab>
   <p class="verse-text-container">
-    @for (verse of verses.value(); track verse.id) {
+    @for (verse of verses(); track verse.id) {
       @let notes = getNotesForVerse(verse);
       @let color = $any(verse).color;
       <div class="verse-container"  [class.selected]="isSelected(verse)" (click)="onVerseClick(verse)">

@@ -9,6 +9,7 @@ import { LayoutComponent } from './components/layout/layout.component';
 import RouteUtils from './utils/route.utils';
 import { TextKey } from './constants/text-key';
 import { UrlPath } from './constants/url-path';
+import { versesInChapterResolver } from './resolvers/verses-in-chapter.resolver';
 
 export const routes: Routes = [
   {
@@ -52,6 +53,7 @@ export const routes: Routes = [
         data: { enableTranslationsSelect: true },
         resolve: {
           title: RouteUtils.getVersePageTitle,
+          verses: versesInChapterResolver,
         },
       },
       {

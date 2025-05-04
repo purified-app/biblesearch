@@ -6,6 +6,7 @@ import { filter } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class RouterNavigationService {
   private router = inject(Router);
+
   navigationEnd = toSignal(
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd))
   );

@@ -121,7 +121,8 @@ export class LocalStorageUtils {
     localStorage.setItem(LocalStorage.StartPage, page);
   }
 
-  static saveTranslation(translation: string): void {
+  static saveTranslation(translation?: string): void {
+    if (!translation) return;
     localStorage.setItem(LocalStorage.Translation, translation);
   }
 

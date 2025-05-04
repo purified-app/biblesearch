@@ -37,7 +37,7 @@ export class LanguageSelectComponent {
   protected bibleTranslation = inject(BibleTranslationService);
   protected selectedTranslation = computed(() => {
     const ufsm = this.bibleTranslation.translation();
-    return this.bibleTranslation.getTranslationObj(ufsm);
+    return ufsm ? this.bibleTranslation.getTranslationObj(ufsm) : undefined;
   });
   protected translations = this.bibleTranslation.translations();
 
