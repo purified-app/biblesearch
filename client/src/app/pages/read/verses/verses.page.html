@@ -19,7 +19,6 @@
   }
   <p class="verse-text-container">
     @for (verse of verses.value(); track verse.id) {
-      @let notes = getNotesForVerse(verse);
       @let color = $any(verse).color;
       <div class="verse-container"  [class.selected]="isSelected(verse)" (click)="onVerseClick(verse)">
         <span>
@@ -39,7 +38,7 @@
           [style.color]="color? getHighlightTextColor(color) : ''">
         </span>
       </span>
-        @for (note of notes; track $index) {
+        @for (note of verse.notes; track $index) {
           <ion-button class="note-button" (click)="onNoteClick($event, note)">
             <ion-icon name="document-text-outline"  slot="icon-only"></ion-icon>
           </ion-button>
@@ -57,7 +56,7 @@
 
   @if (selectedVerses().length) {
     <ion-fab slot="fixed" vertical="bottom" horizontal="center">
-      <ion-fab-button id="open-action-sheet" color="dark" (click)="onVerseFabClick()">
+      <ion-fab-button id="open-action-sheet" color="dark" (click)="onActionFabClick()">
         <ion-icon name="chevron-up-circle"></ion-icon>
       </ion-fab-button>
     </ion-fab>

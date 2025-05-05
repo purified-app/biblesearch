@@ -9,15 +9,14 @@ import {
   IonRadioGroup,
   ModalController,
 } from '@ionic/angular/standalone';
+import { TranslatePipe } from '@ngx-translate/core';
+import { TextKey } from 'src/app/constants/text-key';
 import { Verse } from 'src/app/interfaces';
 import { BookmarkService } from 'src/app/services/bookmark.service';
 import NoteUtils from 'src/app/utils/note.utils';
 import { NoteModalService } from '../note-modal/note-modal.service';
 import { RainbowColor, RainbowColors } from './../../constants/colors';
 import { VerseHighlightService } from './verse-highlight.service';
-import { TranslatePipe } from '@ngx-translate/core';
-import { TextKey } from 'src/app/constants/text-key';
-import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
 
 @Component({
   selector: 'app-verse-actions-modal',
@@ -97,10 +96,7 @@ export class VerseActionsModalComponent implements OnInit, VerseActionsModalProp
         const note = NoteUtils.createNoteFromVerses(this.verses);
         const modal = await this.noteModalService.openModal(note);
         modal.onDidDismiss().then((event) => {
-          if (event.role === 'confirm') {
-            const notes = LocalStorageUtils.getNotes();
-            this.modalController.dismiss(notes, role);
-          }
+          event.role === 'confirm' ? this.modalController.dismiss(event.data, role) : null;
         });
         return;
       case 'highlight':

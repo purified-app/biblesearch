@@ -57,3 +57,7 @@ export interface Verse {
   /** `KJV`, `NB` etc */
   translation: string;
 }
+
+export interface VerseNotes extends Verse {
+  notes: Note[];
+}

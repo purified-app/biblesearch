@@ -88,7 +88,7 @@ export class NoteModalComponent implements OnInit, AfterViewInit, NoteModalProps
   protected modalController = inject(ModalController);
   protected TextKey = TextKey;
 
-  private alertControler = inject(AlertController);
+  private alertController = inject(AlertController);
   private router = inject(Router);
   private translation = inject(TranslateService);
 
@@ -104,7 +104,7 @@ export class NoteModalComponent implements OnInit, AfterViewInit, NoteModalProps
   }
 
   protected async onDeleteNote() {
-    const alert = await this.alertControler.create({
+    const alert = await this.alertController.create({
       header: this.translation.instant(TextKey.DeleteNote),
       message: this.translation.instant(TextKey.DeleteNoteMessage),
       buttons: [
@@ -115,6 +115,7 @@ export class NoteModalComponent implements OnInit, AfterViewInit, NoteModalProps
         },
         {
           text: this.translation.instant(TextKey.Delete),
+          role: 'destructive',
           handler: () => {
             LocalStorageUtils.removeNote(this.note.id);
             this.modalController.dismiss(this.note, 'delete');

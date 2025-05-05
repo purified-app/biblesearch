@@ -13,7 +13,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { NavigationOptions } from '@ionic/angular/common/providers/nav-controller';
 import {
-  ActionSheetButton,
   IonButton,
   IonContent,
   IonFab,
@@ -33,7 +32,7 @@ import { AllBooks } from 'src/app/constants/books';
 import { TextKey } from 'src/app/constants/text-key';
 import { UrlPath } from 'src/app/constants/url-path';
 import { PageSwipeDirective } from 'src/app/directives/page-swipe.directive';
-import { Note, Verse } from 'src/app/interfaces';
+import { Note, Verse, VerseNotes } from 'src/app/interfaces';
 import { VersePageParams } from 'src/app/interfaces/route-params';
 import { HighlightPipe } from 'src/app/pipes/highlight.pipe';
 import { ApiService } from 'src/app/services/api.service';
@@ -42,6 +41,7 @@ import HighlightUtils from 'src/app/utils/highlight.utils';
 import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
 import NoteUtils from 'src/app/utils/note.utils';
 import RouteUtils from 'src/app/utils/route.utils';
+import { versesActionSheetButtons } from './verses-action-sheet-buttons';
 
 @Component({
   selector: 'app-verses',
@@ -70,15 +70,7 @@ export class VersesPage implements AfterViewInit {
   private verseActionsModalService = inject(VerseActionsModalService);
   protected searchService = inject(SearchService);
 
-  protected actionSheetButtons: ActionSheetButton[] = [
-    {
-      icon: 'bookmark-outline',
-      text: TextKey.Bookmark,
-      role: 'bookmark',
-    },
-    { icon: 'document-text-outline', text: TextKey.AddNote, role: 'notes' },
-  ];
-  protected notes: Note[] = [];
+  protected actionSheetButtons = versesActionSheetButtons;
   protected TextKey = TextKey;
 
   // Signals
@@ -91,15 +83,21 @@ export class VersesPage implements AfterViewInit {
   protected selectedVerses = signal<Verse[]>([]);
   protected showFabs = signal(true);
 
-  protected verses = resource<Verse[], VersePageParams>({
+  protected verses = resource<VerseNotes[], VersePageParams>({
     request: () => this.routeParams() as VersePageParams,
     loader: async ({ request }) => {
       const { translation, bookUsfm, chapter } = request;
       if (!request) return [];
       const verses = await this.apiService.getVerses(translation, bookUsfm, chapter);
-      this.addHighlightToVerses(verses);
-      return verses;
+      const notes = LocalStorageUtils.getNotes();
+      const versesWithNotes = verses.map((verse) => ({
+        ...verse,
+        notes: NoteUtils.getNotesForVerse(notes, verse),
+      }));
+      this.addHighlightToVerses(versesWithNotes);
+      return versesWithNotes;
     },
+    defaultValue: [],
   });
   protected versesToFocus = computed(() => {
     const { verse } = this.routeQueryParams() || {};
@@ -120,7 +118,6 @@ export class VersesPage implements AfterViewInit {
       if (!this.isViewInitialized() || !this.verses.value()) return;
       this.focusVerse();
     });
-    this.notes = LocalStorageUtils.getNotes();
   }
 
   ngAfterViewInit(): void {
@@ -142,7 +139,7 @@ export class VersesPage implements AfterViewInit {
     });
   }
 
-  async onVerseFabClick() {
+  async onActionFabClick() {
     const modal = await this.verseActionsModalService.openModal(this.selectedVerses());
     modal.onDidDismiss().then(({ data, role }) => {
       switch (role) {
@@ -152,16 +149,22 @@ export class VersesPage implements AfterViewInit {
           this.addHighlightToVerses(this.verses.value()!);
           break;
         case 'note':
-          this.notes = data;
+          this.verses.reload();
           break;
       }
       this.selectedVerses.set([]);
     });
   }
 
-  onNoteClick(event: Event, note: Note) {
+  async onNoteClick(event: Event, note: Note) {
     event.stopImmediatePropagation();
-    this.noteModalService.openModal(note);
+    const modal = await this.noteModalService.openModal(note);
+    modal.onDidDismiss().then(({ role }) => {
+      switch (role) {
+        case 'delete':
+          this.verses.reload();
+      }
+    });
   }
 
   onVerseClick(verse: Verse) {
@@ -197,7 +200,6 @@ export class VersesPage implements AfterViewInit {
     this.navController.navigateBack([`/${UrlPath.read}/${translation}/${bookUsfm}`]);
   }
 
-  protected getNotesForVerse = (verse: Verse) => NoteUtils.getNotesForVerse(this.notes, verse);
   protected getHighlightTextColor = HighlightUtils.getHighlightTextColor;
   protected getHighlightBackgroundColor = HighlightUtils.getHighlightBackgroundColor;
 
