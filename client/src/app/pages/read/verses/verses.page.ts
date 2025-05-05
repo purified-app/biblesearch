@@ -107,6 +107,7 @@ export class VersesPage implements AfterViewInit {
   });
 
   private isViewInitialized = signal(false);
+  private ionContent = viewChild(IonContent);
 
   constructor() {
     effect(() => {
@@ -124,6 +125,7 @@ export class VersesPage implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.isViewInitialized.set(true);
+    this.ionContentScroll();
   }
 
   onSearch(event: any) {
@@ -198,6 +200,17 @@ export class VersesPage implements AfterViewInit {
   protected getNotesForVerse = (verse: Verse) => NoteUtils.getNotesForVerse(this.notes, verse);
   protected getHighlightTextColor = HighlightUtils.getHighlightTextColor;
   protected getHighlightBackgroundColor = HighlightUtils.getHighlightBackgroundColor;
+
+  private async ionContentScroll() {
+    const scrollEl = await this.ionContent()?.getScrollElement();
+    let lastScrollTop = 0;
+    scrollEl?.addEventListener('scroll', () => {
+      const currentScrollTop = scrollEl.scrollTop;
+      const deltaY = currentScrollTop - lastScrollTop;
+      this.showFabs.set(deltaY <= 0);
+      lastScrollTop = currentScrollTop;
+    });
+  }
 
   private navigate(direction: 'forward' | 'backward', options?: NavigationOptions) {
     const { translation, bookUsfm, chapter } = this.routeParams()!;

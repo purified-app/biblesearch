@@ -9,12 +9,7 @@
 
   <app-language-select toolbarEnd></app-language-select>
 </app-page-header>
-<ion-content class="ion-padding" 
-  appPageSwipe 
-  [scrollEvents]="true"
-  (ionScroll)="onScroll($event)"
-  (swipeLeft)="navigateForward()" 
-  (swipeRight)="navigateBack()">
+<ion-content class="ion-padding" appPageSwipe (swipeLeft)="navigateForward()" (swipeRight)="navigateBack()">
   @if (showFabs()) {
     <ion-fab slot="fixed" vertical="center" horizontal="start" (click)="navigateBack( { animated: false })">
       <ion-fab-button color="dark">
