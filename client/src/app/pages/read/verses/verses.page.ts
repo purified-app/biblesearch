@@ -23,6 +23,7 @@ import {
   NavController,
 } from '@ionic/angular/standalone';
 import { IonContentCustomEvent, ScrollDetail } from '@ionic/core';
+import { BackButtonComponent } from 'src/app/components/back-button/back-button.component';
 import { LanguageSelectComponent } from 'src/app/components/language-select/language-select.component';
 import { NoteModalService } from 'src/app/components/note-modal/note-modal.service';
 import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
@@ -45,6 +46,7 @@ import RouteUtils from 'src/app/utils/route.utils';
 @Component({
   selector: 'app-verses',
   imports: [
+    BackButtonComponent,
     LanguageSelectComponent,
     HighlightPipe,
     PageHeaderComponent,

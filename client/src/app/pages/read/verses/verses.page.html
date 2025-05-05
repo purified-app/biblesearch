@@ -1,4 +1,7 @@
 <app-page-header toolbarTitle="">
+  @if(routeQueryParams()?.['verse']){
+    <app-back-button toolbarButton></app-back-button>
+  }
   <ion-button toolbarButton (click)="goBackToChapters()">{{routeData()?.['title']}}</ion-button>
   <ion-button toolbarEnd (click)="searchService.togglePopover(true)">
     <ion-icon slot="icon-only" name="search-sharp"></ion-icon>
