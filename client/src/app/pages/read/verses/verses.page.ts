@@ -176,38 +176,12 @@ export class VersesPage implements AfterViewInit {
     return !!this.selectedVerses().find((v) => v.id === verse.id);
   }
 
-  navigateBack(options?: NavigationOptions) {
-    let { bookUsfm, chapter, translation } = this.routeParams()!;
-    const books = AllBooks[translation as keyof typeof AllBooks];
-    const currentBook = books.find((b) => b.usfm === bookUsfm);
-    if (!currentBook) return;
-    chapter = Number(chapter);
-
-    if (chapter > 1) {
-      chapter--;
-    } else if (currentBook.bookNumber > 1) {
-      const nextBook = books.find((b) => b.bookNumber === currentBook.bookNumber - 1);
-      if (!nextBook) return;
-      bookUsfm = nextBook.usfm;
-      chapter = nextBook?.chapters || 1;
-    }
-    this.navigate(bookUsfm, chapter, options);
+  protected navigateForward(options?: NavigationOptions) {
+    this.navigate('forward', options);
   }
 
-  navigateForward(options?: NavigationOptions) {
-    let { bookUsfm, chapter, translation } = this.routeParams()!;
-    const books = AllBooks[translation as keyof typeof AllBooks];
-    const currentBook = books.find((b) => b.usfm === bookUsfm);
-    if (!currentBook) return;
-    chapter = Number(chapter);
-
-    if (chapter < currentBook.chapters) {
-      chapter++;
-    } else if (currentBook.bookNumber < 66) {
-      bookUsfm = books.find((b) => b.bookNumber === currentBook.bookNumber + 1)?.usfm;
-      chapter = 1;
-    }
-    this.navigate(bookUsfm, chapter, options);
+  protected navigateBack(options?: NavigationOptions) {
+    this.navigate('backward', options);
   }
 
   protected onScroll(event: IonContentCustomEvent<ScrollDetail>) {
@@ -223,10 +197,38 @@ export class VersesPage implements AfterViewInit {
   protected getHighlightTextColor = HighlightUtils.getHighlightTextColor;
   protected getHighlightBackgroundColor = HighlightUtils.getHighlightBackgroundColor;
 
-  private navigate(bookUsfm: string, chapter: number, options?: NavigationOptions) {
-    const { translation } = this.routeParams()!;
-    const url = `/${UrlPath.read}/${translation}/${bookUsfm}/${chapter}`;
-    const direction = chapter > Number(this.routeParams()!['chapter']) ? 'forward' : 'backward';
+  private navigate(direction: 'forward' | 'backward', options?: NavigationOptions) {
+    const { translation, bookUsfm, chapter } = this.routeParams()!;
+    const books = AllBooks[translation as keyof typeof AllBooks];
+    const currentBook = books.find((b) => b.usfm === bookUsfm);
+    if (!currentBook) return;
+
+    let targetBookUsfm = bookUsfm;
+    let targetChapter = Number(chapter);
+
+    if (direction === 'forward') {
+      if (targetChapter < currentBook.chapters) {
+        targetChapter++;
+      } else if (currentBook.bookNumber < 66) {
+        const nextBook = books.find((b) => b.bookNumber === currentBook.bookNumber + 1);
+        if (nextBook) {
+          targetBookUsfm = nextBook.usfm;
+          targetChapter = 1;
+        }
+      }
+    } else {
+      if (targetChapter > 1) {
+        targetChapter--;
+      } else if (currentBook.bookNumber > 1) {
+        const prevBook = books.find((b) => b.bookNumber === currentBook.bookNumber - 1);
+        if (prevBook) {
+          targetBookUsfm = prevBook.usfm;
+          targetChapter = prevBook.chapters;
+        }
+      }
+    }
+
+    const url = `/${UrlPath.read}/${translation}/${targetBookUsfm}/${targetChapter}`;
     direction === 'forward'
       ? this.navController.navigateForward(url, options)
       : this.navController.navigateBack(url, options);
