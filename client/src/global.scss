@@ -53,3 +53,12 @@ ion-modal.modal-action-sheet {
 ion-content {
   --background: var(--ion-item-background, var(--ion-background-color, #fff));
 }
+
+html:not(.ion-palette-dark) ion-content {
+  --background: linen;
+}
+
+html.ion-palette-dark .highlight {
+  color: wheat;
+  font-weight: bold;
+}
