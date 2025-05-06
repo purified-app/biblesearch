@@ -58,6 +58,10 @@ html:not(.ion-palette-dark) ion-content {
   --background: linen;
 }
 
+.highlight {
+  font-weight: bold;
+}
+
 html.ion-palette-dark .highlight {
   color: wheat;
   font-weight: bold;

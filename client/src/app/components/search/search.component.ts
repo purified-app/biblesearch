@@ -54,7 +54,7 @@ import { SearchService } from './search.service';
           <div class="search-results">
             @if (searchResults.isLoading()) {
             <ion-spinner></ion-spinner>
-            } @if(searchResults.value()?.verses) {
+            } @if(searchResults.value()?.verses?.length) {
             <ion-text class="search-results-count">
               <sub>
                 {{ TextKey.Showing | translate }} {{ searchResults.value()?.verses?.length }}

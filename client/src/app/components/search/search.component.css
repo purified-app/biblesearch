@@ -6,3 +6,8 @@ ion-popover {
   --offset-x: -12px;
   --width: 100%;
 }
+
+sub {
+  bottom: unset;
+  padding: 0px 8px;
+}

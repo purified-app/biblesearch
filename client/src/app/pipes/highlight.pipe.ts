@@ -14,15 +14,10 @@ export class HighlightPipe implements PipeTransform {
     }
 
     const words = search.split(/\s+/).filter((word) => word.length > 0);
-    const escapedWords = words.map((word) =>
-      word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
-    );
+    const escapedWords = words.map((word) => word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'));
     const regex = new RegExp(escapedWords.join('|'), 'gi');
 
-    const replacedValue = value.replace(
-      regex,
-      (match) => `<b style="color: wheat;">${match}</b>`
-    );
+    const replacedValue = value.replace(regex, (match) => `<b class="highlight">${match}</b>`);
     return this.sanitizer.bypassSecurityTrustHtml(replacedValue);
   }
 }
