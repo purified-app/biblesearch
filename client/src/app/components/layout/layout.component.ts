@@ -24,13 +24,13 @@ import { BibleTranslationService } from 'src/app/services/bible-translation.serv
 import { BookmarkService } from 'src/app/services/bookmark.service';
 import { RouterNavigationService } from 'src/app/services/router-navigation.service';
 import BookmarkUtils from 'src/app/utils/bookmark.utils';
-import { SearchComponent } from '../search/search.component';
+import { SearchPopover } from '../search/search.component';
 import { slideAnimation } from './slide.animation';
 
 @Component({
   selector: 'app-layout',
   imports: [
-    SearchComponent,
+    SearchPopover,
     IonContent,
     IonHeader,
     IonIcon,

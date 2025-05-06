@@ -38,7 +38,7 @@ import { SearchService } from './search.service';
       side="bottom"
       [event]="{ clientX: 0, clientY: 64 }"
       [reference]="'event'"
-      [showBackdrop]="false"
+      [showBackdrop]="true"
       [isOpen]="searchService.isSearchOpen()"
       (didDismiss)="searchService.togglePopover(false)"
       (didPresent)="ionSearchbar().setFocus()"
@@ -86,7 +86,7 @@ import { SearchService } from './search.service';
   styleUrl: './search.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SearchComponent {
+export class SearchPopover {
   protected searchService = inject(SearchService);
   private apiService = inject(ApiService);
 
