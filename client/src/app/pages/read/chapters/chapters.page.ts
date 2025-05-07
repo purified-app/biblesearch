@@ -3,9 +3,9 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { IonButton, IonContent, NavController } from '@ionic/angular/standalone';
 import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
+import { UrlPath } from 'src/app/constants/url-path';
 import RouteUtils from 'src/app/utils/route.utils';
 import { LanguageSelectComponent } from '../../../components/language-select/language-select.component';
-import { UrlPath } from 'src/app/constants/url-path';
 
 @Component({
   selector: 'app-chapters',
@@ -31,22 +31,21 @@ import { UrlPath } from 'src/app/constants/url-path';
   styles: [
     `
       .grid-container {
-        /* background-color: #2196F3; */
         display: grid;
         gap: 8px;
         grid-template-columns: auto auto auto auto auto;
         padding: 10px;
       }
       .grid-container > a {
-        text-decoration: none;
+        background-color: var(--ion-color-light-tint);
+        border: 1px solid var(--ion-color-light-shade);
+        border-radius: 8px;
         color: inherit;
+        text-decoration: none;
       }
       .grid-item {
         aspect-ratio: 1 / 1;
         align-items: center;
-        background-color: rgba(255, 255, 255, 0.2);
-        border: 1px solid rgba(0, 0, 0, 0.5);
-        border-radius: 8px;
         display: flex;
         font-size: 2rem;
         justify-content: center;

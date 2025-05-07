@@ -35,18 +35,15 @@ import { TextKey } from '../../constants/text-key';
   templateUrl: './search.page.html',
 })
 export class SearchPage implements AfterViewInit {
-  apiService = inject(ApiService);
-
-  protected TextKey = TextKey;
-
-  readonly searchbar = viewChild.required(IonSearchbar);
+  private apiService = inject(ApiService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
-  queryParams = toSignal(this.route.queryParams);
-  searchTerm = computed(() => this.queryParams()?.['q'] || '');
-
-  searchResults = resource<SearchResponse, { search: string }>({
+  protected readonly TextKey = TextKey;
+  protected readonly searchbar = viewChild.required(IonSearchbar);
+  protected queryParams = toSignal(this.route.queryParams);
+  protected searchTerm = computed(() => this.queryParams()?.['q'] || '');
+  protected searchResults = resource<SearchResponse, { search: string }>({
     request: () => ({ search: this.searchTerm() }),
     loader: async ({ request }) => {
       if (request.search.length < 2) return { verses: [], count: 0 };
@@ -58,13 +55,13 @@ export class SearchPage implements AfterViewInit {
     setTimeout(() => this.searchbar().setFocus(), 10);
   }
 
-  onSearchInput(event: Event) {
+  protected onSearchInput(event: Event) {
     const element = event.target as HTMLInputElement;
     const value = element.value.trim();
     this.updateSearchQueryParam(value);
   }
 
-  getListHeader = (data: Verse) => {
+  protected getListHeader = (data: Verse) => {
     const { bookName, chapter, verse } = data;
     return `${bookName} ${chapter}:${verse}`;
   };
