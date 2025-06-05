@@ -97,10 +97,10 @@ export class SearchPopover {
   searchTerm = this.searchService.searchTerm;
 
   searchResults = resource<SearchResponse, { search: string }>({
-    request: () => ({ search: this.searchTerm() }),
-    loader: async ({ request }) => {
-      if (request.search.length < 2) return { verses: [], count: 0 };
-      return await this.apiService.search(request.search);
+    params: () => ({ search: this.searchTerm() }),
+    loader: async ({ params }) => {
+      if (params.search.length < 2) return { verses: [], count: 0 };
+      return await this.apiService.search(params.search);
     },
   });
 

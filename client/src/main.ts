@@ -1,33 +1,5 @@
-import { enableProdMode } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
-import {
-  RouteReuseStrategy,
-  provideRouter,
-  withPreloading,
-  PreloadAllModules,
-} from '@angular/router';
-import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
-
-import { routes } from './app/app.routes';
+import { appConfig } from './app/app.config';
 import { AppComponent } from './app/app.component';
-import { environment } from './environments/environment';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { slowRequestsInterceptor } from './app/interceptors/slow-requests.interceptor';
-import { provideTranslateService } from '@ngx-translate/core';
 
-if (environment.production) {
-  enableProdMode();
-}
-
-bootstrapApplication(AppComponent, {
-  providers: [
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    provideIonicAngular(),
-    provideRouter(routes, withPreloading(PreloadAllModules)),
-    provideHttpClient(withInterceptors([slowRequestsInterceptor])),
-    provideTranslateService({
-      defaultLanguage: 'en',
-      useDefaultLang: true,
-    }),
-  ],
-});
+bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));

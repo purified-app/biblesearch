@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { NavigationOptions } from '@ionic/angular/common/providers/nav-controller';
 import {
   IonButton,
   IonContent,
@@ -22,6 +21,7 @@ import {
   NavController,
 } from '@ionic/angular/standalone';
 import { IonContentCustomEvent, ScrollDetail } from '@ionic/core';
+import { NavigationOptions } from 'node_modules/@ionic/angular/common/providers/nav-controller';
 import { BackButtonComponent } from 'src/app/components/back-button/back-button.component';
 import { LanguageSelectComponent } from 'src/app/components/language-select/language-select.component';
 import { NoteModalService } from 'src/app/components/note-modal/note-modal.service';
@@ -84,10 +84,10 @@ export class VersesPage implements AfterViewInit {
   protected showFabs = signal(true);
 
   protected verses = resource<VerseNotes[], VersePageParams>({
-    request: () => this.routeParams() as VersePageParams,
-    loader: async ({ request }) => {
-      const { translation, bookUsfm, chapter } = request;
-      if (!request) return [];
+    params: () => this.routeParams() as VersePageParams,
+    loader: async ({ params }) => {
+      const { translation, bookUsfm, chapter } = params;
+      if (!params) return [];
       const verses = await this.apiService.getVerses(translation, bookUsfm, chapter);
       const notes = LocalStorageUtils.getNotes();
       const versesWithNotes = verses.map((verse) => ({
