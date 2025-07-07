@@ -13,14 +13,14 @@ import {
 import { TranslatePipe } from '@ngx-translate/core';
 import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
 import { Verse } from 'src/app/interfaces';
-import { HighlightPipe } from 'src/app/pipes/highlight.pipe';
+import { HighlightSearchPipe } from 'src/app/pipes/highlight-search.pipe';
 import { ApiService, SearchResponse } from 'src/app/services/api.service';
 import { TextKey } from '../../constants/text-key';
 
 @Component({
   imports: [
     PageHeaderComponent,
-    HighlightPipe,
+    HighlightSearchPipe,
     IonContent,
     IonItem,
     IonLabel,

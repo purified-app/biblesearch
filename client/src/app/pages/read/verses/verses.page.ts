@@ -34,21 +34,25 @@ import { UrlPath } from 'src/app/constants/url-path';
 import { PageSwipeDirective } from 'src/app/directives/page-swipe.directive';
 import { Note, Verse, VerseNotes } from 'src/app/interfaces';
 import { VersePageParams } from 'src/app/interfaces/route-params';
-import { HighlightPipe } from 'src/app/pipes/highlight.pipe';
+import { HighlightSearchPipe } from 'src/app/pipes/highlight-search.pipe';
 import { ApiService } from 'src/app/services/api.service';
 import { BookmarkService } from 'src/app/services/bookmark.service';
 import HighlightUtils from 'src/app/utils/highlight.utils';
 import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
 import NoteUtils from 'src/app/utils/note.utils';
 import RouteUtils from 'src/app/utils/route.utils';
+import { FocusVerseDirective } from './focus-verse.directive';
+import { HighlightColorDirective } from './highlight-verse.directive';
 import { versesActionSheetButtons } from './verses-action-sheet-buttons';
 
 @Component({
   selector: 'app-verses',
   imports: [
     BackButtonComponent,
+    FocusVerseDirective,
     LanguageSelectComponent,
-    HighlightPipe,
+    HighlightSearchPipe,
+    HighlightColorDirective,
     PageHeaderComponent,
     PageSwipeDirective,
     IonButton,
@@ -101,10 +105,9 @@ export class VersesPage implements AfterViewInit {
   });
   protected versesToFocus = computed(() => {
     const { verse } = this.routeQueryParams() || {};
-    return verse?.split(',').map(Number);
+    return verse?.split(',').map(Number) || [];
   });
 
-  private isViewInitialized = signal(false);
   private ionContent = viewChild(IonContent);
 
   constructor() {
@@ -113,15 +116,9 @@ export class VersesPage implements AfterViewInit {
       const recentRead = { bookName: name, bookUsfm: usfm, chapter, translation };
       this.bookmarkService.recentRead.set(recentRead);
     });
-
-    effect(() => {
-      if (!this.isViewInitialized() || !this.verses.value()) return;
-      this.focusVerse();
-    });
   }
 
   ngAfterViewInit(): void {
-    this.isViewInitialized.set(true);
     this.ionContentScroll();
   }
 
@@ -200,9 +197,6 @@ export class VersesPage implements AfterViewInit {
     this.navController.navigateBack([`/${UrlPath.read}/${translation}/${bookUsfm}`]);
   }
 
-  protected getHighlightTextColor = HighlightUtils.getHighlightTextColor;
-  protected getHighlightBackgroundColor = HighlightUtils.getHighlightBackgroundColor;
-
   private async ionContentScroll() {
     const scrollEl = await this.ionContent()?.getScrollElement();
     let lastScrollTop = 0;
@@ -251,25 +245,16 @@ export class VersesPage implements AfterViewInit {
       : this.navController.navigateBack(url, options);
   }
 
-  private getVerseHighlights() {
+  private getHighlightVerses() {
     const { bookUsfm, chapter } = this.routeParams()!;
-    return LocalStorageUtils.getVerseHighlightsByBook(bookUsfm, Number(chapter));
+    return LocalStorageUtils.getVersesToHighlightByBook(bookUsfm, Number(chapter));
   }
 
   private addHighlightToVerses(verses: (Verse & { color?: string })[]) {
-    const highlights = this.getVerseHighlights();
+    const highlights = this.getHighlightVerses();
     verses.forEach((verse) => {
       const highlight = highlights.find((highlight) => highlight.verse === verse.verse);
       verse.color = highlight?.color;
     });
-  }
-
-  private focusVerse() {
-    setTimeout(() => {
-      const firstVerse = this.versesToFocus()?.[0];
-      if (!firstVerse) return;
-      const element = document.getElementById(`verse-${firstVerse}`);
-      element?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
   }
 }

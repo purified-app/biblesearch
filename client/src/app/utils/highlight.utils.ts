@@ -1,7 +1,8 @@
 import { RainbowColors } from '../constants/colors';
 
 export default class HighlightUtils {
-  static getHighlightTextColor(color: string) {
+  static getHighlightTextColor(color?: string) {
+    if (!color) return '';
     switch (color) {
       case 'gray':
       case 'red':
@@ -18,7 +19,8 @@ export default class HighlightUtils {
     }
   }
 
-  static getHighlightBackgroundColor(color: string) {
+  static getHighlightBackgroundColor(color?: string) {
+    if (!color) return '';
     return RainbowColors[color as keyof typeof RainbowColors];
   }
 }

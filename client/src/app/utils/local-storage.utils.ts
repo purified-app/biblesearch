@@ -49,7 +49,7 @@ export class LocalStorageUtils {
     return highlights ? JSON.parse(highlights) : [];
   }
 
-  static getVerseHighlightsByBook(
+  static getVersesToHighlightByBook(
     bookUsfm: string,
     chapter: number,
     translation?: string

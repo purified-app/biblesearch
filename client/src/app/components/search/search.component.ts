@@ -13,14 +13,14 @@ import {
 import { TranslatePipe } from '@ngx-translate/core';
 import { TextKey } from 'src/app/constants/text-key';
 import { Verse } from 'src/app/interfaces';
-import { HighlightPipe } from 'src/app/pipes/highlight.pipe';
+import { HighlightSearchPipe } from 'src/app/pipes/highlight-search.pipe';
 import { ApiService, SearchResponse } from 'src/app/services/api.service';
 import { SearchService } from './search.service';
 
 @Component({
   selector: 'app-search',
   imports: [
-    HighlightPipe,
+    HighlightSearchPipe,
     IonContent,
     IonItem,
     IonLabel,

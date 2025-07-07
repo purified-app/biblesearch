@@ -25,17 +25,17 @@
           <span 
           class="verse-number" 
           id="verse-{{ verse.verse }}" 
-          [style.background]="color? getHighlightBackgroundColor(color) : ''"
-          [style.color]="color? getHighlightTextColor(color) : ''" 
+          [highlightColor]="color"
           >
           {{ verse.verse }}
         </span>
         <span
           class="verse-text"
-          [class.highlight]="versesToFocus()?.includes(verse.verse)" 
+          appFocusVerse
+          [verseNumber]="verse.verse"
+          [versesToFocus]="versesToFocus()"
           [innerHTML]="verse.text | highlightSearch: search()"
-          [style.background]="color? getHighlightBackgroundColor(color) : ''"
-          [style.color]="color? getHighlightTextColor(color) : ''">
+          [highlightColor]="color">
         </span>
       </span>
         @for (note of verse.notes; track $index) {
