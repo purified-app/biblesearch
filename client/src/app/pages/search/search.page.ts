@@ -14,7 +14,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
 import { Verse } from 'src/app/interfaces';
 import { HighlightSearchPipe } from 'src/app/pipes/highlight-search.pipe';
-import { ApiService, SearchResponse } from 'src/app/services/api.service';
+import { ApiService, SearchReqParams, SearchResponse } from 'src/app/services/api.service';
 import { TextKey } from '../../constants/text-key';
 
 @Component({
@@ -42,12 +42,12 @@ export class SearchPage implements AfterViewInit {
   protected readonly TextKey = TextKey;
   protected readonly searchbar = viewChild.required(IonSearchbar);
   protected queryParams = toSignal(this.route.queryParams);
-  protected searchTerm = computed(() => this.queryParams()?.['q'] || '');
-  protected searchResults = resource<SearchResponse, { search: string }>({
-    params: () => ({ search: this.searchTerm() }),
+  protected searchTerm = computed(() => this.queryParams()?.['query'] || '');
+  protected searchResults = resource<SearchResponse, SearchReqParams>({
+    params: () => this.queryParams() as SearchReqParams,
     loader: async ({ params }) => {
-      if (params.search.length < 2) return { verses: [], count: 0 };
-      return await this.apiService.search(params.search);
+      if (params.query.length < 2) return { verses: [], count: 0 };
+      return await this.apiService.search(params);
     },
   });
 
@@ -69,7 +69,7 @@ export class SearchPage implements AfterViewInit {
   private updateSearchQueryParam(value: string): void {
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { q: value || null },
+      queryParams: { query: value || null },
       queryParamsHandling: 'merge',
       replaceUrl: true,
     });

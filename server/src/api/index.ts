@@ -7,14 +7,49 @@ import { Books } from "../classes/Books";
 export const apiRoutes = new Hono();
 const db = new Database("bible.db", { create: true });
 
+// server.ts
 apiRoutes.get("/search", async (c) => {
-  const LIMIT = 72;
-  const term = c.req.query("q") ?? "";
-  console.log(term);
+  const LIMIT = 120;
+  const term = c.req.query("query") ?? "";
+  const canonFilter = c.req.query("canon"); // 'nt' or 'ot'
+  const booksFilter = c.req.query("books"); // Comma-separated list of book USFM
+  const translationsFilter = c.req.query("translations"); // Comma-separated list
+
   const text = String(term)?.trim().split(" ").join(" OR ");
 
   let query: string;
   let WHERE = "";
+  const queryParams: (string | number)[] = []; // To hold parameters for the query
+
+  // 1. Build WHERE clause based on filters
+
+  const whereClauses: string[] = [];
+
+  // Canon filter
+  if (canonFilter) {
+    whereClauses.push(`canon = ?`);
+    queryParams.push(canonFilter);
+  }
+
+  // Books filter (using bookUsfm)
+  if (booksFilter) {
+    const books = booksFilter.split(",");
+    if (books.length > 0) {
+      const bookPlaceholders = books.map(() => "?").join(",");
+      whereClauses.push(`bookUsfm IN (${bookPlaceholders})`); // Changed to bookUsfm
+      books.forEach((book) => queryParams.push(book));
+    }
+  }
+
+  // Translations filter
+  if (translationsFilter) {
+    const translations = translationsFilter.split(",");
+    if (translations.length > 0) {
+      const translationPlaceholders = translations.map(() => "?").join(",");
+      whereClauses.push(`translation IN (${translationPlaceholders})`);
+      translations.forEach((translation) => queryParams.push(translation));
+    }
+  }
 
   // Regular expression to match format "John 3"
   const matchChapter = term.match(/(\w+)\s+(\d+)/);
@@ -25,52 +60,59 @@ apiRoutes.get("/search", async (c) => {
 
   if (matchBookChapterVerse) {
     const [, bookName, chapter, verse] = matchBookChapterVerse;
-    WHERE = `Verses_fts MATCH 'bookName:${bookName}*' AND chapter=${chapter} AND verse=${verse}`;
-    query = `
-    SELECT *
-      FROM Verses_fts
-      WHERE ${WHERE}
-      ORDER BY score
-      LIMIT ?;
-    `;
+    whereClauses.push(
+      `Verses_fts MATCH 'bookName:${bookName}*' AND chapter=${chapter} AND verse=${verse}`
+    );
   } else if (matchChapterVerseOnly) {
     const [, chapter, verse] = matchChapterVerseOnly;
-    WHERE = `chapter=${chapter} AND verse=${verse}`;
-    query = `
-    SELECT *
-      FROM Verses
-      WHERE ${WHERE}
-      ORDER BY bookNumber
-      LIMIT ?;
-    `;
+    whereClauses.push(`chapter=${chapter} AND verse=${verse}`);
   } else if (matchChapter) {
     const [, bookName, chapter] = matchChapter;
-    // Override the query to search for verses in the specified book name and chapter
-    WHERE = `Verses_fts MATCH 'bookName:${bookName}*' AND chapter=${chapter}`;
-    query = `
-    SELECT *, bm25(Verses_fts, 20, 0, 15, 10, 5, 15, 20, 5) as score
-      FROM Verses_fts
-      WHERE ${WHERE}
-      ORDER BY bookName, verse;
-    `;
-  } else {
-    WHERE = `Verses_fts MATCH '${text}*'`;
-    query = `
-    SELECT *, bm25(Verses_fts, 20, 0, 15, 10, 5, 15, 20, 5) as score
-      FROM Verses_fts
-      WHERE ${WHERE}
-      ORDER BY score
-      LIMIT ?;
-    `;
+    whereClauses.push(`Verses_fts MATCH 'bookName:${bookName}*' AND chapter=${chapter}`);
+  } else if (text) {
+    whereClauses.push(`Verses_fts MATCH '${text}*'`);
   }
 
-  console.log("Query:", query);
+  if (whereClauses.length > 0) {
+    WHERE = "WHERE " + whereClauses.join(" AND ");
+  }
+
+  // 2. Construct the main query
+  let selectClause = "*";
+  let orderByClause = "score";
+
+  if (matchChapter) {
+    selectClause = "*, bm25(Verses_fts, 20, 0, 15, 10, 5, 15, 20, 5) as score";
+    orderByClause = "bookName, verse";
+  } else if (!matchChapterVerseOnly) {
+    selectClause = "*, bm25(Verses_fts, 20, 0, 15, 10, 5, 15, 20, 5) as score";
+    orderByClause = "score";
+  } else {
+    orderByClause = "bookNumber"; // default order
+  }
+
+  const tableName = matchChapterVerseOnly ? "Verses" : "Verses_fts"; // change table
+
+  query = `
+   SELECT ${selectClause}
+   FROM ${tableName}
+   ${WHERE}
+   ORDER BY ${orderByClause}
+   LIMIT ?;
+   `;
+
+  queryParams.push(LIMIT); // Add LIMIT to query parameters
 
   const statement = db.query(query).as(Verses_fts);
-  const verses = statement.all(LIMIT);
-  const countQuery = `SELECT COUNT(*) as count FROM Verses_fts  WHERE ${WHERE}`;
+  const verses = statement.all(...queryParams); // Pass parameters to all()
+
+  // 3. Count query
+
+  const countQuery = `SELECT COUNT(*) as count FROM ${tableName} ${WHERE}`;
   const countStatement = db.query(countQuery);
-  const count = countStatement.get() as { count: number };
+  const count = countStatement.get(...queryParams.slice(0, -1)) as {
+    count: number;
+  }; // Remove LIMIT from count query
   return c.json({ ...count, verses });
 });
 

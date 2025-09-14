@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 
 const SEARCH = 'search';
-const QUERY = 'q';
+const QUERY = 'query';
 
 @Injectable({ providedIn: 'root' })
 export class SearchService {
