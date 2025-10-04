@@ -1,5 +1,4 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
@@ -77,7 +76,7 @@ import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
   styleUrl: './note-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NoteModalComponent implements OnInit, AfterViewInit, NoteModalProps {
+export class NoteModalComponent implements OnInit, NoteModalProps {
   note!: Note;
 
   noteContent = signal<string | undefined>(this.note?.content);
@@ -94,13 +93,6 @@ export class NoteModalComponent implements OnInit, AfterViewInit, NoteModalProps
 
   ngOnInit(): void {
     this.title = BookmarkUtils.getTitle(this.note.bookmark);
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      const textareaEl = this.elRef.nativeElement.querySelector('textarea');
-      textareaEl.focus();
-    }, 50);
   }
 
   protected async onDeleteNote() {

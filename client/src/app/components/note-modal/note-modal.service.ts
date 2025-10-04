@@ -12,7 +12,10 @@ export class NoteModalService {
       component: NoteModalComponent,
       componentProps: { note },
     });
-    modal.present();
+    modal.present().then(() => {
+      const textareaEl = modal.querySelector('textarea');
+      textareaEl?.focus();
+    });
     return modal;
   }
 }

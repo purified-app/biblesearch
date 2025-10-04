@@ -28,7 +28,6 @@ import { NoteModalService } from 'src/app/components/note-modal/note-modal.servi
 import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
 import { SearchService } from 'src/app/components/search/search.service';
 import { VerseActionsModalService } from 'src/app/components/verse-actions-modal/verse-actions-modal.service';
-import { AllBooks } from 'src/app/constants/books';
 import { TextKey } from 'src/app/constants/text-key';
 import { UrlPath } from 'src/app/constants/url-path';
 import { PageSwipeDirective } from 'src/app/directives/page-swipe.directive';
@@ -37,7 +36,7 @@ import { VersePageParams } from 'src/app/interfaces/route-params';
 import { HighlightSearchPipe } from 'src/app/pipes/highlight-search.pipe';
 import { ApiService } from 'src/app/services/api.service';
 import { BookmarkService } from 'src/app/services/bookmark.service';
-import HighlightUtils from 'src/app/utils/highlight.utils';
+import { ChapterNavigationService } from 'src/app/services/chapter-navigation.service';
 import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
 import NoteUtils from 'src/app/utils/note.utils';
 import RouteUtils from 'src/app/utils/route.utils';
@@ -67,6 +66,7 @@ import { versesActionSheetButtons } from './verses-action-sheet-buttons';
 export class VersesPage implements AfterViewInit {
   private apiService = inject(ApiService);
   private bookmarkService = inject(BookmarkService);
+  private chapterNavigationService = inject(ChapterNavigationService);
   private elRef = inject(ElementRef<HTMLElement>);
   private navController = inject(NavController);
   private noteModalService = inject(NoteModalService);
@@ -122,20 +122,6 @@ export class VersesPage implements AfterViewInit {
     this.ionContentScroll();
   }
 
-  onSearch(event: any) {
-    this.search.set(event.detail.value);
-    setTimeout(() => {
-      const element = this.elRef.nativeElement as HTMLElement;
-      const scrollEl = element
-        .getElementsByTagName('ion-content')[0]
-        .getElementsByClassName('scroll-y')[0];
-      const firstSearchHit = element.getElementsByTagName('b')[0];
-      firstSearchHit
-        ? firstSearchHit.scrollIntoView({ behavior: 'smooth' })
-        : scrollEl.scrollTo({ top: 0 });
-    });
-  }
-
   async onActionFabClick() {
     const modal = await this.verseActionsModalService.openModal(this.selectedVerses());
     modal.onDidDismiss().then(({ data, role }) => {
@@ -181,11 +167,13 @@ export class VersesPage implements AfterViewInit {
   }
 
   protected navigateForward(options?: NavigationOptions) {
-    this.navigate('forward', options);
+    const versePageParams = this.routeParams() as VersePageParams;
+    this.chapterNavigationService.navigateChapter('forward', versePageParams, options);
   }
 
   protected navigateBack(options?: NavigationOptions) {
-    this.navigate('backward', options);
+    const versePageParams = this.routeParams() as VersePageParams;
+    this.chapterNavigationService.navigateChapter('backward', versePageParams, options);
   }
 
   protected onScroll(event: IonContentCustomEvent<ScrollDetail>) {
@@ -206,43 +194,6 @@ export class VersesPage implements AfterViewInit {
       this.showFabs.set(deltaY <= 0);
       lastScrollTop = currentScrollTop;
     });
-  }
-
-  private navigate(direction: 'forward' | 'backward', options?: NavigationOptions) {
-    const { translation, bookUsfm, chapter } = this.routeParams()!;
-    const books = AllBooks[translation as keyof typeof AllBooks];
-    const currentBook = books.find((b) => b.usfm === bookUsfm);
-    if (!currentBook) return;
-
-    let targetBookUsfm = bookUsfm;
-    let targetChapter = Number(chapter);
-
-    if (direction === 'forward') {
-      if (targetChapter < currentBook.chapters) {
-        targetChapter++;
-      } else if (currentBook.bookNumber < 66) {
-        const nextBook = books.find((b) => b.bookNumber === currentBook.bookNumber + 1);
-        if (nextBook) {
-          targetBookUsfm = nextBook.usfm;
-          targetChapter = 1;
-        }
-      }
-    } else {
-      if (targetChapter > 1) {
-        targetChapter--;
-      } else if (currentBook.bookNumber > 1) {
-        const prevBook = books.find((b) => b.bookNumber === currentBook.bookNumber - 1);
-        if (prevBook) {
-          targetBookUsfm = prevBook.usfm;
-          targetChapter = prevBook.chapters;
-        }
-      }
-    }
-
-    const url = `/${UrlPath.read}/${translation}/${targetBookUsfm}/${targetChapter}`;
-    direction === 'forward'
-      ? this.navController.navigateForward(url, options)
-      : this.navController.navigateBack(url, options);
   }
 
   private getHighlightVerses() {

@@ -1,29 +1,35 @@
-import { Directive, ElementRef, AfterViewInit, inject, input } from '@angular/core';
+import { Directive, effect, ElementRef, inject, input } from '@angular/core';
 
 @Directive({
   selector: '[appFocusVerse]',
   standalone: true,
 })
-export class FocusVerseDirective implements AfterViewInit {
+export class FocusVerseDirective {
   private el = inject(ElementRef);
 
   readonly verseNumber = input<number | undefined>(undefined);
-  readonly versesToFocus = input<number[]>([]); // Input for verses to focus
+  readonly versesToFocus = input<number[]>([]);
 
-  ngAfterViewInit(): void {
-    this.applyHighlight();
-  }
+  constructor() {
+    effect(() => {
+      const verseNumber = this.verseNumber();
+      const versesToFocus = this.versesToFocus();
 
-  private applyHighlight() {
-    const verseNumber = this.verseNumber();
-    if (verseNumber && this.versesToFocus().includes(verseNumber)) {
-      this.el.nativeElement.style.fontWeight = 'bold';
-      if (document.getElementsByClassName('ion-palette-dark')) {
-        this.el.nativeElement.style.color = 'wheat';
+      if (verseNumber && versesToFocus.includes(verseNumber)) {
+        const element = this.el.nativeElement;
+        element.style.fontWeight = 'bold';
+
+        // Apply color immediately, or after next frame if theme isn't ready
+        const applyColor = () => {
+          if (document.getElementsByClassName('ion-palette-dark').length > 0) {
+            element.style.color = 'wheat';
+          }
+        };
+
+        applyColor();
+        requestAnimationFrame(applyColor); // Retry after DOM updates
+        element.scrollIntoView({ behavior: 'smooth' });
       }
-      setTimeout(() => {
-        this.el.nativeElement.scrollIntoView({ behavior: 'smooth' });
-      });
-    }
+    });
   }
 }

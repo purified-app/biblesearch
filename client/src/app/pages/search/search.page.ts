@@ -52,7 +52,7 @@ export class SearchPage implements AfterViewInit {
   });
 
   ngAfterViewInit(): void {
-    setTimeout(() => this.searchbar().setFocus(), 10);
+    requestAnimationFrame(() => this.searchbar().setFocus());
   }
 
   protected onSearchInput(event: Event) {

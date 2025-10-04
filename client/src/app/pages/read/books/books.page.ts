@@ -71,7 +71,6 @@ import { Book } from 'src/app/interfaces';
 export class BooksPage {
   booksNT: WritableSignal<Book[]>;
   booksOT: WritableSignal<Book[]>;
-  // readonly searchbar = viewChild.required(IonSearchbar);
   protected activatedRoute = inject(ActivatedRoute);
   protected routeParamMap = toSignal(this.activatedRoute.paramMap);
   protected TextKey = TextKey;
@@ -84,17 +83,4 @@ export class BooksPage {
     this.booksNT = signal(booksNT);
     this.booksOT = signal(booksOT);
   }
-
-  // ngAfterViewInit(): void {
-  //   setTimeout(() => this.searchbar().setFocus());
-  // }
-
-  // onSearch(event: any) {
-  //   const translation = this.routeParamMap()?.get('translation');
-  //   const books = allBooks[translation as keyof typeof allBooks];
-  //   const booksFiltered = books.filter((book) =>
-  //     book.name.toLowerCase().includes(event.target.value.toLowerCase())
-  //   );
-  //   this.books.set(booksFiltered);
-  // }
 }
