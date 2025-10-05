@@ -25,7 +25,8 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TextKey } from 'src/app/constants/text-key';
 import { Note } from 'src/app/interfaces';
 import BookmarkUtils from 'src/app/utils/bookmark.utils';
-import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
+import { StorageUtils } from 'src/app/utils/storage.utils';
+import { StorageService } from 'src/app/services/storage.service';
 
 @Component({
   selector: 'app-note-modal',
@@ -90,6 +91,7 @@ export class NoteModalComponent implements OnInit, NoteModalProps {
   private alertController = inject(AlertController);
   private router = inject(Router);
   private translation = inject(TranslateService);
+  private storage = inject(StorageService);
 
   ngOnInit(): void {
     this.title = BookmarkUtils.getTitle(this.note.bookmark);
@@ -109,7 +111,9 @@ export class NoteModalComponent implements OnInit, NoteModalProps {
           text: this.translation.instant(TextKey.Delete),
           role: 'destructive',
           handler: () => {
-            LocalStorageUtils.removeNote(this.note.id);
+            const notes = this.storage.get('notes', []);
+            const updatedNotes = notes.filter((n) => n.id !== this.note.id);
+            this.storage.set('notes', updatedNotes);
             this.modalController.dismiss(this.note, 'delete');
           },
         },
@@ -131,7 +135,7 @@ export class NoteModalComponent implements OnInit, NoteModalProps {
     if (noteContent !== undefined) {
       this.note.content = noteContent;
     }
-    LocalStorageUtils.saveNote(this.note);
+    StorageUtils.saveNote(this.note, this.storage);
     this.modalController.dismiss(this.note, 'confirm');
   }
 

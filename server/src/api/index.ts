@@ -126,21 +126,25 @@ apiRoutes.get("/books", async (c) => {
 // Route for books of a specific translation:
 apiRoutes.get("/books/:translation", async (c) => {
   const translation = c.req.param("translation");
-  const query = `SELECT * FROM Books WHERE translation = '${translation}'`;
+  const query = `SELECT * FROM Books WHERE translation = ?`;
   const statement = db.query(query).as(Books);
-  const books = statement.all();
+  const books = statement.all(translation);
   return c.json(books);
 });
 
 // route to get read books
 apiRoutes.get("/verses", async (c) => {
-  const { bookUsfm, chapter, translation } = c.req.queries();
-  const query = `SELECT * FROM Verses 
-      WHERE translation = '${translation}'
-      AND bookUsfm = '${bookUsfm}'
-      AND chapter = '${chapter}'
-    `;
+  const bookUsfm = c.req.query("bookUsfm");
+  const chapter = c.req.query("chapter");
+  const translation = c.req.query("translation");
+  if (!bookUsfm || !chapter || !translation) {
+    return c.json(
+      { error: "Missing required query parameters: bookUsfm, chapter, translation" },
+      400
+    );
+  }
+  const query = `SELECT * FROM Verses WHERE translation = ? AND bookUsfm = ? AND chapter = ?`;
   const statement = db.query(query).as(Verses);
-  const verses = statement.all();
+  const verses = statement.all(translation, bookUsfm, chapter);
   return c.json(verses);
 });

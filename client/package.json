@@ -23,6 +23,7 @@
     "@ionic/angular": "^8.6.0",
     "@ionic/core": "^8.6.0",
     "@ngx-translate/core": "^16.0.4",
+    "@purified-app/typed-storage": "^0.1.0-beta.1",
     "ionicons": "^8.0.9",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"

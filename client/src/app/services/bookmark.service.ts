@@ -1,30 +1,32 @@
-import { effect, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import { Bookmark, RecentRead, Verse } from '../interfaces';
 import BookmarkUtils from '../utils/bookmark.utils';
-import { LocalStorageUtils } from '../utils/local-storage.utils';
+import { StorageService } from './storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class BookmarkService {
-  recentRead = signal<RecentRead | undefined>(LocalStorageUtils.getRecentRead());
-  bookmarks = signal<Bookmark[]>(LocalStorageUtils.getBookmarks());
+  private storage = inject(StorageService);
+  private initialized = false;
+  recentRead = signal<RecentRead>(
+    this.storage.get('recentRead', { bookUsfm: 'GEN', chapter: 1, translation: 'KJV' })
+  );
+  bookmarks = signal<Bookmark[]>(this.storage.get('bookmarks', []));
 
   constructor() {
     effect(() => {
-      // TODO: skip save for init value
-      LocalStorageUtils.saveBookmarks(this.bookmarks());
+      if (this.initialized) this.storage.set('bookmarks', this.bookmarks());
     });
     effect(() => {
-      // TODO: skip save for init value
-      LocalStorageUtils.saveRecentRead(this.recentRead()!);
+      if (this.initialized) this.storage.set('recentRead', this.recentRead());
     });
+    this.initialized = true;
   }
 
   saveVersesAsBookmark(verses: Verse[]) {
     const bookmark = BookmarkUtils.createBookmarkFromVerses(verses);
-    // Retrieve the array from localStorage
-    const bookmarks = LocalStorageUtils.getBookmarks();
-    const bookmarksLimit = LocalStorageUtils.getBookmarkLimit();
-    // Check the length of the array
+    const bookmarks = this.storage.get('bookmarks', []);
+    const bookmarksLimit = this.storage.get('bookmarksLimit', 5);
+    // Check the length of the array'
     if (bookmarks.length >= bookmarksLimit) {
       // Remove the last element if the array is at max length
       bookmarks.pop();

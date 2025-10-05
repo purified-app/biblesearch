@@ -37,7 +37,8 @@ import { HighlightSearchPipe } from 'src/app/pipes/highlight-search.pipe';
 import { ApiService } from 'src/app/services/api.service';
 import { BookmarkService } from 'src/app/services/bookmark.service';
 import { ChapterNavigationService } from 'src/app/services/chapter-navigation.service';
-import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
+import { StorageUtils } from 'src/app/utils/storage.utils';
+import { StorageService } from 'src/app/services/storage.service';
 import NoteUtils from 'src/app/utils/note.utils';
 import RouteUtils from 'src/app/utils/route.utils';
 import { FocusVerseDirective } from './focus-verse.directive';
@@ -71,6 +72,7 @@ export class VersesPage implements AfterViewInit {
   private navController = inject(NavController);
   private noteModalService = inject(NoteModalService);
   private route = inject(ActivatedRoute);
+  private storage = inject(StorageService);
   private verseActionsModalService = inject(VerseActionsModalService);
   protected searchService = inject(SearchService);
 
@@ -93,7 +95,7 @@ export class VersesPage implements AfterViewInit {
       const { translation, bookUsfm, chapter } = params;
       if (!params) return [];
       const verses = await this.apiService.getVerses(translation, bookUsfm, chapter);
-      const notes = LocalStorageUtils.getNotes();
+      const notes = StorageUtils.getNotes(this.storage);
       const versesWithNotes = verses.map((verse) => ({
         ...verse,
         notes: NoteUtils.getNotesForVerse(notes, verse),
@@ -198,7 +200,7 @@ export class VersesPage implements AfterViewInit {
 
   private getHighlightVerses() {
     const { bookUsfm, chapter } = this.routeParams()!;
-    return LocalStorageUtils.getVersesToHighlightByBook(bookUsfm, Number(chapter));
+    return StorageUtils.getVersesToHighlightByBook(this.storage, bookUsfm, Number(chapter));
   }
 
   private addHighlightToVerses(verses: (Verse & { color?: string })[]) {

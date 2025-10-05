@@ -1,12 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Verse } from 'src/app/interfaces';
-import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
+import { StorageService } from 'src/app/services/storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class VerseHighlightService {
+  private storage = inject(StorageService);
+
   saveVerseHighlights(selectedVerses: Verse[], color: string) {
     const highlights = this.buildVerseHighlights(selectedVerses, color);
-    LocalStorageUtils.saveVerseHighlights(highlights);
+    this.saveVerseHighlightsToStorage(highlights);
   }
 
   private buildVerseHighlights(verses: Verse[], color: string): VerseHighlight[] {
@@ -24,6 +26,24 @@ export class VerseHighlightService {
       const { bookNumber, bookUsfm, chapter, verse } = verseObj;
       return { ...common, bookNumber, bookUsfm, chapter, verse };
     });
+  }
+
+  private saveVerseHighlightsToStorage(highlights: VerseHighlight[]): void {
+    const existingHighlights = this.storage.get('verseHighlights', []);
+    if (existingHighlights.length) {
+      highlights.forEach((highlight) => {
+        const index = existingHighlights.findIndex(
+          (existingHighlight) =>
+            existingHighlight.translation === highlight.translation &&
+            existingHighlight.bookUsfm === highlight.bookUsfm &&
+            existingHighlight.chapter === highlight.chapter &&
+            existingHighlight.verse === highlight.verse
+        );
+        if (index > -1) existingHighlights.splice(index, 1);
+      });
+    }
+    const allHighlights = [...existingHighlights, ...highlights];
+    this.storage.set('verseHighlights', allHighlights);
   }
 }
 

@@ -2,13 +2,14 @@ import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { BibleTranslation, translations } from '../constants/translations';
 import { UrlPath } from '../constants/url-path';
-import { LocalStorageUtils } from '../utils/local-storage.utils';
 import { RouterNavigationService } from './router-navigation.service';
+import { StorageService } from './storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class BibleTranslationService {
   private router = inject(Router);
   private routerNavigationService = inject(RouterNavigationService);
+  private storage = inject(StorageService);
 
   translations = signal<BibleTranslation[]>(translations);
 
@@ -21,12 +22,12 @@ export class BibleTranslationService {
         return segments[1].path;
       }
     }
-    return LocalStorageUtils.getTranslation();
+    return this.storage.get('translation', 'KJV');
   });
 
   constructor() {
     effect(() => {
-      LocalStorageUtils.saveTranslation(this.translation());
+      this.storage.set('translation', this.translation());
     });
   }
 

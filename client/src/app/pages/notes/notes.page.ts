@@ -16,8 +16,8 @@ import BookmarkUtils from 'src/app/utils/bookmark.utils';
 import NoteUtils from 'src/app/utils/note.utils';
 import { TextKey } from 'src/app/constants/text-key';
 import { TranslatePipe } from '@ngx-translate/core';
-import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
 import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
+import { StorageService } from 'src/app/services/storage.service';
 
 @Component({
   selector: 'app-notes',
@@ -64,7 +64,8 @@ import { PageHeaderComponent } from 'src/app/components/page-header/page-header.
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NotesPage {
-  protected notes = signal<Note[]>(LocalStorageUtils.getNotes());
+  private storage = inject(StorageService);
+  protected notes = signal<Note[]>(this.storage.get('notes', []));
   protected selectedNote = signal<Note | undefined>(undefined);
   protected selectedNoteTitle = computed(() => NoteUtils.getNoteTitle(this.selectedNote()));
   protected noteModalService = inject(NoteModalService);
@@ -77,14 +78,16 @@ export class NotesPage {
     switch (role) {
       case 'confirm':
       case 'delete':
-        this.notes.set(LocalStorageUtils.getNotes());
+        this.notes.set(this.storage.get('notes', []));
         break;
     }
     this.selectedNote.set(undefined);
   }
 
   protected onDeleteNote(note: Note) {
-    LocalStorageUtils.removeNote(note.id);
-    this.notes.set(LocalStorageUtils.getNotes());
+    const notes = this.storage.get('notes', []);
+    const updatedNotes = notes.filter((n) => n.id !== note.id);
+    this.storage.set('notes', updatedNotes);
+    this.notes.set(updatedNotes);
   }
 }

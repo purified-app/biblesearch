@@ -23,8 +23,8 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { languages } from 'src/app/constants/languages';
 import { TextKey } from './../../constants/text-key';
 import { SettingsAppearanceComponent } from 'src/app/components/settings-appearance/settings-appearance.component';
-import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
 import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
+import { StartPage, StorageService } from 'src/app/services/storage.service';
 
 @Component({
   selector: 'app-settings',
@@ -98,10 +98,11 @@ import { PageHeaderComponent } from 'src/app/components/page-header/page-header.
   `,
 })
 export class SettingsPage {
-  bookmarksLimit = signal<number>(Number(LocalStorageUtils.getBookmarkLimit()));
-  language = signal<string>(LocalStorageUtils.getLanguage());
-  languages = signal<{ value: string; description: string }[]>(languages);
-  startPage = signal<string>(LocalStorageUtils.getStartPage());
+  private storage = inject(StorageService);
+  bookmarksLimit = signal<number>(this.storage.get('bookmarksLimit', 5));
+  language = signal(this.storage.get('language', navigator.language.slice(0, 2)));
+  languages = signal(languages);
+  startPage = signal(this.storage.get('startPage', 'recentRead'));
 
   protected TextKey = TextKey;
 
@@ -111,9 +112,9 @@ export class SettingsPage {
     effect(() => {
       const language = this.language();
       this.translation.use(language);
-      LocalStorageUtils.saveLanguage(language);
+      this.storage.set('language', language);
     });
-    effect(() => LocalStorageUtils.saveStartPage(this.startPage()));
+    effect(() => this.storage.set('startPage', this.startPage()));
   }
 
   onLanguageChange($event: IonSelectCustomEvent<SelectChangeEventDetail<any>>) {
@@ -122,13 +123,12 @@ export class SettingsPage {
 
   onBookmarksLimitChange(event: IonInputCustomEvent<InputChangeEventDetail>) {
     const { value } = event.detail;
-    this.bookmarksLimit.set(value ? Number(value) : 5);
-    this.bookmarksLimit()
-      ? LocalStorageUtils.saveBookmarkLimit(this.bookmarksLimit())
-      : LocalStorageUtils.removeBookmarksLimit();
+    const limit = value ? Number(value) : 5;
+    this.bookmarksLimit.set(limit);
+    this.storage.set('bookmarksLimit', limit);
   }
 
-  onStartPageChange(event: IonRadioGroupCustomEvent<RadioGroupChangeEventDetail<string>>) {
+  onStartPageChange(event: IonRadioGroupCustomEvent<RadioGroupChangeEventDetail<StartPage>>) {
     this.startPage.set(event.detail.value);
   }
 }

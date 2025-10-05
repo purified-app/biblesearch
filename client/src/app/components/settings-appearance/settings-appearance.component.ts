@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import {
   IonIcon,
   IonItem,
@@ -11,7 +11,7 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TextKey } from './../../constants/text-key';
-import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
+import { StorageService } from 'src/app/services/storage.service';
 
 @Component({
   selector: 'app-settings-appearance',
@@ -61,20 +61,21 @@ import { LocalStorageUtils } from 'src/app/utils/local-storage.utils';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsAppearanceComponent {
-  protected fontSize = signal<number>(LocalStorageUtils.getFontSize());
-  protected darkMode = signal<boolean>(LocalStorageUtils.getDarkMode());
+  private storage = inject(StorageService);
+  protected fontSize = signal(this.storage.get('fontSize', 16));
+  protected darkMode = signal(this.storage.get('darkMode', true));
   protected TextKey = TextKey;
 
   constructor() {
     effect(() => {
       const fontSize = this.fontSize();
       document.documentElement.style.fontSize = `${fontSize}px`;
-      LocalStorageUtils.saveFontSize(String(fontSize));
+      this.storage.set('fontSize', fontSize);
     });
     effect(() => {
       const darkMode = this.darkMode();
       document.documentElement.classList.toggle('ion-palette-dark', darkMode);
-      LocalStorageUtils.saveDarkMode(darkMode);
+      this.storage.set('darkMode', darkMode);
     });
   }
 }

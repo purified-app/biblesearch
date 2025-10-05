@@ -5,12 +5,13 @@ import { inject } from '@angular/core';
 import { BibleTranslationService } from '../services/bible-translation.service';
 import { BookmarkService } from '../services/bookmark.service';
 import { UrlPath } from '../constants/url-path';
-import { LocalStorageUtils } from './local-storage.utils';
+import { StorageService } from '../services/storage.service';
 
 export default class RouteUtils {
   static redirectPathRoot = () => {
     const bookmarkService = inject(BookmarkService);
-    const startPage = LocalStorageUtils.getStartPage();
+    const storageService = inject(StorageService);
+    const startPage = storageService.get('startPage', 'search');
     switch (startPage) {
       case 'search':
         return UrlPath.search;
