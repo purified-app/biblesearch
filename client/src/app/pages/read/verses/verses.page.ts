@@ -3,7 +3,6 @@ import {
   Component,
   computed,
   effect,
-  ElementRef,
   inject,
   resource,
   signal,
@@ -33,7 +32,6 @@ import { UrlPath } from 'src/app/constants/url-path';
 import { PageSwipeDirective } from 'src/app/directives/page-swipe.directive';
 import { Note, Verse, VerseNotes } from 'src/app/interfaces';
 import { VersePageParams } from 'src/app/interfaces/route-params';
-import { HighlightSearchPipe } from 'src/app/pipes/highlight-search.pipe';
 import { ApiService } from 'src/app/services/api.service';
 import { BookmarkService } from 'src/app/services/bookmark.service';
 import { ChapterNavigationService } from 'src/app/services/chapter-navigation.service';
@@ -41,18 +39,14 @@ import { StorageUtils } from 'src/app/utils/storage.utils';
 import { StorageService } from 'src/app/services/storage.service';
 import NoteUtils from 'src/app/utils/note.utils';
 import RouteUtils from 'src/app/utils/route.utils';
-import { FocusVerseDirective } from './focus-verse.directive';
-import { HighlightColorDirective } from './highlight-verse.directive';
 import { versesActionSheetButtons } from './verses-action-sheet-buttons';
+import { VerseReaderComponent } from './verse-reader.component';
 
 @Component({
   selector: 'app-verses',
   imports: [
     BackButtonComponent,
-    FocusVerseDirective,
     LanguageSelectComponent,
-    HighlightSearchPipe,
-    HighlightColorDirective,
     PageHeaderComponent,
     PageSwipeDirective,
     IonButton,
@@ -60,6 +54,7 @@ import { versesActionSheetButtons } from './verses-action-sheet-buttons';
     IonFab,
     IonFabButton,
     IonIcon,
+    VerseReaderComponent,
   ],
   templateUrl: './verses.page.html',
   styleUrls: ['./verses.page.scss'],
@@ -68,7 +63,6 @@ export class VersesPage implements AfterViewInit {
   private apiService = inject(ApiService);
   private bookmarkService = inject(BookmarkService);
   private chapterNavigationService = inject(ChapterNavigationService);
-  private elRef = inject(ElementRef<HTMLElement>);
   private navController = inject(NavController);
   private noteModalService = inject(NoteModalService);
   private route = inject(ActivatedRoute);
@@ -86,7 +80,7 @@ export class VersesPage implements AfterViewInit {
   protected routeParams = toSignal(this.route.params);
   protected routeQueryParams = toSignal(this.route.queryParams);
   protected search = signal('');
-  protected selectedVerses = signal<Verse[]>([]);
+  protected selectedVerses = signal<VerseNotes[]>([]);
   protected showFabs = signal(true);
 
   protected verses = resource<VerseNotes[], VersePageParams>({
@@ -147,12 +141,12 @@ export class VersesPage implements AfterViewInit {
     modal.onDidDismiss().then(({ role }) => {
       switch (role) {
         case 'delete':
-          this.verses.reload();
+          this.removeNoteFromVerses(note);
       }
     });
   }
 
-  onVerseClick(verse: Verse) {
+  onVerseClick(verse: VerseNotes) {
     let selectedVerses = this.selectedVerses();
     const found = selectedVerses.find((v) => v.id === verse.id);
     if (!found) selectedVerses.push(verse);
@@ -162,10 +156,6 @@ export class VersesPage implements AfterViewInit {
 
     if (!selectedVerses.length) return;
     selectedVerses.sort((a, b) => a.verse - b.verse);
-  }
-
-  isSelected(verse: Verse): boolean {
-    return !!this.selectedVerses().find((v) => v.id === verse.id);
   }
 
   protected navigateForward(options?: NavigationOptions) {
@@ -196,6 +186,19 @@ export class VersesPage implements AfterViewInit {
       this.showFabs.set(deltaY <= 0);
       lastScrollTop = currentScrollTop;
     });
+  }
+
+  private removeNoteFromVerses(note: Note) {
+    const currentVerses = this.verses.value();
+    if (!currentVerses) return;
+
+    const updatedVerses = currentVerses.map((verse) => ({
+      ...verse,
+      notes: verse.notes.filter((n) => n.id !== note.id),
+    }));
+
+    // Update the resource value directly
+    this.verses.set(updatedVerses);
   }
 
   private getHighlightVerses() {

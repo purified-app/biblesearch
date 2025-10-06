@@ -1,0 +1,29 @@
+<p class="verse-text-container">
+  @for (verse of verses(); track verse.id) {
+    @let color = $any(verse).color;
+    <div class="verse-container" [class.selected]="isSelected(verse)" (click)="onVerseClick(verse)">
+      <span>
+        <span
+          class="verse-number"
+          id="verse-{{ verse.verse }}"
+          [highlightColor]="color"
+        >
+          {{ verse.verse }}
+        </span>
+        <span
+          class="verse-text"
+          appFocusVerse
+          [verseNumber]="verse.verse"
+          [versesToFocus]="versesToFocus()"
+          [innerHTML]="verse.text | highlightSearch: searchTerm()"
+          [highlightColor]="color">
+        </span>
+      </span>
+      @for (note of verse.notes; track $index) {
+        <ion-button class="note-button" (click)="onNoteClick($event, note)">
+          <ion-icon name="document-text-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      }
+    </div>
+  }
+</p>
