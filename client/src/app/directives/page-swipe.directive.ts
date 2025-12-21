@@ -1,6 +1,13 @@
-import { Directive, HostListener, output } from '@angular/core';
+import { Directive, output } from '@angular/core';
 
-@Directive({ selector: '[appPageSwipe]' })
+@Directive({
+  selector: '[appPageSwipe]',
+  host: {
+    '(touchstart)': 'onTouchStart($event)',
+    '(touchmove)': 'onTouchMove($event)',
+    '(touchend)': 'onTouchEnd()',
+  },
+})
 export class PageSwipeDirective {
   swipeLeft = output<void>();
   swipeRight = output<void>();
@@ -12,7 +19,6 @@ export class PageSwipeDirective {
   private minSwipeDistance = 50;
   private maxVerticalDistance = 50; // Maximum allowed vertical movement
 
-  @HostListener('touchstart', ['$event'])
   onTouchStart(event: TouchEvent) {
     if (event.touches.length > 0) {
       this.touchStartX = event.touches[0].clientX;
@@ -20,7 +26,6 @@ export class PageSwipeDirective {
     }
   }
 
-  @HostListener('touchmove', ['$event'])
   onTouchMove(event: TouchEvent) {
     if (event.touches.length > 0) {
       this.touchEndX = event.touches[0].clientX;
@@ -28,7 +33,6 @@ export class PageSwipeDirective {
     }
   }
 
-  @HostListener('touchend', ['$event'])
   onTouchEnd() {
     const swipeDistanceX = this.touchStartX - this.touchEndX;
     const swipeDistanceY = this.touchStartY - this.touchEndY;
