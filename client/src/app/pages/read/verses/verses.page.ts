@@ -1,13 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  computed,
-  effect,
-  inject,
-  resource,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { AfterViewInit, Component, computed, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -30,15 +21,9 @@ import { VerseActionsModalService } from 'src/app/components/verse-actions-modal
 import { TextKey } from 'src/app/constants/text-key';
 import { UrlPath } from 'src/app/constants/url-path';
 import { PageSwipeDirective } from 'src/app/directives/page-swipe.directive';
-import { Note, Verse, VerseNotes } from 'src/app/interfaces';
-import { VersePageParams } from 'src/app/interfaces/route-params';
-import { ApiService } from 'src/app/services/api.service';
-import { BookmarkService } from 'src/app/services/bookmark.service';
+import { Note, VerseNotes } from 'src/app/interfaces';
 import { ChapterNavigationService } from 'src/app/services/chapter-navigation.service';
-import { StorageUtils } from 'src/app/utils/storage.utils';
-import { StorageService } from 'src/app/services/storage.service';
-import NoteUtils from 'src/app/utils/note.utils';
-import RouteUtils from 'src/app/utils/route.utils';
+import { VersesService } from 'src/app/pages/read/verses/verses.service';
 import { versesActionSheetButtons } from './verses-action-sheet-buttons';
 import { VerseReaderComponent } from './verse-reader.component';
 
@@ -58,61 +43,35 @@ import { VerseReaderComponent } from './verse-reader.component';
   ],
   templateUrl: './verses.page.html',
   styleUrls: ['./verses.page.scss'],
+  providers: [VersesService],
 })
 export class VersesPage implements AfterViewInit {
-  private apiService = inject(ApiService);
-  private bookmarkService = inject(BookmarkService);
   private chapterNavigationService = inject(ChapterNavigationService);
   private navController = inject(NavController);
   private noteModalService = inject(NoteModalService);
   private route = inject(ActivatedRoute);
-  private storage = inject(StorageService);
   private verseActionsModalService = inject(VerseActionsModalService);
+  private versesService = inject(VersesService);
   protected searchService = inject(SearchService);
 
   protected actionSheetButtons = versesActionSheetButtons;
   protected TextKey = TextKey;
 
   // Signals
-  protected chapterInfo = computed(() => RouteUtils.getChapterInfo(this.routeParams()!));
   protected ionSearchbar = viewChild(IonSearchbar);
   protected routeData = toSignal(this.route.data);
-  protected routeParams = toSignal(this.route.params);
   protected routeQueryParams = toSignal(this.route.queryParams);
   protected search = signal('');
-  protected selectedVerses = signal<VerseNotes[]>([]);
+  protected selectedVerses = this.versesService.selectedVerses;
   protected showFabs = signal(true);
 
-  protected verses = resource<VerseNotes[], VersePageParams>({
-    params: () => this.routeParams() as VersePageParams,
-    loader: async ({ params }) => {
-      const { translation, bookUsfm, chapter } = params;
-      if (!params) return [];
-      const verses = await this.apiService.getVerses(translation, bookUsfm, chapter);
-      const notes = StorageUtils.getNotes(this.storage);
-      const versesWithNotes = verses.map((verse) => ({
-        ...verse,
-        notes: NoteUtils.getNotesForVerse(notes, verse),
-      }));
-      this.addHighlightToVerses(versesWithNotes);
-      return versesWithNotes;
-    },
-    defaultValue: [],
-  });
+  protected versesResource = this.versesService.versesResource;
   protected versesToFocus = computed(() => {
-    const { verse } = this.routeQueryParams() || {};
+    const verse = this.routeQueryParams()?.['verse'] as string;
     return verse?.split(',').map(Number) || [];
   });
 
   private ionContent = viewChild(IonContent);
-
-  constructor() {
-    effect(() => {
-      const { chapter, name, translation, usfm } = this.chapterInfo();
-      const recentRead = { bookName: name, bookUsfm: usfm, chapter, translation };
-      this.bookmarkService.recentRead.set(recentRead);
-    });
-  }
 
   ngAfterViewInit(): void {
     this.ionContentScroll();
@@ -125,10 +84,10 @@ export class VersesPage implements AfterViewInit {
         case 'bookmark':
           break;
         case 'highlight':
-          this.addHighlightToVerses(this.verses.value()!);
+          this.versesService.addHighlightToVerses(this.versesResource.value()!);
           break;
         case 'note':
-          this.verses.reload();
+          this.versesResource.reload();
           break;
       }
       this.selectedVerses.set([]);
@@ -141,7 +100,12 @@ export class VersesPage implements AfterViewInit {
     modal.onDidDismiss().then(({ role }) => {
       switch (role) {
         case 'delete':
-          this.removeNoteFromVerses(note);
+          const updatedVerses = this.versesService.removeNoteFromVerses(
+            this.versesResource.value()!,
+            note.id
+          );
+          this.versesResource.set(updatedVerses);
+          break;
       }
     });
   }
@@ -159,13 +123,19 @@ export class VersesPage implements AfterViewInit {
   }
 
   protected navigateForward(options?: NavigationOptions) {
-    const versePageParams = this.routeParams() as VersePageParams;
-    this.chapterNavigationService.navigateChapter('forward', versePageParams, options);
+    this.chapterNavigationService.navigateChapter(
+      'forward',
+      this.versesService.routeParams()!,
+      options
+    );
   }
 
   protected navigateBack(options?: NavigationOptions) {
-    const versePageParams = this.routeParams() as VersePageParams;
-    this.chapterNavigationService.navigateChapter('backward', versePageParams, options);
+    this.chapterNavigationService.navigateChapter(
+      'backward',
+      this.versesService.routeParams()!,
+      options
+    );
   }
 
   protected onScroll(event: IonContentCustomEvent<ScrollDetail>) {
@@ -173,7 +143,7 @@ export class VersesPage implements AfterViewInit {
   }
 
   protected goBackToChapters() {
-    const { translation, bookUsfm } = this.routeParams()!;
+    const { translation, bookUsfm } = this.versesService.routeParams()!;
     this.navController.navigateBack([`/${UrlPath.read}/${translation}/${bookUsfm}`]);
   }
 
@@ -185,32 +155,6 @@ export class VersesPage implements AfterViewInit {
       const deltaY = currentScrollTop - lastScrollTop;
       this.showFabs.set(deltaY <= 0);
       lastScrollTop = currentScrollTop;
-    });
-  }
-
-  private removeNoteFromVerses(note: Note) {
-    const currentVerses = this.verses.value();
-    if (!currentVerses) return;
-
-    const updatedVerses = currentVerses.map((verse) => ({
-      ...verse,
-      notes: verse.notes.filter((n) => n.id !== note.id),
-    }));
-
-    // Update the resource value directly
-    this.verses.set(updatedVerses);
-  }
-
-  private getHighlightVerses() {
-    const { bookUsfm, chapter } = this.routeParams()!;
-    return StorageUtils.getVersesToHighlightByBook(this.storage, bookUsfm, Number(chapter));
-  }
-
-  private addHighlightToVerses(verses: (Verse & { color?: string })[]) {
-    const highlights = this.getHighlightVerses();
-    verses.forEach((verse) => {
-      const highlight = highlights.find((highlight) => highlight.verse === verse.verse);
-      verse.color = highlight?.color;
     });
   }
 }

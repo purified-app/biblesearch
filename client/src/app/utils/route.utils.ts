@@ -39,7 +39,7 @@ export default class RouteUtils {
     return `${bookName} ${chapter}`;
   };
 
-  static getChapterInfo = (params: Params) => {
+  static getChapterInfo = (params: VersePageParams) => {
     const { bookUsfm, chapter, translation } = params;
     const bookData = AllBooks[translation as keyof typeof AllBooks].find(
       (b) => b.usfm === bookUsfm

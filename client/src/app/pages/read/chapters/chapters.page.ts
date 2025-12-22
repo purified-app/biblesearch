@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { IonButton, IonContent, NavController } from '@ionic/angular/standalone';
 import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
 import { UrlPath } from 'src/app/constants/url-path';
+import { VersePageParams } from 'src/app/interfaces/route-params';
 import RouteUtils from 'src/app/utils/route.utils';
 import { LanguageSelectComponent } from '../../../components/language-select/language-select.component';
 
@@ -56,7 +57,7 @@ import { LanguageSelectComponent } from '../../../components/language-select/lan
 export class ChaptersPage {
   protected activatedRoute = inject(ActivatedRoute);
   private navController = inject(NavController);
-  protected routeParams = toSignal(this.activatedRoute.params);
+  protected routeParams = toSignal<VersePageParams>(this.activatedRoute.params as any);
   protected chapters = computed(() => {
     const { chapters } = RouteUtils.getChapterInfo(this.routeParams()!);
     return chapters ? Array.from({ length: chapters }, (_, index) => index + 1) : [];
