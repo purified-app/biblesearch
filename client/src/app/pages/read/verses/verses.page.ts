@@ -1,4 +1,13 @@
-import { AfterViewInit, Component, computed, inject, signal, viewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+  viewChild,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -23,9 +32,11 @@ import { UrlPath } from 'src/app/constants/url-path';
 import { PageSwipeDirective } from 'src/app/directives/page-swipe.directive';
 import { Note, VerseNotes } from 'src/app/interfaces';
 import { ChapterNavigationService } from 'src/app/services/chapter-navigation.service';
+import { ScrollVerseTrackerService } from 'src/app/services/scroll-verse-tracker.service';
 import { VersesService } from 'src/app/pages/read/verses/verses.service';
 import { versesActionSheetButtons } from './verses-action-sheet-buttons';
 import { VerseReaderComponent } from './verse-reader.component';
+import { QueryParam } from 'src/app/constants/query-param';
 
 @Component({
   selector: 'app-verses',
@@ -50,6 +61,7 @@ export class VersesPage implements AfterViewInit {
   private navController = inject(NavController);
   private noteModalService = inject(NoteModalService);
   private route = inject(ActivatedRoute);
+  private scrollVerseTracker = inject(ScrollVerseTrackerService);
   private verseActionsModalService = inject(VerseActionsModalService);
   private versesService = inject(VersesService);
   protected searchService = inject(SearchService);
@@ -61,17 +73,27 @@ export class VersesPage implements AfterViewInit {
   protected ionSearchbar = viewChild(IonSearchbar);
   protected routeData = toSignal(this.route.data);
   protected routeQueryParams = toSignal(this.route.queryParams);
+  protected routeFragment = toSignal(this.route.fragment);
   protected search = signal('');
   protected selectedVerses = this.versesService.selectedVerses;
   protected showFabs = signal(true);
 
   protected versesResource = this.versesService.versesResource;
   protected versesToFocus = computed(() => {
-    const verse = this.routeQueryParams()?.['verse'] as string;
+    const verse = this.routeQueryParams()?.[QueryParam.FocusVerses] as string;
     return verse?.split(',').map(Number) || [];
   });
 
   private ionContent = viewChild(IonContent);
+
+  constructor() {
+    effect(() => {
+      const verses = this.versesResource.value();
+      if (verses && verses.length > 0) {
+        this.scrollToVerse(untracked(() => this.routeFragment()));
+      }
+    });
+  }
 
   ngAfterViewInit(): void {
     this.ionContentScroll();
@@ -102,7 +124,7 @@ export class VersesPage implements AfterViewInit {
         case 'delete':
           const updatedVerses = this.versesService.removeNoteFromVerses(
             this.versesResource.value()!,
-            note.id
+            note.id,
           );
           this.versesResource.set(updatedVerses);
           break;
@@ -126,7 +148,7 @@ export class VersesPage implements AfterViewInit {
     this.chapterNavigationService.navigateChapter(
       'forward',
       this.versesService.routeParams()!,
-      options
+      options,
     );
   }
 
@@ -134,7 +156,7 @@ export class VersesPage implements AfterViewInit {
     this.chapterNavigationService.navigateChapter(
       'backward',
       this.versesService.routeParams()!,
-      options
+      options,
     );
   }
 
@@ -148,13 +170,24 @@ export class VersesPage implements AfterViewInit {
   }
 
   private async ionContentScroll() {
-    const scrollEl = await this.ionContent()?.getScrollElement();
+    const content = this.ionContent();
+    const scrollEl = await content?.getScrollElement();
     let lastScrollTop = 0;
     scrollEl?.addEventListener('scroll', () => {
       const currentScrollTop = scrollEl.scrollTop;
       const deltaY = currentScrollTop - lastScrollTop;
       this.showFabs.set(deltaY <= 0);
       lastScrollTop = currentScrollTop;
+
+      this.scrollVerseTracker.updateTopVerse(scrollEl);
+    });
+  }
+
+  private async scrollToVerse(fragment?: string | null) {
+    if (!fragment) return;
+    requestAnimationFrame(() => {
+      const element = document.getElementById(fragment);
+      element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }
 }

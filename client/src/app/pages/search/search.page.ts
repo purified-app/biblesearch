@@ -16,6 +16,7 @@ import { Verse } from 'src/app/interfaces';
 import { HighlightSearchPipe } from 'src/app/pipes/highlight-search.pipe';
 import { ApiService, SearchReqParams, SearchResponse } from 'src/app/services/api.service';
 import { TextKey } from '../../constants/text-key';
+import { QueryParam } from '../../constants/query-param';
 
 @Component({
   imports: [
@@ -40,13 +41,14 @@ export class SearchPage implements AfterViewInit {
   private router = inject(Router);
 
   protected readonly TextKey = TextKey;
+  protected readonly QueryParam = QueryParam;
   protected readonly searchbar = viewChild.required(IonSearchbar);
   protected queryParams = toSignal(this.route.queryParams);
   protected searchTerm = computed(() => this.queryParams()?.['query'] || '');
   protected searchResults = resource<SearchResponse, SearchReqParams>({
     params: () => this.queryParams() as SearchReqParams,
     loader: async ({ params }) => {
-      if (params.query.length < 2) return { verses: [], count: 0 };
+      if (!params.query || params.query.length < 2) return { verses: [], count: 0 };
       return await this.apiService.search(params);
     },
   });
@@ -65,6 +67,10 @@ export class SearchPage implements AfterViewInit {
     const { bookName, chapter, verse } = data;
     return `${bookName} ${chapter}:${verse}`;
   };
+
+  protected getQueryParams(verse: Verse) {
+    return { [QueryParam.FocusVerses]: verse.verse };
+  }
 
   private updateSearchQueryParam(value: string): void {
     this.router.navigate([], {

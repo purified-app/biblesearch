@@ -12,9 +12,7 @@
         </span>
         <span
           class="verse-text"
-          appFocusVerse
-          [verseNumber]="verse.verse"
-          [versesToFocus]="versesToFocus()"
+          [focusVerse]="versesToFocus().includes(verse.verse)"
           [innerHTML]="verse.text | highlightSearch: searchTerm()"
           [highlightColor]="color">
         </span>

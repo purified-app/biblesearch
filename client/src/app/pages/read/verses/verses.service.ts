@@ -1,7 +1,6 @@
-import { inject, Injectable, resource, signal, effect, computed } from '@angular/core';
+import { effect, inject, Injectable, resource, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { VerseHighlight } from 'src/app/components/verse-actions-modal/verse-highlight.service';
 import { VerseNotes } from '../../../interfaces';
 import { VersePageParams } from '../../../interfaces/route-params';
 import { ApiService } from '../../../services/api.service';
@@ -21,14 +20,18 @@ export class VersesService {
   // Signals
   routeParams = toSignal<VersePageParams>(this.route.params as any);
   selectedVerses = signal<VerseNotes[]>([]);
-  recentRead = computed(() => {
-    const chapterInfo = RouteUtils.getChapterInfo(this.routeParams()!);
-    const { chapter, name, translation, usfm } = chapterInfo;
-    return { bookName: name, bookUsfm: usfm, chapter, translation };
-  });
 
   constructor() {
-    effect(() => this.bookmarkService.recentRead.set(this.recentRead()));
+    effect(() => {
+      const chapterInfo = RouteUtils.getChapterInfo(this.routeParams()!);
+      const { chapter, name, translation, usfm } = chapterInfo;
+      this.bookmarkService.recentRead.set({
+        chapter,
+        bookName: name!,
+        bookUsfm: usfm,
+        translation,
+      });
+    });
   }
   versesResource = resource<VerseNotes[], VersePageParams>({
     params: () => this.routeParams()!,

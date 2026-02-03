@@ -19,9 +19,10 @@ export default class RouteUtils {
         return UrlPath.read;
       case 'recentRead':
         const recentRead = bookmarkService.recentRead();
+        const fragment = storageService.get('routeFragment');
         if (!recentRead) return UrlPath.search;
         const { bookUsfm, chapter, translation } = recentRead;
-        return `${UrlPath.read}/${translation}/${bookUsfm}/${chapter}`;
+        return `${UrlPath.read}/${translation}/${bookUsfm}/${chapter}${fragment ? `#${fragment}` : ''}`;
       default:
         return UrlPath.search;
     }
@@ -42,7 +43,7 @@ export default class RouteUtils {
   static getChapterInfo = (params: VersePageParams) => {
     const { bookUsfm, chapter, translation } = params;
     const bookData = AllBooks[translation as keyof typeof AllBooks].find(
-      (b) => b.usfm === bookUsfm
+      (b) => b.usfm === bookUsfm,
     );
     return { ...bookData!, chapter: Number(chapter) };
   };

@@ -21,7 +21,7 @@
       @for (verse of searchResults.value()?.verses; track $index) {
       <ion-item
         [routerLink]="['/read', verse.translation, verse.bookUsfm, verse.chapter]"
-        [queryParams]="{ verse: verse.verse }"
+        [queryParams]="getQueryParams(verse)"
       >
         <ion-label>
           <div class="verse-header">

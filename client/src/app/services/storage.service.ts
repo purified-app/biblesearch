@@ -12,6 +12,8 @@ type AppStorage = {
   language: string;
   notes: Note[];
   recentRead: RecentRead;
+  /** Route fragment. Url `#verse-17` */
+  routeFragment: string;
   startPage: StartPage;
   translation: string;
   verseHighlights: VerseHighlight[];

@@ -1,21 +1,19 @@
 import { Directive, effect, ElementRef, inject, input } from '@angular/core';
 
 @Directive({
-  selector: '[appFocusVerse]',
+  selector: '[focusVerse]',
   standalone: true,
 })
 export class FocusVerseDirective {
   private el = inject(ElementRef);
 
-  readonly verseNumber = input<number | undefined>(undefined);
-  readonly versesToFocus = input<number[]>([]);
+  readonly focusVerse = input(false);
 
   constructor() {
     effect(() => {
-      const verseNumber = this.verseNumber();
-      const versesToFocus = this.versesToFocus();
+      const focusVerse = this.focusVerse();
 
-      if (verseNumber && versesToFocus.includes(verseNumber)) {
+      if (focusVerse) {
         const element = this.el.nativeElement;
         element.style.fontWeight = 'bold';
 

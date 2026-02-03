@@ -53,30 +53,31 @@ import { SearchService } from './search.service';
           ></ion-searchbar>
           <div class="search-results">
             @if (searchResults.isLoading()) {
-            <ion-spinner></ion-spinner>
-            } @if(searchResults.value()?.verses?.length) {
-            <ion-text class="search-results-count">
-              <sub>
-                {{ TextKey.Showing | translate }} {{ searchResults.value()?.verses?.length }}
-                {{ TextKey.Of | translate }} {{ searchResults.value()?.count }}
-              </sub>
-            </ion-text>
-            <ion-list>
-              @for (verse of searchResults.value()?.verses; track $index) {
-              <ion-item
-                [routerLink]="['/read', verse.translation, verse.bookUsfm, verse.chapter]"
-                [queryParams]="{ verse: verse.verse, search: null }"
-              >
-                <ion-label>
-                  <div class="verse-header">
-                    <h2 [innerHTML]="getListHeader(verse) | highlightSearch : searchTerm()"></h2>
-                    <!-- <h3>{{ verse.canon.toUpperCase()}}</h3> -->
-                  </div>
-                  <p [innerHTML]="verse.text | highlightSearch : searchTerm()"></p>
-                </ion-label>
-              </ion-item>
-              }
-            </ion-list>
+              <ion-spinner></ion-spinner>
+            }
+            @if (searchResults.value()?.verses?.length) {
+              <ion-text class="search-results-count">
+                <sub>
+                  {{ TextKey.Showing | translate }} {{ searchResults.value()?.verses?.length }}
+                  {{ TextKey.Of | translate }} {{ searchResults.value()?.count }}
+                </sub>
+              </ion-text>
+              <ion-list>
+                @for (verse of searchResults.value()?.verses; track $index) {
+                  <ion-item
+                    [routerLink]="['/read', verse.translation, verse.bookUsfm, verse.chapter]"
+                    [queryParams]="{ focusVerses: verse.verse, search: null }"
+                  >
+                    <ion-label>
+                      <div class="verse-header">
+                        <h2 [innerHTML]="getListHeader(verse) | highlightSearch: searchTerm()"></h2>
+                        <!-- <h3>{{ verse.canon.toUpperCase()}}</h3> -->
+                      </div>
+                      <p [innerHTML]="verse.text | highlightSearch: searchTerm()"></p>
+                    </ion-label>
+                  </ion-item>
+                }
+              </ion-list>
             }
           </div>
         </ion-content>

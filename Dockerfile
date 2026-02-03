@@ -1,15 +1,15 @@
-# Stage 1: Install Node.js for building the Angular app
-FROM node:alpine AS build-stage
+# Stage 1: Install Bun for building the Angular app
+FROM oven/bun:latest AS build-stage
 # Set working directory for the client
 WORKDIR /app/client
-# Copy only necessary files for npm install
+# Copy only necessary files for bun install
 COPY client/package.json client/angular.json ./
 # Install dependencies
-RUN npm install
+RUN bun install
 # Copy the rest of the client app (excluding node_modules due to .dockerignore)
 COPY client/ .
 # Build the Angular app
-RUN npm run build --prod
+RUN bun run build
 
 # Stage 2: Use Bun for the production environment
 FROM oven/bun:latest

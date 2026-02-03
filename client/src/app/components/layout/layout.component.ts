@@ -26,6 +26,7 @@ import { RouterNavigationService } from 'src/app/services/router-navigation.serv
 import BookmarkUtils from 'src/app/utils/bookmark.utils';
 import { SearchPopover } from '../search/search.component';
 import { slideAnimation } from './slide.animation';
+import { StorageService } from 'src/app/services/storage.service';
 
 @Component({
   selector: 'app-layout',
@@ -63,43 +64,44 @@ import { slideAnimation } from './slide.animation';
           <ion-note>{{ TextKey.AppDescription | translate }}</ion-note>
           <ion-list>
             @for (page of appPages; track $index) {
-            <ion-menu-toggle auto-hide="false">
-              <ion-item
-                detail="false"
-                lines="none"
-                routerDirection="root"
-                routerLinkActive="selected"
-                [button]="true"
-                [routerLink]="[page.url]"
-              >
-                <ion-icon
-                  slot="start"
-                  [ios]="page.icon + '-outline'"
-                  [md]="page.icon + '-sharp'"
-                ></ion-icon>
-                <ion-label>{{ page.title | translate }}</ion-label>
-              </ion-item>
-            </ion-menu-toggle>
+              <ion-menu-toggle auto-hide="false">
+                <ion-item
+                  detail="false"
+                  lines="none"
+                  routerDirection="root"
+                  routerLinkActive="selected"
+                  [button]="true"
+                  [routerLink]="[page.url]"
+                >
+                  <ion-icon
+                    slot="start"
+                    [ios]="page.icon + '-outline'"
+                    [md]="page.icon + '-sharp'"
+                  ></ion-icon>
+                  <ion-label>{{ page.title | translate }}</ion-label>
+                </ion-item>
+              </ion-menu-toggle>
             }
           </ion-list>
           @let recentRead = this.bookmarkService.recentRead();
           <ion-list class="bookmarks-list">
             <ion-menu-toggle auto-hide="false">
               <ion-list-header>{{ TextKey.RecentRead | translate }}</ion-list-header>
-              @if(recentRead){
-              <ion-item
-                detail="false"
-                lines="none"
-                routerDirection="root"
-                routerLinkActive="selected"
-                [routerLink]="['/read', translation(), recentRead.bookUsfm, recentRead.chapter]"
-              >
-                <ion-icon slot="start" ios="time-outline" md="time-sharp"></ion-icon>
-                <ion-label>
-                  {{ recentRead.bookName }}
-                  {{ recentRead.chapter }}
-                </ion-label>
-              </ion-item>
+              @if (recentRead) {
+                <ion-item
+                  detail="false"
+                  lines="none"
+                  routerDirection="root"
+                  routerLinkActive="selected"
+                  [fragment]="fragment ?? undefined"
+                  [routerLink]="['/read', translation(), recentRead.bookUsfm, recentRead.chapter]"
+                >
+                  <ion-icon slot="start" ios="time-outline" md="time-sharp"></ion-icon>
+                  <ion-label>
+                    {{ recentRead.bookName }}
+                    {{ recentRead.chapter }}
+                  </ion-label>
+                </ion-item>
               }
             </ion-menu-toggle>
           </ion-list>
@@ -109,19 +111,24 @@ import { slideAnimation } from './slide.animation';
               <ion-list-header>{{ TextKey.Bookmarks | translate }}</ion-list-header>
 
               @for (bookmark of this.bookmarkService.bookmarks(); track $index) {
-              <ion-item
-                detail="false"
-                lines="none"
-                routerDirection="root"
-                routerLinkActive="selected"
-                [routerLink]="['/read', bookmark.translation, bookmark.bookUsfm, bookmark.chapter]"
-                [queryParams]="{ verse: bookmark?.verses?.join(',') }"
-              >
-                <ion-icon slot="start" ios="bookmark-outline" md="bookmark-sharp"></ion-icon>
-                <ion-label>
-                  {{ getBookmarkTitle(bookmark) }}
-                </ion-label>
-              </ion-item>
+                <ion-item
+                  detail="false"
+                  lines="none"
+                  routerDirection="root"
+                  routerLinkActive="selected"
+                  [routerLink]="[
+                    '/read',
+                    bookmark.translation,
+                    bookmark.bookUsfm,
+                    bookmark.chapter,
+                  ]"
+                  [queryParams]="{ focusVerses: bookmark?.verses?.join(',') }"
+                >
+                  <ion-icon slot="start" ios="bookmark-outline" md="bookmark-sharp"></ion-icon>
+                  <ion-label>
+                    {{ getBookmarkTitle(bookmark) }}
+                  </ion-label>
+                </ion-item>
               }
             </ion-menu-toggle>
           </ion-list>
@@ -157,6 +164,7 @@ export class LayoutComponent {
   private readonly routerNavigationService = inject(RouterNavigationService);
   protected readonly bibleTranslation = inject(BibleTranslationService);
   protected readonly bookmarkService = inject(BookmarkService);
+  protected readonly fragment = inject(StorageService).get('routeFragment');
 
   // Properties
   protected readonly appPages = [

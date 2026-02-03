@@ -10,6 +10,7 @@ import {
   ModalController,
 } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
+import { QueryParam } from 'src/app/constants/query-param';
 import { TextKey } from 'src/app/constants/text-key';
 import { Verse } from 'src/app/interfaces';
 import { BookmarkService } from 'src/app/services/bookmark.service';
@@ -87,7 +88,7 @@ export class VerseActionsModalComponent implements OnInit, VerseActionsModalProp
     switch (role) {
       case 'share':
         const verseQueryParam = this.verses.map((verse) => verse.verse).join(',');
-        const url = `${window.location.href}?verse=${verseQueryParam}`;
+        const url = `${window.location.href}?${QueryParam.FocusVerses}=${verseQueryParam}`;
         if (navigator.clipboard && window.isSecureContext) {
           await navigator.clipboard.writeText(url);
         }
