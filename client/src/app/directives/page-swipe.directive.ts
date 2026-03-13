@@ -23,6 +23,9 @@ export class PageSwipeDirective {
     if (event.touches.length > 0) {
       this.touchStartX = event.touches[0].clientX;
       this.touchStartY = event.touches[0].clientY; // Store Y coordinate
+      // Reset end coordinates to start coordinates to prevent phantom swipes on tap
+      this.touchEndX = this.touchStartX;
+      this.touchEndY = this.touchStartY;
     }
   }
 
