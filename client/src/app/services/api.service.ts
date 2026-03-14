@@ -6,25 +6,28 @@ import { Verse } from '../interfaces';
 export class ApiService {
   search(params: SearchReqParams): Promise<SearchResponse> {
     const { canon, query, books, translations } = params;
-    let urlString = '/api/search'; // Start with the base path
+    const searchParams = new URLSearchParams();
 
-    const queryParams: string[] = [];
+    if (query) searchParams.append('query', query);
+    if (canon) searchParams.append('canon', canon);
+    if (books) searchParams.append('books', books);
+    if (translations) searchParams.append('translations', translations);
 
-    if (query) queryParams.push(`query=${query}`);
-    if (canon) queryParams.push(`canon=${canon}`);
-    if (books) queryParams.push(`books=${books}`);
-    if (translations) queryParams.push(`translations=${translations}`);
-
-    if (queryParams.length > 0) {
-      urlString += `?${queryParams.join('&')}`;
-    }
+    const queryString = searchParams.toString();
+    const urlString = queryString ? `/api/search?${queryString}` : '/api/search';
 
     return fetch(urlString).then((res) => res.json());
   }
 
   getVerses(translation: string, bookUsfm: string, chapter: number | string): Promise<Verse[]> {
     const { apiUrl } = environment;
-    const url = `${apiUrl}/verses?translation=${translation}&bookUsfm=${bookUsfm}&chapter=${chapter}`;
+    const searchParams = new URLSearchParams({
+      translation,
+      bookUsfm,
+      chapter: chapter.toString(),
+    });
+
+    const url = `${apiUrl}/verses?${searchParams.toString()}`;
     return fetch(url).then((res) => res.json());
   }
 }
