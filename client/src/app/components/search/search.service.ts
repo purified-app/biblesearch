@@ -1,6 +1,7 @@
-import { computed, inject, Injectable } from '@angular/core';
+import { computed, inject, Injectable, resource } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ApiService, SearchReqParams, SearchResponse } from 'src/app/services/api.service';
 
 const SEARCH = 'search';
 const QUERY = 'query';
@@ -9,11 +10,21 @@ const QUERY = 'query';
 export class SearchService {
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
+  private apiService = inject(ApiService);
 
   // Convert queryParams Observable to a Signal
   queryParams = toSignal(this.activatedRoute.queryParams);
   isSearchOpen = computed(() => this.queryParams()?.[SEARCH] === 'open');
   searchTerm = computed(() => this.queryParams()?.[QUERY] || '');
+
+  // Global search resource
+  searchResults = resource<SearchResponse, SearchReqParams>({
+    params: () => this.queryParams() as SearchReqParams,
+    loader: async ({ params }) => {
+      if (!params.query || params.query.length < 2) return { verses: [], count: 0 };
+      return await this.apiService.search(params);
+    },
+  });
 
   // Toggle popover and update URL
   togglePopover(open: boolean) {

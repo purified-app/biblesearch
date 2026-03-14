@@ -1,37 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, resource, viewChild } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import {
-  IonContent,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonPopover,
-  IonSearchbar,
-  IonSpinner,
-  IonText,
-} from '@ionic/angular/standalone';
-import { TranslatePipe } from '@ngx-translate/core';
+import { ChangeDetectionStrategy, Component, inject, viewChild } from '@angular/core';
+import { IonContent, IonPopover, IonSearchbar, IonSpinner } from '@ionic/angular/standalone';
+import { SearchResultsListComponent } from 'src/app/components/search-results-list/search-results-list.component';
 import { TextKey } from 'src/app/constants/text-key';
-import { Verse } from 'src/app/interfaces';
-import { HighlightSearchPipe } from 'src/app/pipes/highlight-search.pipe';
-import { ApiService, SearchResponse } from 'src/app/services/api.service';
 import { SearchService } from './search.service';
 
 @Component({
   selector: 'app-search',
-  imports: [
-    HighlightSearchPipe,
-    IonContent,
-    IonItem,
-    IonLabel,
-    IonList,
-    IonPopover,
-    IonSearchbar,
-    IonSpinner,
-    IonText,
-    RouterLink,
-    TranslatePipe,
-  ],
+  imports: [IonContent, IonPopover, IonSearchbar, IonSpinner, SearchResultsListComponent],
   template: `
     <ion-popover
       alignment="center"
@@ -52,33 +27,13 @@ import { SearchService } from './search.service';
             [value]="searchTerm()"
           ></ion-searchbar>
           <div class="search-results">
-            @if (searchResults.isLoading()) {
+            @if (searchService.searchResults.isLoading()) {
               <ion-spinner></ion-spinner>
             }
-            @if (searchResults.value()?.verses?.length) {
-              <ion-text class="search-results-count">
-                <sub>
-                  {{ TextKey.Showing | translate }} {{ searchResults.value()?.verses?.length }}
-                  {{ TextKey.Of | translate }} {{ searchResults.value()?.count }}
-                </sub>
-              </ion-text>
-              <ion-list>
-                @for (verse of searchResults.value()?.verses; track $index) {
-                  <ion-item
-                    [routerLink]="['/read', verse.translation, verse.bookUsfm, verse.chapter]"
-                    [queryParams]="{ focusVerses: verse.verse, search: null }"
-                  >
-                    <ion-label>
-                      <div class="verse-header">
-                        <h2 [innerHTML]="getListHeader(verse) | highlightSearch: searchTerm()"></h2>
-                        <!-- <h3>{{ verse.canon.toUpperCase()}}</h3> -->
-                      </div>
-                      <p [innerHTML]="verse.text | highlightSearch: searchTerm()"></p>
-                    </ion-label>
-                  </ion-item>
-                }
-              </ion-list>
-            }
+            <app-search-results-list
+              [results]="searchService.searchResults.value()"
+              [searchTerm]="searchTerm()"
+            ></app-search-results-list>
           </div>
         </ion-content>
       </ng-template>
@@ -89,26 +44,12 @@ import { SearchService } from './search.service';
 })
 export class SearchPopover {
   protected searchService = inject(SearchService);
-  private apiService = inject(ApiService);
 
   protected TextKey = TextKey;
 
   readonly ionSearchbar = viewChild.required(IonSearchbar);
 
   searchTerm = this.searchService.searchTerm;
-
-  searchResults = resource<SearchResponse, { search: string }>({
-    params: () => ({ search: this.searchTerm() }),
-    loader: async ({ params }) => {
-      if (params.search.length < 2) return { verses: [], count: 0 };
-      return await this.apiService.search({ query: params.search });
-    },
-  });
-
-  protected getListHeader = (data: Verse) => {
-    const { bookName, chapter, verse } = data;
-    return `${bookName} ${chapter}:${verse}`;
-  };
 
   protected onSearchInput(event: Event) {
     const element = event.target as HTMLInputElement;

@@ -1,0 +1,21 @@
+:host {
+  display: block;
+}
+
+sub {
+  bottom: unset;
+  padding: 0px 8px;
+}
+
+ion-list ion-item {
+  cursor: pointer;
+}
+
+.verse-header {
+  display: flex;
+  gap: 8px;
+}
+
+.search-results-count {
+  padding-left: 8px;
+}
