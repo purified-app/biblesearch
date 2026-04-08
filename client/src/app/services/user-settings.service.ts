@@ -26,10 +26,9 @@ export class UserSettingsService {
   }
 
   private initLanguage() {
-    const language = this.storage.get('language', navigator.language.slice(0, 2));
+    const language = this.storage.get('language', navigator.language.slice(0, 2)) || 'en';
     this.translation.use(language);
     this.translation.setTranslation('en', en);
     this.translation.setTranslation('no', no);
-    this.translation.setDefaultLang(language);
   }
 }

@@ -3,8 +3,12 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "deploy-dev": "./deploy.sh 192.168.1.25",
-    "deploy": "./deploy.sh 80.240.18.111"
+    "api": "php -S localhost:3000 -t server server/router.php",
+    "client": "cd client && ng serve",
+    "client-build": "cd client && ng b",
+    "deploy": "./scripts/deploy.sh",
+    "deploy:db": "./scripts/deploy-db.sh",
+    "dev": "trap 'kill 0' SIGINT SIGTERM EXIT; bun run api & bun run client"
   },
   "devDependencies": {
     "@types/bun": "latest"

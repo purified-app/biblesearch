@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { environment } from 'src/environments/environment';
 import { Verse } from '../interfaces';
 
 @Injectable({ providedIn: 'root' })
@@ -20,14 +19,13 @@ export class ApiService {
   }
 
   getVerses(translation: string, bookUsfm: string, chapter: number | string): Promise<Verse[]> {
-    const { apiUrl } = environment;
     const searchParams = new URLSearchParams({
       translation,
       bookUsfm,
       chapter: chapter.toString(),
     });
 
-    const url = `${apiUrl}/verses?${searchParams.toString()}`;
+    const url = `/api/verses?${searchParams.toString()}`;
     return fetch(url).then((res) => res.json());
   }
 }

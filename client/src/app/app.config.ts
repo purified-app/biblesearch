@@ -16,8 +16,8 @@ export const appConfig: ApplicationConfig = {
     provideIonicAngular({}),
     provideHttpClient(withInterceptors([slowRequestsInterceptor])),
     provideTranslateService({
-      defaultLanguage: 'en',
-      useDefaultLang: true,
+      fallbackLang: 'en',
+      lang: 'en',
     }),
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),

@@ -3,3 +3,4 @@
 .github_token
 secrets
 .qodo
+.env

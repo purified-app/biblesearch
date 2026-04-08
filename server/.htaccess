@@ -1,0 +1,13 @@
+RewriteEngine On
+
+# 1. API route requests fallback to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteRule ^(.*)$ /api/index.php [QSA,L]
+
+# 2. All other requests fallback to index.html for Angular SPA
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/api/
+RewriteRule ^(.*)$ /index.html [QSA,L]

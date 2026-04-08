@@ -3,6 +3,9 @@
 ## Deploy
 
 ```sh
-# ssh-add ~/.ssh/id_rsa
-sudo kamal deploy
+# Client app and api
+bun run deploy
+
+# Db
+bun run deploy:db
 ```
