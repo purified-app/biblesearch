@@ -88,7 +88,12 @@ export class VerseActionsModalComponent implements OnInit, VerseActionsModalProp
     switch (role) {
       case 'share':
         const verseQueryParam = this.verses.map((verse) => verse.verse).join(',');
-        const url = `${window.location.href}?${QueryParam.FocusVerses}=${verseQueryParam}`;
+
+        // Ensure query params are properly placed before the hash fragment
+        const urlObj = new URL(window.location.href);
+        urlObj.searchParams.set(QueryParam.FocusVerses, verseQueryParam);
+        const url = urlObj.toString();
+
         if (navigator.clipboard && window.isSecureContext) {
           await navigator.clipboard.writeText(url);
         }

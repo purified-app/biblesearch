@@ -2,12 +2,12 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { Note, VerseNotes } from 'src/app/interfaces';
 import { HighlightSearchPipe } from 'src/app/pipes/highlight-search.pipe';
-import { FocusVerseDirective } from './focus-verse.directive';
+import { ScrollToDirective } from './scroll-to.directive';
 import { HighlightColorDirective } from './highlight-verse.directive';
 
 @Component({
   selector: 'app-verse-reader',
-  imports: [IonButton, IonIcon, HighlightSearchPipe, FocusVerseDirective, HighlightColorDirective],
+  imports: [IonButton, IonIcon, HighlightSearchPipe, ScrollToDirective, HighlightColorDirective],
   templateUrl: './verse-reader.component.html',
   styleUrls: ['./verse-reader.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

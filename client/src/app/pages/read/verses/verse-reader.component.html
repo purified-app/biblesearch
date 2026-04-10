@@ -6,13 +6,12 @@
       [class.selected]="selectedVerseIds().has(verse.id)"
       (click)="onVerseClick(verse)"
     >
-      <span>
+      <span [scrollTo]="versesToFocus().includes(verse.verse)">
         <span class="verse-number" id="verse-{{ verse.verse }}" [highlightColor]="color">
           {{ verse.verse }}
         </span>
         <span
           class="verse-text"
-          [focusVerse]="versesToFocus().includes(verse.verse)"
           [innerHTML]="verse.text | highlightSearch: searchTerm()"
           [highlightColor]="color"
         >
