@@ -41,6 +41,4 @@ export class PageHeaderComponent {
     // If the toolbarTitle input is provided, use it. Otherwise, use the route data title.
     return this.toolbarTitle() !== undefined ? this.toolbarTitle() : this.routeData()?.['title'];
   });
-
-  constructor() {}
 }

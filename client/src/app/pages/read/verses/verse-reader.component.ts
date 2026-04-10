@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { Note, VerseNotes } from 'src/app/interfaces';
 import { HighlightSearchPipe } from 'src/app/pipes/highlight-search.pipe';
@@ -21,9 +21,9 @@ export class VerseReaderComponent {
   verseClick = output<VerseNotes>();
   noteClick = output<{ event: Event; note: Note }>();
 
-  isSelected(verse: VerseNotes): boolean {
-    return !!this.selectedVerses().find((v) => v.id === verse.id);
-  }
+  selectedVerseIds = computed(() => {
+    return new Set(this.selectedVerses().map((v) => v.id));
+  });
 
   onVerseClick(verse: VerseNotes): void {
     this.verseClick.emit(verse);

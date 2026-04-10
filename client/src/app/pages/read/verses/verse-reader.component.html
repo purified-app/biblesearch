@@ -1,20 +1,21 @@
 <p class="verse-text-container">
   @for (verse of verses(); track verse.id) {
     @let color = $any(verse).color;
-    <div class="verse-container" [class.selected]="isSelected(verse)" (click)="onVerseClick(verse)">
+    <div
+      class="verse-container"
+      [class.selected]="selectedVerseIds().has(verse.id)"
+      (click)="onVerseClick(verse)"
+    >
       <span>
-        <span
-          class="verse-number"
-          id="verse-{{ verse.verse }}"
-          [highlightColor]="color"
-        >
+        <span class="verse-number" id="verse-{{ verse.verse }}" [highlightColor]="color">
           {{ verse.verse }}
         </span>
         <span
           class="verse-text"
           [focusVerse]="versesToFocus().includes(verse.verse)"
           [innerHTML]="verse.text | highlightSearch: searchTerm()"
-          [highlightColor]="color">
+          [highlightColor]="color"
+        >
         </span>
       </span>
       @for (note of verse.notes; track $index) {

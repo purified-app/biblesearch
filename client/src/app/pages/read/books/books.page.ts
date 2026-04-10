@@ -1,4 +1,4 @@
-import { Component, inject, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
@@ -14,7 +14,6 @@ import { LanguageSelectComponent } from 'src/app/components/language-select/lang
 import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
 import { AllBooks } from 'src/app/constants/books';
 import { TextKey } from 'src/app/constants/text-key';
-import { Book } from 'src/app/interfaces';
 
 @Component({
   selector: 'app-books',
@@ -41,13 +40,13 @@ import { Book } from 'src/app/interfaces';
           {{ TextKey.OldTestament | translate }}
         </ion-list-header>
         @for (book of booksOT(); track book.bookNumber) {
-        <ion-item
-          routerDirection="forward"
-          [routerLink]="['/read', translation, book.usfm]"
-          detail="true"
-        >
-          <ion-label>{{ book.name }}</ion-label>
-        </ion-item>
+          <ion-item
+            routerDirection="forward"
+            [routerLink]="['/read', translation, book.usfm]"
+            detail="true"
+          >
+            <ion-label>{{ book.name }}</ion-label>
+          </ion-item>
         }
       </ion-list>
       <ion-list>
@@ -55,13 +54,13 @@ import { Book } from 'src/app/interfaces';
           {{ TextKey.NewTestament | translate }}
         </ion-list-header>
         @for (book of booksNT(); track book.bookNumber) {
-        <ion-item
-          routerDirection="forward"
-          [routerLink]="['/read', translation, book.usfm]"
-          detail="true"
-        >
-          <ion-label>{{ book.name }}</ion-label>
-        </ion-item>
+          <ion-item
+            routerDirection="forward"
+            [routerLink]="['/read', translation, book.usfm]"
+            detail="true"
+          >
+            <ion-label>{{ book.name }}</ion-label>
+          </ion-item>
         }
       </ion-list>
     </ion-content>
@@ -69,18 +68,12 @@ import { Book } from 'src/app/interfaces';
   styles: ['ion-item { cursor: pointer;}'],
 })
 export class BooksPage {
-  booksNT: WritableSignal<Book[]>;
-  booksOT: WritableSignal<Book[]>;
   protected activatedRoute = inject(ActivatedRoute);
   protected routeParamMap = toSignal(this.activatedRoute.paramMap);
+  protected translation = computed(
+    () => this.routeParamMap()?.get('translation') as keyof typeof AllBooks,
+  );
+  booksNT = computed(() => AllBooks[this.translation()]?.filter((b) => b.canon === 'nt') ?? []);
+  booksOT = computed(() => AllBooks[this.translation()]?.filter((b) => b.canon === 'ot') ?? []);
   protected TextKey = TextKey;
-
-  constructor() {
-    const { translation } = this.activatedRoute.snapshot.params;
-    const books = AllBooks[translation as keyof typeof AllBooks];
-    const booksNT = books.filter((b) => b.canon === 'nt');
-    const booksOT = books.filter((b) => b.canon === 'ot');
-    this.booksNT = signal(booksNT);
-    this.booksOT = signal(booksOT);
-  }
 }

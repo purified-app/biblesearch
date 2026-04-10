@@ -133,15 +133,12 @@ export class VersesPage implements AfterViewInit {
   }
 
   onVerseClick(verse: VerseNotes) {
-    let selectedVerses = this.selectedVerses();
-    const found = selectedVerses.find((v) => v.id === verse.id);
-    if (!found) selectedVerses.push(verse);
-    else selectedVerses = selectedVerses.filter((v) => v.id !== verse.id);
-
-    this.selectedVerses.set(selectedVerses);
-
-    if (!selectedVerses.length) return;
-    selectedVerses.sort((a, b) => a.verse - b.verse);
+    this.selectedVerses.update((current) => {
+      const isSelected = current.some((v) => v.id === verse.id);
+      return isSelected
+        ? current.filter((v) => v.id !== verse.id)
+        : [...current, verse].sort((a, b) => a.verse - b.verse);
+    });
   }
 
   protected navigateForward(options?: NavigationOptions) {
