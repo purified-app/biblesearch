@@ -169,6 +169,15 @@ class BibleAPI {
 // ---------------------------------------------------------
 
 $dbPath = __DIR__ . '/../../database/bible.db';
+if (!file_exists($dbPath)) {
+    $dbPath = __DIR__ . '/../database/bible.db';
+}
+
+if (!file_exists($dbPath)) {
+    http_response_code(500);
+    echo json_encode(['error' => "Database file not found at " . $dbPath], JSON_UNESCAPED_UNICODE);
+    exit();
+}
 
 try {
     // Instantiate the database first
