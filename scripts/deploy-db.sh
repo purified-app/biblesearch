@@ -10,6 +10,6 @@ else
 fi
 
 echo "🚀 Deploying database to server..."
-scp -P ${SSH_PORT:-22} database/bible.db ${SSH_USER}@${SSH_HOST}:biblesearch/database/
+scp -P ${SSH_PORT:-22} -r server/database ${SSH_USER}@${SSH_HOST}:biblesearch/
 
 echo "🎉 Database deployment complete!"
