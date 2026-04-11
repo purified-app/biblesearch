@@ -73,9 +73,15 @@ class BibleAPI {
             $whereClauses[] = "Verses_fts MATCH ? AND chapter=?";
             array_push($queryParams, "bookName:{$mc[1]}*", $mc[2]);
         } elseif ($term !== '') {
-            $formattedTerm = implode(" OR ", explode(" ", $term));
-            $whereClauses[] = "Verses_fts MATCH ?";
-            $queryParams[] = "{$formattedTerm}*";
+            // Strip out special SQLite FTS syntax characters to avoid 500 Syntax Errors
+            $cleanTerm = preg_replace('/[^\p{L}\p{N}\s_]/u', '', $term);
+            $cleanTerm = trim(preg_replace('/\s+/', ' ', $cleanTerm));
+            
+            if ($cleanTerm !== '') {
+                $formattedTerm = implode(" OR ", explode(" ", $cleanTerm));
+                $whereClauses[] = "Verses_fts MATCH ?";
+                $queryParams[] = "{$formattedTerm}*";
+            }
         }
 
         $WHERE = $whereClauses ? "WHERE " . implode(" AND ", $whereClauses) : "";

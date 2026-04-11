@@ -13,5 +13,10 @@ class Database {
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
             ]
         );
+        // Enable Write-Ahead Logging (WAL) for significantly better concurrent read performance
+        $this->connection->exec('PRAGMA journal_mode = WAL;');
+        // Optimize cache and synchronous mode for faster queries
+        $this->connection->exec('PRAGMA synchronous = NORMAL;');
+        $this->connection->exec('PRAGMA cache_size = -20000;'); // ~20MB
     }
 }

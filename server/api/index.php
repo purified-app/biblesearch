@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
 
+// Prevent PHP from outputting HTML/text warnings that break JSON responses
+ini_set('display_errors', '0');
+error_reporting(E_ALL);
+
 require_once __DIR__ . '/../src/Database.php';
 require_once __DIR__ . '/../src/BibleAPI.php';
 
@@ -21,6 +25,10 @@ try {
     $api->handleRequest();
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['error' => "Database connection failed: " . $e->getMessage()], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
+    echo json_encode(['error' => "Database error: " . $e->getMessage()], JSON_UNESCAPED_UNICODE);
+    exit();
+} catch (Throwable $e) {
+    http_response_code(500);
+    echo json_encode(['error' => "Internal Server Error: " . $e->getMessage()], JSON_UNESCAPED_UNICODE);
     exit();
 }
