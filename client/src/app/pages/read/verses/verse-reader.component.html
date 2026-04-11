@@ -1,4 +1,4 @@
-<p class="verse-text-container">
+<div class="verses-container">
   @for (verse of verses(); track verse.id) {
     @let color = $any(verse).color;
     <div
@@ -18,10 +18,17 @@
         </span>
       </span>
       @for (note of verse.notes; track $index) {
-        <ion-button class="note-button" (click)="onNoteClick($event, note)">
-          <ion-icon name="document-text-outline" slot="icon-only"></ion-icon>
-        </ion-button>
+        <div class="note-container">
+          <ion-button class="note-button" (click)="onNoteClick($event, note)">
+            <ion-icon name="document-text-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+          @if (renderNotes()) {
+            <span class="note">
+              {{ note.content }}
+            </span>
+          }
+        </div>
       }
     </div>
   }
-</p>
+</div>

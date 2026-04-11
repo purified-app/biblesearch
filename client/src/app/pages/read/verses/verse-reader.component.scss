@@ -1,11 +1,8 @@
-.verse-text-container {
+.verses-container {
+  cursor: pointer;
+  line-height: 2em;
   margin: auto;
   max-width: 500px;
-  line-height: 2em;
-}
-
-.selected {
-  text-decoration: underline;
 }
 
 .verse-number {
@@ -17,10 +14,24 @@
   padding-right: 2px;
 }
 
+.note-container {
+  display: flex;
+  gap: 4px;
+}
+
+.note {
+  font-size: 0.8em;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
+}
+
+.selected {
+  text-decoration: underline;
+}
+
 ion-button.note-button {
   margin: unset;
-  margin-top: -12px;
-  margin-left: 4px;
   min-height: unset;
   min-width: unset;
   --background: bisque;

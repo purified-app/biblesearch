@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { Note, VerseNotes } from 'src/app/interfaces';
 import { HighlightSearchPipe } from 'src/app/pipes/highlight-search.pipe';
@@ -24,6 +24,8 @@ export class VerseReaderComponent {
   selectedVerseIds = computed(() => {
     return new Set(this.selectedVerses().map((v) => v.id));
   });
+
+  protected readonly renderNotes = signal(false);
 
   onVerseClick(verse: VerseNotes): void {
     this.verseClick.emit(verse);
