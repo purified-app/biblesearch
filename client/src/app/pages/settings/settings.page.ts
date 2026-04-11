@@ -1,6 +1,5 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
-  InputChangeEventDetail,
   IonContent,
   IonInput,
   IonItem,
@@ -12,19 +11,12 @@ import {
   IonSelect,
   IonSelectOption,
 } from '@ionic/angular/standalone';
-import {
-  IonInputCustomEvent,
-  IonRadioGroupCustomEvent,
-  IonSelectCustomEvent,
-  RadioGroupChangeEventDetail,
-  SelectChangeEventDetail,
-} from '@ionic/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { languages } from 'src/app/constants/languages';
 import { TextKey } from './../../constants/text-key';
 import { SettingsAppearanceComponent } from 'src/app/components/settings-appearance/settings-appearance.component';
 import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
-import { StartPage, StorageService } from 'src/app/services/storage.service';
+import { StorageService } from 'src/app/services/storage.service';
 
 @Component({
   selector: 'app-settings',
@@ -54,7 +46,7 @@ import { StartPage, StorageService } from 'src/app/services/storage.service';
           <ion-radio-group
             title="Start page"
             [value]="startPage()"
-            (ionChange)="onStartPageChange($event)"
+            (ionChange)="storage.set('startPage', $event.detail.value)"
           >
             <ion-radio value="search">{{ TextKey.Search | translate }}</ion-radio>
             <ion-radio value="read">{{ TextKey.Read | translate }}</ion-radio>
@@ -68,12 +60,14 @@ import { StartPage, StorageService } from 'src/app/services/storage.service';
           <ion-select
             interface="popover"
             [value]="language()"
-            (ionChange)="onLanguageChange($event)"
+            (ionChange)="
+              storage.set('language', $event.detail.value); translation.use($event.detail.value)
+            "
           >
             @for (language of languages(); track language.value) {
-            <ion-select-option [value]="language.value">
-              {{ language.description }}
-            </ion-select-option>
+              <ion-select-option [value]="language.value">
+                {{ language.description }}
+              </ion-select-option>
             }
           </ion-select>
         </ion-item>
@@ -88,7 +82,7 @@ import { StartPage, StorageService } from 'src/app/services/storage.service';
             placeholder="Default: 5"
             type="number"
             [value]="bookmarksLimit()"
-            (ionChange)="onBookmarksLimitChange($event)"
+            (ionChange)="storage.set('bookmarksLimit', +$event.detail.value!)"
           >
           </ion-input>
         </ion-item>
@@ -98,37 +92,12 @@ import { StartPage, StorageService } from 'src/app/services/storage.service';
   `,
 })
 export class SettingsPage {
-  private storage = inject(StorageService);
-  bookmarksLimit = signal<number>(this.storage.get('bookmarksLimit', 5));
-  language = signal(this.storage.get('language', navigator.language.slice(0, 2)));
+  protected storage = inject(StorageService);
+  protected translation = inject(TranslateService);
+  bookmarksLimit = this.storage.getSignal('bookmarksLimit', 5);
+  language = this.storage.getSignal('language', navigator.language.slice(0, 2));
   languages = signal(languages);
-  startPage = signal(this.storage.get('startPage', 'recentRead'));
+  startPage = this.storage.getSignal('startPage', 'recentRead');
 
   protected TextKey = TextKey;
-
-  private translation = inject(TranslateService);
-
-  constructor() {
-    effect(() => {
-      const language = this.language();
-      this.translation.use(language);
-      this.storage.set('language', language);
-    });
-    effect(() => this.storage.set('startPage', this.startPage()));
-  }
-
-  onLanguageChange($event: IonSelectCustomEvent<SelectChangeEventDetail<any>>) {
-    this.language.set($event.detail.value);
-  }
-
-  onBookmarksLimitChange(event: IonInputCustomEvent<InputChangeEventDetail>) {
-    const { value } = event.detail;
-    const limit = value ? Number(value) : 5;
-    this.bookmarksLimit.set(limit);
-    this.storage.set('bookmarksLimit', limit);
-  }
-
-  onStartPageChange(event: IonRadioGroupCustomEvent<RadioGroupChangeEventDetail<StartPage>>) {
-    this.startPage.set(event.detail.value);
-  }
 }

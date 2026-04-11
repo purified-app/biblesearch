@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
   IonIcon,
   IonItem,
@@ -35,7 +35,7 @@ import { StorageService } from 'src/app/services/storage.service';
         <ion-toggle
           justify="space-between"
           [checked]="darkMode()"
-          (ionChange)="darkMode.set($event.detail.checked ? true : false)"
+          (ionChange)="storage.set('darkMode', $event.detail.checked)"
         >
           Dark Mode
         </ion-toggle>
@@ -50,32 +50,29 @@ import { StorageService } from 'src/app/services/storage.service';
           step="1"
           snaps
           [value]="fontSize() + 'px'"
-          (ionInput)="fontSize.set(+$event.detail.value)"
+          (ionInput)="storage.set('fontSize', +$event.detail.value)"
         >
           <ion-icon slot="start" name="text-outline" style="font-size: 14px;"></ion-icon>
           <ion-icon slot="end" name="text-outline" style="font-size: 20px;"></ion-icon>
         </ion-range>
+      </ion-item>
+      <ion-item>
+        <ion-toggle
+          justify="space-between"
+          [checked]="renderNotes()"
+          (ionChange)="storage.set('renderNotes', $event.detail.checked)"
+        >
+          Render notes
+        </ion-toggle>
       </ion-item>
     </ion-list>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsAppearanceComponent {
-  private storage = inject(StorageService);
-  protected fontSize = signal(this.storage.get('fontSize', 16));
-  protected darkMode = signal(this.storage.get('darkMode', true));
+  protected storage = inject(StorageService);
+  protected fontSize = this.storage.getSignal('fontSize', 16);
+  protected darkMode = this.storage.getSignal('darkMode', false);
+  protected renderNotes = this.storage.getSignal('renderNotes', true);
   protected TextKey = TextKey;
-
-  constructor() {
-    effect(() => {
-      const fontSize = this.fontSize();
-      document.documentElement.style.fontSize = `${fontSize}px`;
-      this.storage.set('fontSize', fontSize);
-    });
-    effect(() => {
-      const darkMode = this.darkMode();
-      document.documentElement.classList.toggle('ion-palette-dark', darkMode);
-      this.storage.set('darkMode', darkMode);
-    });
-  }
 }

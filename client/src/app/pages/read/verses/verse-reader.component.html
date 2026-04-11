@@ -18,7 +18,7 @@
         </span>
       </span>
       @for (note of verse.notes; track $index) {
-        <div class="note-container">
+        <span class="note-container">
           <ion-button class="note-button" (click)="onNoteClick($event, note)">
             <ion-icon name="document-text-outline" slot="icon-only"></ion-icon>
           </ion-button>
@@ -27,7 +27,7 @@
               {{ note.content }}
             </span>
           }
-        </div>
+        </span>
       }
     </div>
   }

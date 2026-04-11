@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { Note, VerseNotes } from 'src/app/interfaces';
 import { HighlightSearchPipe } from 'src/app/pipes/highlight-search.pipe';
 import { ScrollToDirective } from './scroll-to.directive';
 import { HighlightColorDirective } from './highlight-verse.directive';
+import { StorageService } from 'src/app/services/storage.service';
 
 @Component({
   selector: 'app-verse-reader',
@@ -13,6 +14,7 @@ import { HighlightColorDirective } from './highlight-verse.directive';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VerseReaderComponent {
+  private storage = inject(StorageService);
   verses = input<VerseNotes[]>([]);
   selectedVerses = input<VerseNotes[]>([]);
   versesToFocus = input<number[]>([]);
@@ -25,7 +27,7 @@ export class VerseReaderComponent {
     return new Set(this.selectedVerses().map((v) => v.id));
   });
 
-  protected readonly renderNotes = signal(false);
+  protected readonly renderNotes = this.storage.getSignal('renderNotes', false);
 
   onVerseClick(verse: VerseNotes): void {
     this.verseClick.emit(verse);

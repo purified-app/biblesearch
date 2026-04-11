@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
+import { SignalStorageService } from '@angular-libs/signal-storage';
 
-import { LocalStorageService } from '@purified-app/typed-storage';
 import { Bookmark, Note, RecentRead } from '../interfaces';
 import { VerseHighlight } from '../components/verse-actions-modal/verse-highlight.service';
 
@@ -12,6 +12,7 @@ type AppStorage = {
   language: string;
   notes: Note[];
   recentRead: RecentRead;
+  renderNotes: boolean;
   /** Route fragment. Url `#verse-17` */
   routeFragment: string;
   startPage: StartPage;
@@ -24,7 +25,7 @@ export type StartPage = 'recentRead' | 'bookmarks' | 'notes' | 'search' | 'read'
 @Injectable({
   providedIn: 'root',
 })
-export class StorageService extends LocalStorageService<AppStorage> {
+export class StorageService extends SignalStorageService<AppStorage> {
   constructor() {
     super(localStorage);
   }
