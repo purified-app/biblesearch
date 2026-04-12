@@ -39,23 +39,23 @@ import { StorageService } from 'src/app/services/storage.service';
     <ion-content class="ion-padding">
       <ion-list>
         @for (note of notes(); track $index) {
-        <ion-item-sliding #sliding>
-          <ion-item [button]="true" (click)="onNoteClick(note)">
-            <ion-label>
-              <div class="note-header">
-                <strong>{{ getNoteTitle(note) }}</strong>
-                <ion-note color="medium">{{ note.createdDate | date : 'medium' }}</ion-note>
-              </div>
-              <ion-note color="medium">{{ note.content }}</ion-note>
-            </ion-label>
-          </ion-item>
+          <ion-item-sliding #sliding>
+            <ion-item [button]="true" (click)="onNoteClick(note)">
+              <ion-label>
+                <div class="note-header">
+                  <strong>{{ getNoteTitle(note) }}</strong>
+                  <ion-note color="medium">{{ note.createdDate | date: 'medium' }}</ion-note>
+                </div>
+                <ion-note color="medium">{{ note.content }}</ion-note>
+              </ion-label>
+            </ion-item>
 
-          <ion-item-options>
-            <ion-item-option color="danger" (click)="[onDeleteNote(note), sliding.close()]">{{
-              TextKey.Delete | translate
-            }}</ion-item-option>
-          </ion-item-options>
-        </ion-item-sliding>
+            <ion-item-options>
+              <ion-item-option color="danger" (click)="sliding.close()">{{
+                TextKey.Delete | translate
+              }}</ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
         }
       </ion-list>
     </ion-content>
@@ -65,7 +65,7 @@ import { StorageService } from 'src/app/services/storage.service';
 })
 export class NotesPage {
   private storage = inject(StorageService);
-  protected notes = signal<Note[]>(this.storage.get('notes', []));
+  protected notes = this.storage.getSignal('notes', []);
   protected selectedNote = signal<Note | undefined>(undefined);
   protected selectedNoteTitle = computed(() => NoteUtils.getNoteTitle(this.selectedNote()));
   protected noteModalService = inject(NoteModalService);
@@ -74,20 +74,7 @@ export class NotesPage {
 
   protected async onNoteClick(note: Note) {
     const modal = await this.noteModalService.openModal(note);
-    const { role } = await modal.onDidDismiss<Note>();
-    switch (role) {
-      case 'confirm':
-      case 'delete':
-        this.notes.set(this.storage.get('notes', []));
-        break;
-    }
+    await modal.onDidDismiss<Note>();
     this.selectedNote.set(undefined);
-  }
-
-  protected onDeleteNote(note: Note) {
-    const notes = this.storage.get('notes', []);
-    const updatedNotes = notes.filter((n) => n.id !== note.id);
-    this.storage.set('notes', updatedNotes);
-    this.notes.set(updatedNotes);
   }
 }

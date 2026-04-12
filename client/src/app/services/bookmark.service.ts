@@ -1,5 +1,5 @@
-import { effect, inject, Injectable, signal } from '@angular/core';
-import { Bookmark, RecentRead, Verse } from '../interfaces';
+import { effect, inject, Injectable } from '@angular/core';
+import { Verse } from '../interfaces';
 import BookmarkUtils from '../utils/bookmark.utils';
 import { StorageService } from './storage.service';
 
@@ -7,15 +7,14 @@ import { StorageService } from './storage.service';
 export class BookmarkService {
   private storage = inject(StorageService);
   private initialized = false;
-  recentRead = signal<RecentRead>(
-    this.storage.get('recentRead', { bookUsfm: 'GEN', chapter: 1, translation: 'KJV' })
-  );
-  bookmarks = signal<Bookmark[]>(this.storage.get('bookmarks', []));
+  recentRead = this.storage.getSignal('recentRead', {
+    bookUsfm: 'GEN',
+    chapter: 1,
+    translation: 'KJV',
+  });
+  bookmarks = this.storage.getSignal('bookmarks', []);
 
   constructor() {
-    effect(() => {
-      if (this.initialized) this.storage.set('bookmarks', this.bookmarks());
-    });
     effect(() => {
       if (this.initialized) this.storage.set('recentRead', this.recentRead());
     });
@@ -33,6 +32,6 @@ export class BookmarkService {
     }
     // Add the new value to the beginning of the array
     bookmarks.unshift(bookmark);
-    this.bookmarks.set(bookmarks);
+    this.storage.set('bookmarks', bookmarks);
   }
 }

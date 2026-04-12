@@ -78,7 +78,7 @@ export class VersesPage implements AfterViewInit {
   protected selectedVerses = this.versesService.selectedVerses;
   protected showFabs = signal(true);
 
-  protected versesResource = this.versesService.versesResource;
+  protected versesIncMetadata = this.versesService.versesIncMetadata;
   protected versesToFocus = computed(() => {
     const verse = this.routeQueryParams()?.[QueryParam.FocusVerses] as string;
     return verse?.split(',').map(Number) || [];
@@ -88,7 +88,7 @@ export class VersesPage implements AfterViewInit {
 
   constructor() {
     effect(() => {
-      const verses = this.versesResource.value();
+      const verses = this.versesIncMetadata();
       if (verses && verses.length > 0) {
         this.scrollToVerse(untracked(() => this.routeFragment()));
       }
@@ -101,35 +101,14 @@ export class VersesPage implements AfterViewInit {
 
   async onActionFabClick() {
     const modal = await this.verseActionsModalService.openModal(this.selectedVerses());
-    modal.onDidDismiss().then(({ data, role }) => {
-      switch (role) {
-        case 'bookmark':
-          break;
-        case 'highlight':
-          this.versesService.addHighlightToVerses(this.versesResource.value()!);
-          break;
-        case 'note':
-          this.versesResource.reload();
-          break;
-      }
+    modal.onDidDismiss().then(() => {
       this.selectedVerses.set([]);
     });
   }
 
   async onNoteClick(event: Event, note: Note) {
     event.stopImmediatePropagation();
-    const modal = await this.noteModalService.openModal(note);
-    modal.onDidDismiss().then(({ role }) => {
-      switch (role) {
-        case 'delete':
-          const updatedVerses = this.versesService.removeNoteFromVerses(
-            this.versesResource.value()!,
-            note.id,
-          );
-          this.versesResource.set(updatedVerses);
-          break;
-      }
-    });
+    this.noteModalService.openModal(note);
   }
 
   onVerseClick(verse: VerseNotes) {

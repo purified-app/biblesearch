@@ -12,37 +12,22 @@ import {
   IonButton,
   IonButtons,
   IonContent,
-  IonFab,
-  IonFabButton,
-  IonFabList,
   IonHeader,
   IonIcon,
   IonTitle,
   IonToolbar,
   ModalController,
 } from '@ionic/angular/standalone';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { TextKey } from 'src/app/constants/text-key';
 import { Note } from 'src/app/interfaces';
+import { StorageService } from 'src/app/services/storage.service';
 import BookmarkUtils from 'src/app/utils/bookmark.utils';
 import { StorageUtils } from 'src/app/utils/storage.utils';
-import { StorageService } from 'src/app/services/storage.service';
 
 @Component({
   selector: 'app-note-modal',
-  imports: [
-    IonButton,
-    IonButtons,
-    IonContent,
-    IonFab,
-    IonFabButton,
-    IonFabList,
-    IonHeader,
-    IonIcon,
-    IonToolbar,
-    IonTitle,
-    TranslatePipe,
-  ],
+  imports: [IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonToolbar, IonTitle],
   template: `
     <ion-header collapse="fade">
       <ion-toolbar>
@@ -51,10 +36,15 @@ import { StorageService } from 'src/app/services/storage.service';
           <ion-button (click)="navigateToBookmark()">
             <ion-icon name="book-outline" slot="icon-only"></ion-icon>
           </ion-button>
-          <ion-button (click)="modalController.dismiss()">
-            {{ TextKey.Cancel | translate }}
+          <ion-button (click)="onDeleteNote()">
+            <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
           </ion-button>
-          <ion-button (click)="onNoteModalConfirm()"> {{ TextKey.Save | translate }} </ion-button>
+          <ion-button (click)="onSave()">
+            <ion-icon name="save-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+          <ion-button (click)="modalController.dismiss()">
+            <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+          </ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -62,22 +52,17 @@ import { StorageService } from 'src/app/services/storage.service';
       <div class="note-modal-content">
         <textarea [value]="note.content" (input)="onNoteInput($event)"></textarea>
       </div>
-      <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-        <ion-fab-button>
-          <ion-icon name="chevron-up-circle"></ion-icon>
-        </ion-fab-button>
-        <ion-fab-list side="top">
-          <ion-fab-button (click)="onDeleteNote()">
-            <ion-icon color="danger" name="trash-outline"></ion-icon>
-          </ion-fab-button>
-        </ion-fab-list>
-      </ion-fab>
     </ion-content>
   `,
   styleUrl: './note-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NoteModalComponent implements OnInit, NoteModalProps {
+  private alertController = inject(AlertController);
+  private router = inject(Router);
+  private translation = inject(TranslateService);
+  private storage = inject(StorageService);
+
   note!: Note;
 
   noteContent = signal<string | undefined>(this.note?.content);
@@ -87,11 +72,6 @@ export class NoteModalComponent implements OnInit, NoteModalProps {
 
   protected modalController = inject(ModalController);
   protected TextKey = TextKey;
-
-  private alertController = inject(AlertController);
-  private router = inject(Router);
-  private translation = inject(TranslateService);
-  private storage = inject(StorageService);
 
   ngOnInit(): void {
     this.title = BookmarkUtils.getTitle(this.note.bookmark);
@@ -111,9 +91,7 @@ export class NoteModalComponent implements OnInit, NoteModalProps {
           text: this.translation.instant(TextKey.Delete),
           role: 'destructive',
           handler: () => {
-            const notes = this.storage.get('notes', []);
-            const updatedNotes = notes.filter((n) => n.id !== this.note.id);
-            this.storage.set('notes', updatedNotes);
+            this.deleteNote(this.note);
             this.modalController.dismiss(this.note, 'delete');
           },
         },
@@ -130,18 +108,24 @@ export class NoteModalComponent implements OnInit, NoteModalProps {
     });
   }
 
-  protected onNoteModalConfirm() {
+  protected onSave() {
     const noteContent = this.noteContent();
     if (noteContent !== undefined) {
       this.note.content = noteContent;
     }
     StorageUtils.saveNote(this.note, this.storage);
-    this.modalController.dismiss(this.note, 'confirm');
+    this.modalController.dismiss(this.note, 'save');
   }
 
   protected onNoteInput(event: Event) {
     const element = event.target as HTMLTextAreaElement;
     this.noteContent.set(element.value);
+  }
+
+  protected deleteNote(note: Note) {
+    const notes = this.storage.get('notes', []);
+    const updatedNotes = notes.filter((n) => n.id !== note.id);
+    this.storage.set('notes', updatedNotes);
   }
 }
 

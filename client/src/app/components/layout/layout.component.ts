@@ -93,7 +93,7 @@ import { StorageService } from 'src/app/services/storage.service';
                   lines="none"
                   routerDirection="root"
                   routerLinkActive="selected"
-                  [fragment]="fragment ?? undefined"
+                  [fragment]="fragment() ?? undefined"
                   [routerLink]="['/read', translation(), recentRead.bookUsfm, recentRead.chapter]"
                 >
                   <ion-icon slot="start" ios="time-outline" md="time-sharp"></ion-icon>
@@ -164,7 +164,7 @@ export class LayoutComponent {
   private readonly routerNavigationService = inject(RouterNavigationService);
   protected readonly bibleTranslation = inject(BibleTranslationService);
   protected readonly bookmarkService = inject(BookmarkService);
-  protected readonly fragment = inject(StorageService).get('routeFragment');
+  protected readonly fragment = inject(StorageService).getSignal('routeFragment');
 
   // Properties
   protected readonly appPages = [

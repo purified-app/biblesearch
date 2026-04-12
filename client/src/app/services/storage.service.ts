@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { SignalStorageService } from '@angular-libs/signal-storage';
+import { SignalStorage } from '@angular-libs/signal-storage';
 
 import { Bookmark, Note, RecentRead } from '../interfaces';
 import { VerseHighlight } from '../components/verse-actions-modal/verse-highlight.service';
@@ -25,7 +25,7 @@ export type StartPage = 'recentRead' | 'bookmarks' | 'notes' | 'search' | 'read'
 @Injectable({
   providedIn: 'root',
 })
-export class StorageService extends SignalStorageService<AppStorage> {
+export class StorageService extends SignalStorage<AppStorage> {
   constructor() {
     super(localStorage);
   }

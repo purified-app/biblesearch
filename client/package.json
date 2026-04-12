@@ -14,7 +14,7 @@
   },
   "private": true,
   "dependencies": {
-    "@angular-libs/signal-storage": "^0.0.2",
+    "@angular-libs/signal-storage": "0.1.0-beta.0",
     "@angular/common": "^21.1.2",
     "@angular/compiler": "^21.1.2",
     "@angular/core": "^21.1.2",
@@ -24,7 +24,6 @@
     "@ionic/angular": "^8.7.14",
     "@ionic/core": "^8.6.0",
     "@ngx-translate/core": "^17.0.0",
-    "@purified-app/typed-storage": "^0.1.0-beta.1",
     "ionicons": "^8.0.9",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
