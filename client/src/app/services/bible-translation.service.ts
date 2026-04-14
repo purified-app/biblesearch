@@ -22,7 +22,7 @@ export class BibleTranslationService {
         return segments[1].path;
       }
     }
-    return this.storage.get('translation', 'KJV');
+    return this.storage.get('translation');
   });
 
   constructor() {

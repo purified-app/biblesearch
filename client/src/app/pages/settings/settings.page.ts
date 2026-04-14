@@ -94,10 +94,10 @@ import { StorageService } from 'src/app/services/storage.service';
 export class SettingsPage {
   protected storage = inject(StorageService);
   protected translation = inject(TranslateService);
-  bookmarksLimit = this.storage.getSignal('bookmarksLimit', 5);
-  language = this.storage.getSignal('language', navigator.language.slice(0, 2));
+  bookmarksLimit = this.storage.getSignal('bookmarksLimit');
+  language = this.storage.getSignal('language');
   languages = signal(languages);
-  startPage = this.storage.getSignal('startPage', 'recentRead');
+  startPage = this.storage.getSignal('startPage');
 
   protected TextKey = TextKey;
 }

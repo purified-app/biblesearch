@@ -4,7 +4,7 @@ import { VerseHighlight } from '../components/verse-actions-modal/verse-highligh
 
 export class StorageUtils {
   static getNotes(storage: StorageService): Note[] {
-    const notes = storage.get('notes', []);
+    const notes = storage.get('notes');
     return StorageUtils.sortNotes(notes);
   }
 
@@ -12,9 +12,9 @@ export class StorageUtils {
     storage: StorageService,
     bookUsfm: string,
     chapter: number,
-    translation?: string
+    translation?: string,
   ): VerseHighlight[] {
-    const highlights = storage.get('verseHighlights', []);
+    const highlights = storage.get('verseHighlights');
     return highlights.filter((highlight: VerseHighlight) => {
       return (
         highlight.bookUsfm === bookUsfm &&
@@ -24,18 +24,13 @@ export class StorageUtils {
     });
   }
 
-  static saveNote(note: Note, storage: StorageService): void {
+  static updateNoteMeta(note: Note): void {
     const date = new Date();
     if (!note.id) {
       note.createdDate = date.toISOString();
       note.id = date.getTime();
     }
-    note.updatedDate = new Date().toISOString();
-    const notes = storage.get('notes', []);
-    const index = notes.findIndex((n) => n.id === note.id);
-    if (index > -1) notes[index] = note;
-    else notes.push(note);
-    storage.set('notes', StorageUtils.sortNotes(notes));
+    note.updatedDate = date.toISOString();
   }
 
   private static sortNotes(notes: Note[]): Note[] {

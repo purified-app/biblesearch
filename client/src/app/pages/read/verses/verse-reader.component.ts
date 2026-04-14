@@ -27,7 +27,7 @@ export class VerseReaderComponent {
     return new Set(this.selectedVerses().map((v) => v.id));
   });
 
-  protected readonly renderNotes = this.storage.getSignal('renderNotes', false);
+  protected readonly renderNotes = this.storage.getSignal('renderNotes');
 
   onVerseClick(verse: VerseNotes): void {
     this.verseClick.emit(verse);

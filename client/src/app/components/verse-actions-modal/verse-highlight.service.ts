@@ -29,7 +29,7 @@ export class VerseHighlightService {
   }
 
   private saveVerseHighlightsToStorage(highlights: VerseHighlight[]): void {
-    const existingHighlights = this.storage.get('verseHighlights', []);
+    const existingHighlights = this.storage.get('verseHighlights');
     if (existingHighlights.length) {
       highlights.forEach((highlight) => {
         const index = existingHighlights.findIndex(
@@ -37,7 +37,7 @@ export class VerseHighlightService {
             existingHighlight.translation === highlight.translation &&
             existingHighlight.bookUsfm === highlight.bookUsfm &&
             existingHighlight.chapter === highlight.chapter &&
-            existingHighlight.verse === highlight.verse
+            existingHighlight.verse === highlight.verse,
         );
         if (index > -1) existingHighlights.splice(index, 1);
       });

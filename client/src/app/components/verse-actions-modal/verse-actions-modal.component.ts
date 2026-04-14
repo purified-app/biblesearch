@@ -102,7 +102,7 @@ export class VerseActionsModalComponent implements OnInit, VerseActionsModalProp
         const note = NoteUtils.createNoteFromVerses(this.verses);
         const modal = await this.noteModalService.openModal(note);
         modal.onDidDismiss().then((event) => {
-          event.role === 'confirm' ? this.modalController.dismiss(event.data, role) : null;
+          event.role === 'save' ? this.modalController.dismiss(event.data, role) : null;
         });
         return;
       case 'highlight':

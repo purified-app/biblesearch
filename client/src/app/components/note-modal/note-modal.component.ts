@@ -109,11 +109,12 @@ export class NoteModalComponent implements OnInit, NoteModalProps {
   }
 
   protected onSave() {
-    const noteContent = this.noteContent();
-    if (noteContent !== undefined) {
-      this.note.content = noteContent;
+    if (this.note) {
+      this.note.content = this.noteContent();
+      StorageUtils.updateNoteMeta(this.note);
+      this.storage.notesAdapter.upsertOne(this.note);
     }
-    StorageUtils.saveNote(this.note, this.storage);
+
     this.modalController.dismiss(this.note, 'save');
   }
 
@@ -123,9 +124,7 @@ export class NoteModalComponent implements OnInit, NoteModalProps {
   }
 
   protected deleteNote(note: Note) {
-    const notes = this.storage.get('notes', []);
-    const updatedNotes = notes.filter((n) => n.id !== note.id);
-    this.storage.set('notes', updatedNotes);
+    this.storage.notesAdapter.removeOne(note.id);
   }
 }
 

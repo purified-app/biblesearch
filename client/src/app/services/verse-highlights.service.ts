@@ -5,7 +5,7 @@ import { StorageService } from './storage.service';
 export class VerseHighlightsService {
   private storage = inject(StorageService);
 
-  verseHighlights = this.storage.getSignal('verseHighlights', []);
+  verseHighlights = this.storage.getSignal('verseHighlights');
 
   getHighlightVersesForChapter(bookUsfm: string, chapter: number, translation: string) {
     return this.verseHighlights().filter(

@@ -11,7 +11,7 @@ export default class RouteUtils {
   static redirectPathRoot = () => {
     const bookmarkService = inject(BookmarkService);
     const storageService = inject(StorageService);
-    const startPage = storageService.get('startPage', 'search');
+    const startPage = storageService.get('startPage');
     switch (startPage) {
       case 'search':
         return UrlPath.search;

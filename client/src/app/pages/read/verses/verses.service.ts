@@ -4,7 +4,6 @@ import { ActivatedRoute } from '@angular/router';
 import { Verse, VerseNotes } from '../../../interfaces';
 import { VersePageParams } from '../../../interfaces/route-params';
 import { ApiService } from '../../../services/api.service';
-import { BookmarkService } from '../../../services/bookmark.service';
 import { StorageService } from '../../../services/storage.service';
 import { VerseHighlightsService } from '../../../services/verse-highlights.service';
 import RouteUtils from '../../../utils/route.utils';
@@ -13,7 +12,6 @@ import { StorageUtils } from '../../../utils/storage.utils';
 @Injectable()
 export class VersesService {
   private apiService = inject(ApiService);
-  private bookmarkService = inject(BookmarkService);
   private storage = inject(StorageService);
   private route = inject(ActivatedRoute);
   private verseHighlightsService = inject(VerseHighlightsService);
@@ -22,8 +20,9 @@ export class VersesService {
   routeParams = toSignal<VersePageParams>(this.route.params as any);
   selectedVerses = signal<VerseNotes[]>([]);
 
-  notes = this.storage.getSignal('notes', []);
-  allVerseHighlights = this.storage.getSignal('verseHighlights', []);
+  notes = this.storage.getSignal('notes');
+
+  allVerseHighlights = this.storage.getSignal('verseHighlights');
 
   chapterHighlights = computed(() => {
     const { bookUsfm, chapter, translation } = this.routeParams()!;

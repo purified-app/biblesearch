@@ -16,17 +16,17 @@ export class UserSettingsService {
   }
 
   private initFontSize() {
-    const fontSize = this.storage.get('fontSize', 16);
+    const fontSize = this.storage.get('fontSize');
     document.documentElement.style.fontSize = `${fontSize}px`;
   }
 
   private initDarkMode() {
-    const darkMode = this.storage.get('darkMode', true);
+    const darkMode = this.storage.get('darkMode');
     document.documentElement.classList.toggle('ion-palette-dark', darkMode);
   }
 
   private initLanguage() {
-    const language = this.storage.get('language', navigator.language.slice(0, 2)) || 'en';
+    const language = this.storage.get('language') || 'en';
     this.translation.use(language);
     this.translation.setTranslation('en', en);
     this.translation.setTranslation('no', no);

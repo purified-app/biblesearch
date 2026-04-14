@@ -71,8 +71,8 @@ import { StorageService } from 'src/app/services/storage.service';
 })
 export class SettingsAppearanceComponent {
   protected storage = inject(StorageService);
-  protected fontSize = this.storage.getSignal('fontSize', 16);
-  protected darkMode = this.storage.getSignal('darkMode', false);
-  protected renderNotes = this.storage.getSignal('renderNotes', true);
+  protected fontSize = this.storage.getSignal('fontSize');
+  protected darkMode = this.storage.getSignal('darkMode');
+  protected renderNotes = this.storage.getSignal('renderNotes');
   protected TextKey = TextKey;
 }

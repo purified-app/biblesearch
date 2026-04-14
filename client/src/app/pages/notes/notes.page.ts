@@ -65,7 +65,7 @@ import { StorageService } from 'src/app/services/storage.service';
 })
 export class NotesPage {
   private storage = inject(StorageService);
-  protected notes = this.storage.getSignal('notes', []);
+  protected notes = this.storage.getSignal('notes');
   protected selectedNote = signal<Note | undefined>(undefined);
   protected selectedNoteTitle = computed(() => NoteUtils.getNoteTitle(this.selectedNote()));
   protected noteModalService = inject(NoteModalService);
