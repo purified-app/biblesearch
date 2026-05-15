@@ -11,7 +11,8 @@ import {
   IonSelect,
   IonSelectOption,
 } from '@ionic/angular/standalone';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe } from '@angular-libs/translate';
+import { UserSettingsService } from 'src/app/services/user-settings.service';
 import { languages } from 'src/app/constants/languages';
 import { TextKey } from './../../constants/text-key';
 import { SettingsAppearanceComponent } from 'src/app/components/settings-appearance/settings-appearance.component';
@@ -61,7 +62,8 @@ import { StorageService } from 'src/app/services/storage.service';
             interface="popover"
             [value]="language()"
             (ionChange)="
-              storage.set('language', $event.detail.value); translation.use($event.detail.value)
+              storage.set('language', $event.detail.value);
+              userSettings.setLanguage($event.detail.value)
             "
           >
             @for (language of languages(); track language.value) {
@@ -93,7 +95,7 @@ import { StorageService } from 'src/app/services/storage.service';
 })
 export class SettingsPage {
   protected storage = inject(StorageService);
-  protected translation = inject(TranslateService);
+  protected userSettings = inject(UserSettingsService);
   bookmarksLimit = this.storage.getSignal('bookmarksLimit');
   language = this.storage.getSignal('language');
   languages = signal(languages);

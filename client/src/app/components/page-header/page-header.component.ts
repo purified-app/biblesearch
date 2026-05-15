@@ -8,7 +8,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '@angular-libs/translate';
 
 @Component({
   selector: 'app-page-header',

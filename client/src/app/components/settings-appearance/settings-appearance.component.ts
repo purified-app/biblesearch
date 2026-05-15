@@ -9,7 +9,7 @@ import {
   IonText,
   IonToggle,
 } from '@ionic/angular/standalone';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '@angular-libs/translate';
 import { TextKey } from './../../constants/text-key';
 import { StorageService } from 'src/app/services/storage.service';
 

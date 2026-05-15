@@ -9,7 +9,7 @@ import {
   IonRadioGroup,
   ModalController,
 } from '@ionic/angular/standalone';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '@angular-libs/translate';
 import { QueryParam } from 'src/app/constants/query-param';
 import { TextKey } from 'src/app/constants/text-key';
 import { Verse } from 'src/app/interfaces';

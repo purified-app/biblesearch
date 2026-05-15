@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IonItem, IonLabel, IonList, IonText } from '@ionic/angular/standalone';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '@angular-libs/translate';
 import { TextKey } from 'src/app/constants/text-key';
 import { Verse } from 'src/app/interfaces';
 import { HighlightSearchPipe } from 'src/app/pipes/highlight-search.pipe';

@@ -1,12 +1,12 @@
 import { inject, Injectable } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { ALTranslate } from '@angular-libs/translate';
 import { en } from 'src/assets/i18n/en';
 import { no } from 'src/assets/i18n/no';
 import { StorageService } from './storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class UserSettingsService {
-  private translation = inject(TranslateService);
+  private translation = inject(ALTranslate);
   private storage = inject(StorageService);
 
   initSettings() {
@@ -27,8 +27,16 @@ export class UserSettingsService {
 
   private initLanguage() {
     const language = this.storage.get('language') || 'en';
-    this.translation.use(language);
-    this.translation.setTranslation('en', en);
-    this.translation.setTranslation('no', no);
+    this.setLanguage(language);
+  }
+
+  setLanguage(language: string) {
+    if (language === 'no') {
+      this.translation.setDictionary(no);
+      this.translation.currentLang.set('no');
+    } else {
+      this.translation.setDictionary(en);
+      this.translation.currentLang.set('en');
+    }
   }
 }

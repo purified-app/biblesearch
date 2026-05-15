@@ -15,7 +15,7 @@ import { Note } from 'src/app/interfaces';
 import BookmarkUtils from 'src/app/utils/bookmark.utils';
 import NoteUtils from 'src/app/utils/note.utils';
 import { TextKey } from 'src/app/constants/text-key';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '@angular-libs/translate';
 import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
 import { StorageService } from 'src/app/services/storage.service';
 

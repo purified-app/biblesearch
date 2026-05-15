@@ -9,7 +9,7 @@ import {
   IonListHeader,
   IonRouterLink,
 } from '@ionic/angular/standalone';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '@angular-libs/translate';
 import { LanguageSelectComponent } from 'src/app/components/language-select/language-select.component';
 import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
 import { AllBooks } from 'src/app/constants/books';

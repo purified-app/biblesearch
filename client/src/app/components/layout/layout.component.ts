@@ -18,7 +18,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '@angular-libs/translate';
 import { TextKey } from 'src/app/constants/text-key';
 import { BibleTranslationService } from 'src/app/services/bible-translation.service';
 import { BookmarkService } from 'src/app/services/bookmark.service';

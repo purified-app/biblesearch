@@ -18,7 +18,7 @@ import {
   IonToolbar,
   ModalController,
 } from '@ionic/angular/standalone';
-import { TranslateService } from '@ngx-translate/core';
+import { ALTranslate } from '@angular-libs/translate';
 import { TextKey } from 'src/app/constants/text-key';
 import { Note } from 'src/app/interfaces';
 import { StorageService } from 'src/app/services/storage.service';
@@ -60,7 +60,7 @@ import { StorageUtils } from 'src/app/utils/storage.utils';
 export class NoteModalComponent implements OnInit, NoteModalProps {
   private alertController = inject(AlertController);
   private router = inject(Router);
-  private translation = inject(TranslateService);
+  private translation = inject(ALTranslate);
   private storage = inject(StorageService);
 
   note!: Note;
@@ -79,16 +79,16 @@ export class NoteModalComponent implements OnInit, NoteModalProps {
 
   protected async onDeleteNote() {
     const alert = await this.alertController.create({
-      header: this.translation.instant(TextKey.DeleteNote),
-      message: this.translation.instant(TextKey.DeleteNoteMessage),
+      header: this.translation.get(TextKey.DeleteNote),
+      message: this.translation.get(TextKey.DeleteNoteMessage),
       buttons: [
         {
-          text: this.translation.instant(TextKey.Cancel),
+          text: this.translation.get(TextKey.Cancel),
           role: 'cancel',
           cssClass: 'secondary',
         },
         {
-          text: this.translation.instant(TextKey.Delete),
+          text: this.translation.get(TextKey.Delete),
           role: 'destructive',
           handler: () => {
             this.deleteNote(this.note);
