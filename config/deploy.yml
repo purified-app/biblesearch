@@ -1,0 +1,35 @@
+# Name of your application. Used to uniquely configure containers.
+service: biblesearch
+
+# Name of the container image.
+image: benrei/biblesearch
+
+# Deploy to these servers.
+servers:
+  web:
+    - biblesearch.app
+    #- 78.47.79.2
+  # job:
+  #   hosts:
+  #     - 192.168.0.1
+  #   cmd: bin/jobs
+
+# Enable SSL auto certification via Let's Encrypt and allow for multiple apps on a single web server.
+# Remove this section when using multiple web servers and ensure you terminate SSL at your load balancer.
+#
+# Note: If using Cloudflare, set encryption mode in SSL/TLS setting to "Full" to enable CF-to-app encryption.
+proxy:
+  ssl: true
+  host: biblesearch.app
+  # Proxy connects to your container on port 80 by default.
+  app_port: 3000
+
+# Credentials for your image host.
+registry:
+  server: localhost:5555
+
+# Configure builder setup.
+builder:
+  arch: amd64
+  # Pass in additional build args needed for your Dockerfile.
+  # args:

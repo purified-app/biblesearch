@@ -5,3 +5,4 @@ secrets
 .qodo
 .env
 *.db-*
+*/node_modules

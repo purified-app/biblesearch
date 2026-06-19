@@ -3,7 +3,7 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "api": "php -S localhost:3000 -t server server/dev-router.php",
+    "api": "bun run --cwd server dev",
     "client": "cd client && ng serve",
     "client-build": "cd client && ng b",
     "deploy": "./scripts/deploy.sh",
