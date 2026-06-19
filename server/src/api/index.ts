@@ -34,6 +34,36 @@ function normalizeBookSearch(bookName: string): [string, string, string] {
   return [`${bookName}%`, `${bookName}%`, `${bookName}%`];
 }
 
+function buildFtsQuery(term: string, useOr = false): string {
+  // Regex to match double-quoted phrases, or individual words.
+  const regex = /"[^"]+"|\S+/g;
+  const tokens = term.match(regex) || [];
+  
+  const processed = tokens.map(token => {
+    if (token.startsWith('"') && token.endsWith('"')) {
+      // It is a quoted phrase. Clean up weird characters but keep word spacing
+      const inner = token.slice(1, -1).trim().replace(/[^\p{L}\p{N}\s_]/g, " ").replace(/\s+/g, " ");
+      if (inner) {
+        return `"${inner}"`;
+      }
+      return "";
+    } else {
+      // Single word. Clean everything except alphanumeric
+      const clean = token.replace(/[^\p{L}\p{N}_]/gu, "");
+      if (clean) {
+        // If length >= 3, append prefix wildcard *
+        return clean.length >= 3 ? `${clean}*` : clean;
+      }
+      return "";
+    }
+  }).filter(Boolean);
+
+  if (processed.length === 0) return "";
+  
+  const delimiter = useOr ? " OR " : " ";
+  return `text : (${processed.join(delimiter)})`;
+}
+
 apiRoutes.get("/search", async (c) => {
   const LIMIT = 120;
   const term = (c.req.query("query") || "").trim();
@@ -129,13 +159,13 @@ apiRoutes.get("/search", async (c) => {
 
   // Fallback to standard term search if no structured target was matched
   if (!isStructuredParsed) {
-    const cleanTerm = term.replace(/[^\p{L}\p{N}\s_]/gu, "").replace(/\s+/g, " ").trim();
-    if (cleanTerm !== "") {
-      const formattedTerm = `${cleanTerm.split(" ").join(" OR ")}*`;
+    const ftsQuery = buildFtsQuery(term, false);
+    if (ftsQuery !== "") {
       whereClauses.push("Verses_fts MATCH ?");
-      queryParams.push(formattedTerm);
+      queryParams.push(ftsQuery);
       tableName = "Verses_fts";
-      selectClause = "*, bm25(Verses_fts, 20, 0, 15, 10, 5, 15, 20, 5) as score";
+      // Weight text column (index 3) to 1.0, everything else to 0.0
+      selectClause = "*, bm25(Verses_fts, 0, 0, 0, 1.0, 0, 0, 0, 0) as score";
       orderByClause = "score";
     } else {
       // Return empty search if no term and no filters specified, or fall back safely
@@ -153,8 +183,31 @@ apiRoutes.get("/search", async (c) => {
   // 3. Count Query execution
   const countQuery = `SELECT COUNT(*) as count FROM ${tableName} ${WHERE}`;
   const countStatement = db.query(countQuery);
-  const countResult = countStatement.get(...queryParams) as { count: number } | null;
-  const count = countResult?.count ?? 0;
+  let countResult = countStatement.get(...queryParams) as { count: number } | null;
+  let count = countResult?.count ?? 0;
+
+  // Real-time FTS query correction logic (intelligent OR-based fallback for empty results)
+  let actualQueryParams = [...queryParams];
+  if (!isStructuredParsed && count === 0 && term.trim() !== "") {
+    const tokens = term.match(/"[^"]+"|\S+/g) || [];
+    if (tokens.length > 1) {
+      const ftsOrQuery = buildFtsQuery(term, true);
+      if (ftsOrQuery !== "") {
+        const matchIndex = whereClauses.indexOf("Verses_fts MATCH ?");
+        if (matchIndex !== -1) {
+          const checkParams = [...queryParams];
+          checkParams[matchIndex] = ftsOrQuery;
+
+          const checkCountResult = countStatement.get(...checkParams) as { count: number } | null;
+          const checkCount = checkCountResult?.count ?? 0;
+          if (checkCount > 0) {
+            count = checkCount;
+            actualQueryParams = checkParams;
+          }
+        }
+      }
+    }
+  }
 
   // 4. Main Query execution
   const mainQuery = `
@@ -171,7 +224,7 @@ apiRoutes.get("/search", async (c) => {
     statement.as(Verses_fts);
   }
 
-  const verses = statement.all(...queryParams, LIMIT);
+  const verses = statement.all(...actualQueryParams, LIMIT);
 
   return c.json({ count, verses });
 });

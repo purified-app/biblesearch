@@ -13,7 +13,7 @@ export class HighlightSearchPipe implements PipeTransform {
       return value;
     }
 
-    const words = search.split(/\s+/).filter((word) => word.length > 0);
+    const words = search.replace(/"/g, '').split(/\s+/).filter((word) => word.length > 0);
     const escapedWords = words.map((word) => word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'));
     const regex = new RegExp(escapedWords.join('|'), 'gi');
 
