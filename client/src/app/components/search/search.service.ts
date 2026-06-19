@@ -21,8 +21,9 @@ export class SearchService {
   searchResults = resource<SearchResponse, SearchReqParams>({
     params: () => this.queryParams() as SearchReqParams,
     loader: async ({ params }) => {
-      if (!params.query || params.query.length < 2) return { verses: [], count: 0 };
-      return await this.apiService.search(params);
+      const trimmedQuery = params.query?.trim() || '';
+      if (trimmedQuery.length < 2) return { verses: [], count: 0 };
+      return await this.apiService.search({ ...params, query: trimmedQuery });
     },
   });
 

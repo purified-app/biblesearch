@@ -53,7 +53,7 @@ export class SearchPopover {
 
   protected onSearchInput(event: Event) {
     const element = event.target as HTMLInputElement;
-    const value = element.value.trim();
+    const value = element.value;
     this.searchService.updateSearchQueryParam(value);
   }
 }

@@ -42,7 +42,7 @@ function buildFtsQuery(term: string, useOr = false): string {
   const processed = tokens.map(token => {
     if (token.startsWith('"') && token.endsWith('"')) {
       // It is a quoted phrase. Clean up weird characters but keep word spacing
-      const inner = token.slice(1, -1).trim().replace(/[^\p{L}\p{N}\s_]/g, " ").replace(/\s+/g, " ");
+      const inner = token.slice(1, -1).trim().replace(/[^\p{L}\p{N}\s_]/gu, " ").replace(/\s+/g, " ");
       if (inner) {
         return `"${inner}"`;
       }
