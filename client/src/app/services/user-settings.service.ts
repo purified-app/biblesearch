@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, effect } from '@angular/core';
 import { ALTranslate } from '@angular-libs/translate';
 import { en } from 'src/assets/i18n/en';
 import { no } from 'src/assets/i18n/no';
@@ -9,20 +9,22 @@ export class UserSettingsService {
   private translation = inject(ALTranslate);
   private storage = inject(StorageService);
 
+  constructor() {
+    // Reactively update dark mode on change
+    effect(() => {
+      const darkMode = this.storage.getSignal('darkMode')();
+      document.documentElement.classList.toggle('ion-palette-dark', darkMode);
+    });
+
+    // Reactively update font size on change
+    effect(() => {
+      const fontSize = this.storage.getSignal('fontSize')();
+      document.documentElement.style.fontSize = `${fontSize}px`;
+    });
+  }
+
   initSettings() {
-    this.initDarkMode();
-    this.initFontSize();
     this.initLanguage();
-  }
-
-  private initFontSize() {
-    const fontSize = this.storage.get('fontSize');
-    document.documentElement.style.fontSize = `${fontSize}px`;
-  }
-
-  private initDarkMode() {
-    const darkMode = this.storage.get('darkMode');
-    document.documentElement.classList.toggle('ion-palette-dark', darkMode);
   }
 
   private initLanguage() {
