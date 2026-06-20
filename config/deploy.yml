@@ -26,9 +26,7 @@ proxy:
 
 # Credentials for your image host.
 registry:
-  server: 127.0.0.1:5555
-  username: biblesearch
-  password: dummy_password
+  server: localhost:5555
 
 # Configure builder setup.
 builder:
