@@ -4,13 +4,14 @@ import { Verse } from '../interfaces';
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   search(params: SearchReqParams): Promise<SearchResponse> {
-    const { canon, query, books, translations } = params;
+    const { canon, query, books, translations, sort } = params;
     const searchParams = new URLSearchParams();
 
     if (query) searchParams.append('query', query);
     if (canon) searchParams.append('canon', canon);
     if (books) searchParams.append('books', books);
     if (translations) searchParams.append('translations', translations);
+    if (sort) searchParams.append('sort', sort);
 
     const queryString = searchParams.toString();
     const urlString = queryString ? `/api/search?${queryString}` : '/api/search';
@@ -39,6 +40,8 @@ export interface SearchReqParams {
   books?: string;
   /** Comma-separated list of translations */
   translations?: string;
+  /** Sort order: 'relevance' | 'chronological' */
+  sort?: 'relevance' | 'chronological';
 }
 
 export interface SearchResponse {

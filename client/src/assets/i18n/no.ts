@@ -29,5 +29,7 @@ export const no = {
   SelectTranslation: 'Velg oversettelse',
   Settings: 'Innstillinger',
   Showing: 'Viser',
+  SortChronological: 'Kronologisk',
+  SortRelevance: 'Relevans',
   StartPage: 'Startside',
 };

@@ -70,6 +70,7 @@ apiRoutes.get("/search", async (c) => {
   const canonFilter = c.req.query("canon"); // 'nt' or 'ot'
   const booksFilter = c.req.query("books"); // Comma-separated list of book USFM
   const translationsFilter = c.req.query("translations"); // Comma-separated list
+  const sort = c.req.query("sort"); // 'relevance' or 'chronological'
 
   const whereClauses: string[] = [];
   const queryParams: (string | number)[] = [];
@@ -166,7 +167,7 @@ apiRoutes.get("/search", async (c) => {
       tableName = "Verses_fts";
       // Weight text column (index 3) to 1.0, everything else to 0.0
       selectClause = "*, bm25(Verses_fts, 0, 0, 0, 1.0, 0, 0, 0, 0) as score";
-      orderByClause = "score";
+      orderByClause = sort === "relevance" ? "score" : "bookNumber, chapter, verse";
     } else {
       // Return empty search if no term and no filters specified, or fall back safely
       if (whereClauses.length === 0) {

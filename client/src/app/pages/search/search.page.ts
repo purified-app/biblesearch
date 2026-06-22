@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, inject, viewChild } from '@angular/core';
-import { IonContent, IonSearchbar, IonSpinner } from '@ionic/angular/standalone';
+import { IonContent, IonSearchbar, IonSpinner, IonSegment, IonSegmentButton, IonLabel } from '@ionic/angular/standalone';
+import { TranslatePipe } from '@angular-libs/translate';
 import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
 import { SearchResultsListComponent } from 'src/app/components/search-results-list/search-results-list.component';
 import { SearchService } from 'src/app/components/search/search.service';
@@ -7,7 +8,7 @@ import { TextKey } from '../../constants/text-key';
 import { QueryParam } from '../../constants/query-param';
 
 @Component({
-  imports: [PageHeaderComponent, IonContent, IonSearchbar, IonSpinner, SearchResultsListComponent],
+  imports: [PageHeaderComponent, IonContent, IonSearchbar, IonSpinner, SearchResultsListComponent, IonSegment, IonSegmentButton, IonLabel, TranslatePipe],
   styleUrl: './search.page.css',
   templateUrl: './search.page.html',
 })
@@ -26,5 +27,11 @@ export class SearchPage implements AfterViewInit {
     const element = event.target as HTMLInputElement;
     const value = element.value;
     this.searchService.updateSearchQueryParam(value);
+  }
+
+  protected onSortChange(event: Event) {
+    const customEvent = event as CustomEvent;
+    const value = customEvent.detail.value as 'relevance' | 'chronological';
+    this.searchService.updateSortOrder(value);
   }
 }

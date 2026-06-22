@@ -5,6 +5,7 @@ import { ApiService, SearchReqParams, SearchResponse } from 'src/app/services/ap
 
 const SEARCH = 'search';
 const QUERY = 'query';
+const SORT = 'sort';
 
 @Injectable({ providedIn: 'root' })
 export class SearchService {
@@ -16,6 +17,7 @@ export class SearchService {
   queryParams = toSignal(this.activatedRoute.queryParams);
   isSearchOpen = computed(() => this.queryParams()?.[SEARCH] === 'open');
   searchTerm = computed(() => this.queryParams()?.[QUERY] || '');
+  sortOrder = computed(() => (this.queryParams()?.[SORT] as 'relevance' | 'chronological') || 'chronological');
 
   // Global search resource
   searchResults = resource<SearchResponse, SearchReqParams>({
@@ -41,6 +43,15 @@ export class SearchService {
     this.router.navigate([], {
       relativeTo: this.activatedRoute,
       queryParams: { [QUERY]: value || null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
+  updateSortOrder(value: 'relevance' | 'chronological'): void {
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams: { [SORT]: value === 'chronological' ? null : value },
       queryParamsHandling: 'merge',
       replaceUrl: true,
     });
