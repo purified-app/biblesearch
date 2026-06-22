@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ALStorage, createEntityAdapter } from '@angular-libs/store';
+import { ALStore, entityPlugin, persistPlugin } from '@angular-libs/store';
 
 import { Bookmark, Note, RecentRead } from '../interfaces';
 import { VerseHighlight } from '../components/verse-actions-modal/verse-highlight.service';
@@ -42,10 +42,11 @@ const initialValues: AppStorage = {
 export type StartPage = 'recentRead' | 'bookmarks' | 'notes' | 'search' | 'read';
 
 @Injectable({ providedIn: 'root' })
-export class StorageService extends ALStorage<AppStorage> {
-  notesAdapter = createEntityAdapter(this.storeRef, 'notes', { idField: 'id' });
-  verseHighlights = createEntityAdapter(this.storeRef, 'verseHighlights', { idField: 'verse' });
+export class StorageService extends ALStore<AppStorage> {
+  notesAdapter = this.registerPlugin(entityPlugin('notes', { idField: 'id' }));
+  verseHighlights = this.registerPlugin(entityPlugin('verseHighlights', { idField: 'verse' }));
   constructor() {
     super(initialValues);
+    this.registerPlugin(persistPlugin('all'));
   }
 }
