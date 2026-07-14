@@ -51,7 +51,7 @@ import { StorageService } from 'src/app/services/storage.service';
             </ion-item>
 
             <ion-item-options>
-              <ion-item-option color="danger" (click)="sliding.close()">{{
+              <ion-item-option color="danger" (click)="deleteNote(note); sliding.close()">{{
                 TextKey.Delete | translate
               }}</ion-item-option>
             </ion-item-options>
@@ -76,5 +76,9 @@ export class NotesPage {
     const modal = await this.noteModalService.openModal(note);
     await modal.onDidDismiss<Note>();
     this.selectedNote.set(undefined);
+  }
+
+  protected deleteNote(note: Note) {
+    this.storage.notesAdapter.removeOne(note.id);
   }
 }
