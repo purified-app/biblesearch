@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import {
   IonContent,
   IonInput,
@@ -36,6 +36,8 @@ import { StorageService } from 'src/app/services/storage.service';
     IonSelectOption,
     TranslatePipe,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+
   template: `
     <app-page-header></app-page-header>
     <ion-content class="ion-padding">

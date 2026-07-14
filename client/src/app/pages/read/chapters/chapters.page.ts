@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { IonButton, IonContent, NavController } from '@ionic/angular/standalone';
@@ -11,6 +11,7 @@ import { LanguageSelectComponent } from '../../../components/language-select/lan
 @Component({
   selector: 'app-chapters',
   imports: [LanguageSelectComponent, PageHeaderComponent, IonButton, IonContent, RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @let bookUsfm = routeParams()?.['bookUsfm']; @let translation = routeParams()?.['translation'];
     <app-page-header toolbarTitle="">

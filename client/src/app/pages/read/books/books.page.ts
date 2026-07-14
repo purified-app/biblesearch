@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
@@ -29,6 +29,8 @@ import { TextKey } from 'src/app/constants/text-key';
     RouterLink,
     TranslatePipe,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+
   template: `
     <app-page-header>
       <app-language-select toolbarEnd></app-language-select>
