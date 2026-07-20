@@ -2,6 +2,7 @@ import { computed, inject, Injectable, resource } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService, SearchReqParams, SearchResponse } from 'src/app/services/api.service';
+import { BibleTranslationService } from 'src/app/services/bible-translation.service';
 
 const SEARCH = 'search';
 const QUERY = 'query';
@@ -12,16 +13,22 @@ export class SearchService {
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   private apiService = inject(ApiService);
+  private bibleTranslation = inject(BibleTranslationService);
 
   // Convert queryParams Observable to a Signal
   queryParams = toSignal(this.activatedRoute.queryParams);
   isSearchOpen = computed(() => this.queryParams()?.[SEARCH] === 'open');
   searchTerm = computed(() => this.queryParams()?.[QUERY] || '');
   sortOrder = computed(() => (this.queryParams()?.[SORT] as 'relevance' | 'chronological') || 'chronological');
+  private searchParams = computed<SearchReqParams>(() => ({
+    ...(this.queryParams() as SearchReqParams),
+    translations:
+      this.queryParams()?.['translations'] || this.bibleTranslation.translation() || 'KJV',
+  }));
 
   // Global search resource
   searchResults = resource<SearchResponse, SearchReqParams>({
-    params: () => this.queryParams() as SearchReqParams,
+    params: this.searchParams,
     loader: async ({ params }) => {
       const trimmedQuery = params.query?.trim() || '';
       if (trimmedQuery.length < 2) return { verses: [], count: 0 };

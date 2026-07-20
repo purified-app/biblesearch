@@ -5,4 +5,6 @@ secrets
 .qodo
 .env
 *.db-*
+client/src/assets/databases/*.db
 */node_modules
+node_modules/

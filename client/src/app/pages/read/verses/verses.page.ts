@@ -33,6 +33,7 @@ import { PageSwipeDirective } from 'src/app/directives/page-swipe.directive';
 import { Note, VerseNotes } from 'src/app/interfaces';
 import { ChapterNavigationService } from 'src/app/services/chapter-navigation.service';
 import { ScrollVerseTrackerService } from 'src/app/services/scroll-verse-tracker.service';
+import { StorageService } from 'src/app/services/storage.service';
 import { VersesService } from 'src/app/pages/read/verses/verses.service';
 import { versesActionSheetButtons } from './verses-action-sheet-buttons';
 import { VerseReaderComponent } from './verse-reader.component';
@@ -62,6 +63,7 @@ export class VersesPage implements AfterViewInit {
   private noteModalService = inject(NoteModalService);
   private route = inject(ActivatedRoute);
   private scrollVerseTracker = inject(ScrollVerseTrackerService);
+  private storage = inject(StorageService);
   private verseActionsModalService = inject(VerseActionsModalService);
   private versesService = inject(VersesService);
   protected searchService = inject(SearchService);
@@ -88,6 +90,7 @@ export class VersesPage implements AfterViewInit {
 
   constructor() {
     effect(() => {
+      this.storage.set('routeFragment', this.routeFragment() ?? '');
       const verses = this.versesIncMetadata();
       if (verses && verses.length > 0) {
         this.scrollToVerse(untracked(() => this.routeFragment()));

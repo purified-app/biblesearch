@@ -1,11 +1,12 @@
-import { Component, computed, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, inject, ChangeDetectionStrategy, resource } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { IonButton, IonContent, NavController } from '@ionic/angular/standalone';
 import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
 import { UrlPath } from 'src/app/constants/url-path';
+import { Book } from 'src/app/interfaces';
 import { VersePageParams } from 'src/app/interfaces/route-params';
-import RouteUtils from 'src/app/utils/route.utils';
+import { ApiService } from 'src/app/services/api.service';
 import { LanguageSelectComponent } from '../../../components/language-select/language-select.component';
 
 @Component({
@@ -57,10 +58,18 @@ import { LanguageSelectComponent } from '../../../components/language-select/lan
 })
 export class ChaptersPage {
   protected activatedRoute = inject(ActivatedRoute);
+  private apiService = inject(ApiService);
   private navController = inject(NavController);
   protected routeParams = toSignal<VersePageParams>(this.activatedRoute.params as any);
+  private bookResource = resource<Book | undefined, VersePageParams>({
+    params: () => this.routeParams()!,
+    loader: async ({ params }) => {
+      const books = await this.apiService.getBooks(params.translation);
+      return books.find((book) => book.usfm === params.bookUsfm);
+    },
+  });
   protected chapters = computed(() => {
-    const { chapters } = RouteUtils.getChapterInfo(this.routeParams()!);
+    const chapters = this.bookResource.value()?.chapters;
     return chapters ? Array.from({ length: chapters }, (_, index) => index + 1) : [];
   });
 

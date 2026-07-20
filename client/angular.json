@@ -24,15 +24,22 @@
                 "glob": "**/*",
                 "input": "src/assets",
                 "output": "assets"
+              },
+              {
+                "glob": "sqlite3.wasm",
+                "input": "node_modules/@sqlite.org/sqlite-wasm/dist",
+                "output": "/"
               }
             ],
             "styles": [
               "src/global.scss",
               "src/theme/variables.scss"
-            ]
+            ],
+            "webWorkerTsConfig": "tsconfig.worker.json"
           },
           "configurations": {
             "production": {
+              "serviceWorker": "ngsw-config.json",
               "budgets": [
                 {
                   "type": "initial",
@@ -66,9 +73,7 @@
             }
           },
           "defaultConfiguration": "development",
-          "options": {
-            "proxyConfig": "proxy.conf.json"
-          }
+          "options": {}
         },
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n"

@@ -23,3 +23,4 @@ export class AppComponent {
     this.userSettings.initSettings();
   }
 }
+    

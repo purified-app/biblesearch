@@ -5,7 +5,7 @@
     "": {
       "name": "biblesearch",
       "dependencies": {
-        "@angular-libs/store": "0.2.2",
+        "@angular-libs/store": "^0.3.1",
         "@angular-libs/translate": "^0.1.1",
         "@angular/common": "^21.1.2",
         "@angular/compiler": "^21.1.2",
@@ -13,9 +13,10 @@
         "@angular/forms": "^21.1.2",
         "@angular/platform-browser": "^21.1.2",
         "@angular/router": "^21.1.2",
+        "@angular/service-worker": "21.1.2",
         "@ionic/angular": "^8.7.14",
         "@ionic/core": "^8.6.0",
-        "@ngx-translate/core": "^17.0.0",
+        "@sqlite.org/sqlite-wasm": "^3.53.0-build1",
         "ionicons": "^8.0.9",
         "rxjs": "~7.8.0",
         "tslib": "^2.3.0",
@@ -65,7 +66,7 @@
 
     "@angular-devkit/schematics": ["@angular-devkit/schematics@21.1.2", "", { "dependencies": { "@angular-devkit/core": "21.1.2", "jsonc-parser": "3.3.1", "magic-string": "0.30.21", "ora": "9.0.0", "rxjs": "7.8.2" } }, "sha512-PA3gkiFhHUuXd2XuP7yzKg/9N++bjw+uOl473KwIsMuZwMPhncKa4+mUYBaffDoPqaujZvjfo6mjtCBuiBv05w=="],
 
-    "@angular-libs/store": ["@angular-libs/store@0.2.2", "", { "dependencies": { "tslib": "^2.3.0" }, "peerDependencies": { "@angular/common": ">=20.0.0", "@angular/core": ">=20.0.0", "rxjs": ">=7.4.0" }, "optionalPeers": ["rxjs"] }, "sha512-kRDPvmGli/lk4XcL8RyYwfSlm8Y5/8GadeE0EJ3zlXQf0eDJOskKJQXSeGq7mp1SQT9XjSKCTWNH6y6bObsZIQ=="],
+    "@angular-libs/store": ["@angular-libs/store@0.3.2", "", { "dependencies": { "tslib": "^2.3.0" }, "peerDependencies": { "@angular/common": ">=20.0.0", "@angular/core": ">=20.0.0", "rxjs": ">=7.4.0" }, "optionalPeers": ["rxjs"] }, "sha512-qg+6NboG3S7WlOJUDJ/5GvKIib2mc063b+E1s1iz9um3ELR+o+XbGfcZJlG1Xn7asQgofvX6VUf78dP324udOA=="],
 
     "@angular-libs/translate": ["@angular-libs/translate@0.1.1", "", { "dependencies": { "tslib": "^2.3.0" }, "peerDependencies": { "@angular/common": ">=19.0.0", "@angular/core": ">=19.0.0" } }, "sha512-bQYJ91dd+QPhdNRX97x0rUuyCG/U9Q0+9O7A7fGX2l0YYzdeKkgTFdeKbUEGO1ITan8jhcqkdAJtAzC13JhfMA=="],
 
@@ -86,6 +87,8 @@
     "@angular/platform-browser": ["@angular/platform-browser@21.1.2", "", { "dependencies": { "tslib": "^2.3.0" }, "peerDependencies": { "@angular/animations": "21.1.2", "@angular/common": "21.1.2", "@angular/core": "21.1.2" }, "optionalPeers": ["@angular/animations"] }, "sha512-8vnCbQhxugQ3meGQ0YlSp0uNBYUjpFXYjFnGQ0Xq5jvzc9WX7KSix6+AydEjZtQfc1bWRetBTOlhQpqnwYp53g=="],
 
     "@angular/router": ["@angular/router@21.1.2", "", { "dependencies": { "tslib": "^2.3.0" }, "peerDependencies": { "@angular/common": "21.1.2", "@angular/core": "21.1.2", "@angular/platform-browser": "21.1.2", "rxjs": "^6.5.3 || ^7.4.0" } }, "sha512-APl4tkTJIrpejlULLrGtIdLuJkNctPy0pnVijrJLR52nEV0xX165ulXk3XrL9QnMk0iy950aTYtoTal4aMw16Q=="],
+
+    "@angular/service-worker": ["@angular/service-worker@21.1.2", "", { "dependencies": { "tslib": "^2.3.0" }, "peerDependencies": { "@angular/core": "21.1.2", "rxjs": "^6.5.3 || ^7.4.0" }, "bin": { "ngsw-config": "ngsw-config.js" } }, "sha512-uDMHACLRExcfS1PUx1EIJDYCbu6BQSpPlXQy2uJBX7Np1DuAlX8mwsJcokkDlPhI355fYzzzjc7p5T7LvyY6fA=="],
 
     "@babel/code-frame": ["@babel/code-frame@7.27.1", "", { "dependencies": { "@babel/helper-validator-identifier": "^7.27.1", "js-tokens": "^4.0.0", "picocolors": "^1.1.1" } }, ""],
 
@@ -305,8 +308,6 @@
 
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.1.1", "", { "dependencies": { "@emnapi/core": "^1.7.1", "@emnapi/runtime": "^1.7.1", "@tybys/wasm-util": "^0.10.1" } }, "sha512-p64ah1M1ld8xjWv3qbvFwHiFVWrq1yFvV4f7w+mzaqiR4IlSgkqhcRdHwsGgomwzBH51sRY4NEowLxnaBjcW/A=="],
 
-    "@ngx-translate/core": ["@ngx-translate/core@17.0.0", "", { "dependencies": { "tslib": "^2.3.0" }, "peerDependencies": { "@angular/common": ">=16", "@angular/core": ">=16" } }, "sha512-Rft2D5ns2pq4orLZjEtx1uhNuEBerUdpFUG1IcqtGuipj6SavgB8SkxtNQALNDA+EVlvsNCCjC2ewZVtUeN6rg=="],
-
     "@npmcli/agent": ["@npmcli/agent@4.0.0", "", { "dependencies": { "agent-base": "^7.1.0", "http-proxy-agent": "^7.0.0", "https-proxy-agent": "^7.0.1", "lru-cache": "^11.2.1", "socks-proxy-agent": "^8.0.3" } }, "sha512-kAQTcEN9E8ERLVg5AsGwLNoFb+oEG6engbqAU2P43gD4JEIkNGMHdVQ096FsOAAYpZPB0RSt0zgInKIAS1l5QA=="],
 
     "@npmcli/fs": ["@npmcli/fs@5.0.0", "", { "dependencies": { "semver": "^7.3.5" } }, "sha512-7OsC1gNORBEawOa5+j2pXN9vsicaIOH5cPXxoR6fJOmH6/EXpJB2CajXOu1fPRFun2m1lktEFX11+P89hqO/og=="],
@@ -438,6 +439,8 @@
     "@sigstore/tuf": ["@sigstore/tuf@4.0.1", "", { "dependencies": { "@sigstore/protobuf-specs": "^0.5.0", "tuf-js": "^4.1.0" } }, "sha512-OPZBg8y5Vc9yZjmWCHrlWPMBqW5yd8+wFNl+thMdtcWz3vjVSoJQutF8YkrzI0SLGnkuFof4HSsWUhXrf219Lw=="],
 
     "@sigstore/verify": ["@sigstore/verify@3.1.0", "", { "dependencies": { "@sigstore/bundle": "^4.0.0", "@sigstore/core": "^3.1.0", "@sigstore/protobuf-specs": "^0.5.0" } }, "sha512-mNe0Iigql08YupSOGv197YdHpPPr+EzDZmfCgMc7RPNaZTw5aLN01nBl6CHJOh3BGtnMIj83EeN4butBchc8Ag=="],
+
+    "@sqlite.org/sqlite-wasm": ["@sqlite.org/sqlite-wasm@3.53.0-build1", "", {}, "sha512-PfWPWN2n+/37doa8oh2/oUXk4OOsRYZsxc1W1sDXIGb/Pu5Yrb+f2eyYpgQMGITVX7HVgxhs9P18Rc6I97ym/g=="],
 
     "@standard-schema/spec": ["@standard-schema/spec@1.1.0", "", {}, "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="],
 

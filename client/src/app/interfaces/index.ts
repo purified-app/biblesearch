@@ -9,7 +9,9 @@ export interface Book {
   /** `GEN`, `EXO` etc */
   usfm: string;
   /** `ot` or `nt` */
-  canon: string;
+  canon: 'ot' | 'nt';
+  /** `KJV`, `NB` etc */
+  translation: string;
 }
 
 export interface Bookmark {

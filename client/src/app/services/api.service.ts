@@ -1,51 +1,80 @@
 import { Injectable } from '@angular/core';
-import { Verse } from '../interfaces';
+import { Book, Verse } from '../interfaces';
+import {
+  BibleWorkerAction,
+  BibleWorkerActions,
+  BibleWorkerResponse,
+  SearchRequest,
+  SearchResult,
+} from '../interfaces/bible-worker';
+
+interface PendingRequest {
+  resolve: (value: unknown) => void;
+  reject: (reason: Error) => void;
+}
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  search(params: SearchReqParams): Promise<SearchResponse> {
-    const { canon, query, books, translations, sort } = params;
-    const searchParams = new URLSearchParams();
+  private worker: Worker | null = null;
+  private pendingRequests = new Map<string, PendingRequest>();
+  private booksRequests = new Map<string, Promise<Book[]>>();
 
-    if (query) searchParams.append('query', query);
-    if (canon) searchParams.append('canon', canon);
-    if (books) searchParams.append('books', books);
-    if (translations) searchParams.append('translations', translations);
-    if (sort) searchParams.append('sort', sort);
+  constructor() {
+    if (typeof Worker !== 'undefined') {
+      this.worker = new Worker(new URL('../app.worker', import.meta.url));
+      this.worker.onmessage = ({ data }: MessageEvent<BibleWorkerResponse>) => {
+        const pending = this.pendingRequests.get(data.id);
+        if (pending) {
+          this.pendingRequests.delete(data.id);
+          if (data.success) {
+            pending.resolve(data.data);
+          } else {
+            pending.reject(new Error(data.error));
+          }
+        }
+      };
+    } else {
+      console.error('Web Workers are not supported in this environment!');
+    }
+  }
 
-    const queryString = searchParams.toString();
-    const urlString = queryString ? `/api/search?${queryString}` : '/api/search';
+  private runInWorker<Action extends BibleWorkerAction>(
+    type: Action,
+    payload: BibleWorkerActions[Action]['payload'],
+  ): Promise<BibleWorkerActions[Action]['result']> {
+    return new Promise((resolve, reject) => {
+      if (!this.worker) {
+        reject(new Error('Web Worker is not initialized'));
+        return;
+      }
+      const id = crypto.randomUUID();
+      this.pendingRequests.set(id, { resolve: resolve as (value: unknown) => void, reject });
+      this.worker.postMessage({ id, type, payload });
+    });
+  }
 
-    return fetch(urlString).then((res) => res.json());
+  search(params: SearchRequest): Promise<SearchResult> {
+    return this.runInWorker('SEARCH', params);
+  }
+
+  getBooks(translation: string): Promise<Book[]> {
+    const normalizedTranslation = translation.toUpperCase();
+    const existing = this.booksRequests.get(normalizedTranslation);
+    if (existing) return existing;
+
+    const request = this.runInWorker('GET_BOOKS', { translation: normalizedTranslation });
+    this.booksRequests.set(normalizedTranslation, request);
+    return request;
   }
 
   getVerses(translation: string, bookUsfm: string, chapter: number | string): Promise<Verse[]> {
-    const searchParams = new URLSearchParams({
+    return this.runInWorker('GET_VERSES', {
       translation,
       bookUsfm,
-      chapter: chapter.toString(),
+      chapter: Number(chapter),
     });
-
-    const url = `/api/verses?${searchParams.toString()}`;
-    return fetch(url).then((res) => res.json());
   }
 }
 
-export interface SearchReqParams {
-  /** Search term */
-  query: string;
-  /** Canon filter: 'nt' or 'ot' */
-  canon?: 'nt' | 'ot';
-  /** Comma-separated list of book USFM */
-  books?: string;
-  /** Comma-separated list of translations */
-  translations?: string;
-  /** Sort order: 'relevance' | 'chronological' */
-  sort?: 'relevance' | 'chronological';
-}
-
-export interface SearchResponse {
-  /** Total hint on search term */
-  count: number;
-  verses: Verse[];
-}
+export type SearchReqParams = SearchRequest;
+export type SearchResponse = SearchResult;

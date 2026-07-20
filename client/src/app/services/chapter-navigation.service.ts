@@ -1,33 +1,25 @@
 import { inject, Injectable } from '@angular/core';
 import { NavController } from '@ionic/angular/standalone';
 import { NavigationOptions } from 'node_modules/@ionic/angular/common/providers/nav-controller';
-import { AllBooks } from 'src/app/constants/books';
 import { UrlPath } from 'src/app/constants/url-path';
+import { Book } from 'src/app/interfaces';
 import { VersePageParams } from 'src/app/interfaces/route-params';
-
-interface Book {
-  name: string;
-  abbreviation: string;
-  bookNumber: number;
-  chapters: number;
-  usfm: string;
-  canon: string;
-  translation: string;
-}
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ChapterNavigationService {
+  private apiService = inject(ApiService);
   private navController = inject(NavController);
 
-  navigateChapter(
+  async navigateChapter(
     direction: 'forward' | 'backward',
     versePageParams: VersePageParams,
-    navOptions?: NavigationOptions
+    navOptions?: NavigationOptions,
   ) {
     const { translation, bookUsfm, chapter } = versePageParams;
-    const books = AllBooks[translation as keyof typeof AllBooks] as Book[];
+    const books = await this.apiService.getBooks(translation);
     const currentBook = books.find((b) => b.usfm === bookUsfm);
     if (!currentBook) return;
 
@@ -35,7 +27,7 @@ export class ChapterNavigationService {
       currentBook,
       Number(chapter),
       direction,
-      books
+      books,
     );
     if (!targetChapter) return;
 
@@ -49,7 +41,7 @@ export class ChapterNavigationService {
     currentBook: Book,
     currentChapter: number,
     direction: 'forward' | 'backward',
-    books: Book[]
+    books: Book[],
   ): { bookUsfm: string; chapter: number } | null {
     const increment = direction === 'forward' ? 1 : -1;
     const boundaryCheck =

@@ -6,7 +6,6 @@ import { VersePageParams } from '../../../interfaces/route-params';
 import { ApiService } from '../../../services/api.service';
 import { StorageService } from '../../../services/storage.service';
 import { VerseHighlightsService } from '../../../services/verse-highlights.service';
-import RouteUtils from '../../../utils/route.utils';
 import { StorageUtils } from '../../../utils/storage.utils';
 
 @Injectable()
@@ -47,12 +46,14 @@ export class VersesService {
 
   constructor() {
     effect(() => {
-      const chapterInfo = RouteUtils.getChapterInfo(this.routeParams()!);
-      const { chapter, name, translation, usfm } = chapterInfo;
+      const firstVerse = this.versesResource.value()[0];
+      if (!firstVerse) return;
+
+      const { chapter, bookName, translation, bookUsfm } = firstVerse;
       this.storage.set('recentRead', {
         chapter,
-        bookName: name!,
-        bookUsfm: usfm,
+        bookName,
+        bookUsfm,
         translation,
       });
     });

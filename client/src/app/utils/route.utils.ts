@@ -1,11 +1,11 @@
 import { ActivatedRouteSnapshot, Params } from '@angular/router';
-import { AllBooks } from '../constants/books';
 import { VersePageParams } from '../interfaces/route-params';
 import { inject } from '@angular/core';
 import { BibleTranslationService } from '../services/bible-translation.service';
 import { BookmarkService } from '../services/bookmark.service';
 import { UrlPath } from '../constants/url-path';
 import { StorageService } from '../services/storage.service';
+import { ApiService } from '../services/api.service';
 
 export default class RouteUtils {
   static redirectPathRoot = () => {
@@ -33,24 +33,18 @@ export default class RouteUtils {
     return `read/${bibleTranslation.translation()}`;
   };
 
-  static getVersePageTitle = (route: ActivatedRouteSnapshot) => {
+  static getVersePageTitle = async (route: ActivatedRouteSnapshot) => {
+    const apiService = inject(ApiService);
     const { bookUsfm, chapter, translation } = route.params as VersePageParams;
-    const books = AllBooks[translation as keyof typeof AllBooks];
-    const bookName = books?.find((b) => b.usfm === bookUsfm)?.name;
+    const books = await apiService.getBooks(translation);
+    const bookName = books.find((book) => book.usfm === bookUsfm)?.name;
     return `${bookName} ${chapter}`;
   };
 
-  static getChapterInfo = (params: VersePageParams) => {
-    const { bookUsfm, chapter, translation } = params;
-    const bookData = AllBooks[translation as keyof typeof AllBooks].find(
-      (b) => b.usfm === bookUsfm,
-    );
-    return { ...bookData!, chapter: Number(chapter) };
-  };
-  static getChapterPageTitle = (route: ActivatedRouteSnapshot) => {
+  static getChapterPageTitle = async (route: ActivatedRouteSnapshot) => {
+    const apiService = inject(ApiService);
     const { bookUsfm, translation } = route.params as VersePageParams;
-    const books = AllBooks[translation as keyof typeof AllBooks];
-    const bookName = books.find((b) => b.usfm === bookUsfm)?.name;
-    return bookName;
+    const books = await apiService.getBooks(translation);
+    return books.find((book) => book.usfm === bookUsfm)?.name;
   };
 }

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, resource } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
@@ -12,8 +12,9 @@ import {
 import { TranslatePipe } from '@angular-libs/translate';
 import { LanguageSelectComponent } from 'src/app/components/language-select/language-select.component';
 import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
-import { AllBooks } from 'src/app/constants/books';
 import { TextKey } from 'src/app/constants/text-key';
+import { Book } from 'src/app/interfaces';
+import { ApiService } from 'src/app/services/api.service';
 
 @Component({
   selector: 'app-books',
@@ -70,12 +71,16 @@ import { TextKey } from 'src/app/constants/text-key';
   styles: ['ion-item { cursor: pointer;}'],
 })
 export class BooksPage {
+  private apiService = inject(ApiService);
   protected activatedRoute = inject(ActivatedRoute);
   protected routeParamMap = toSignal(this.activatedRoute.paramMap);
-  protected translation = computed(
-    () => this.routeParamMap()?.get('translation') as keyof typeof AllBooks,
-  );
-  booksNT = computed(() => AllBooks[this.translation()]?.filter((b) => b.canon === 'nt') ?? []);
-  booksOT = computed(() => AllBooks[this.translation()]?.filter((b) => b.canon === 'ot') ?? []);
+  protected translation = computed(() => this.routeParamMap()?.get('translation') ?? '');
+  private booksResource = resource<Book[], string>({
+    params: this.translation,
+    loader: ({ params }) => this.apiService.getBooks(params),
+    defaultValue: [],
+  });
+  booksNT = computed(() => this.booksResource.value().filter((book) => book.canon === 'nt'));
+  booksOT = computed(() => this.booksResource.value().filter((book) => book.canon === 'ot'));
   protected TextKey = TextKey;
 }

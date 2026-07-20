@@ -2,12 +2,13 @@
   "name": "biblesearch",
   "version": "0.0.1",
   "author": "Benjamin Reiersolmoen",
-  "homepage": "https://biblesearch.app",
+  "homepage": "https://purified-app.github.io/biblesearch/",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "build:databases": "bun run scripts/split-db.js",
+    "build:pages": "bun run build:databases && ng build --base-href /biblesearch/",
     "build": "ng build",
-    "build-server": "node --max_old_space_size=512 ./node_modules/@angular/cli/bin/ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint"
@@ -22,8 +23,10 @@
     "@angular/forms": "^21.1.2",
     "@angular/platform-browser": "^21.1.2",
     "@angular/router": "^21.1.2",
+    "@angular/service-worker": "21.1.2",
     "@ionic/angular": "^8.7.14",
     "@ionic/core": "^8.6.0",
+    "@sqlite.org/sqlite-wasm": "^3.53.0-build1",
     "ionicons": "^8.0.9",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
