@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject, viewChild } from '@angular/core';
-import { IonContent, IonPopover, IonSearchbar, IonSpinner } from '@ionic/angular/standalone';
+import { IonContent, IonPopover, IonSearchbar } from '@ionic/angular/standalone';
 import { SearchResultsListComponent } from 'src/app/components/search-results-list/search-results-list.component';
 import { TextKey } from 'src/app/constants/text-key';
 import { SearchService } from './search.service';
 
 @Component({
   selector: 'app-search',
-  imports: [IonContent, IonPopover, IonSearchbar, IonSpinner, SearchResultsListComponent],
+  imports: [IonContent, IonPopover, IonSearchbar, SearchResultsListComponent],
   template: `
     <ion-popover
       alignment="center"
@@ -27,9 +27,6 @@ import { SearchService } from './search.service';
             [value]="searchTerm()"
           ></ion-searchbar>
           <div class="search-results">
-            @if (searchService.searchResults.isLoading()) {
-              <ion-spinner></ion-spinner>
-            }
             <app-search-results-list
               [results]="searchService.searchResults.value()"
               [searchTerm]="searchTerm()"

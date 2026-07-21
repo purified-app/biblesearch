@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Book, Verse } from '../interfaces';
 import {
   BibleWorkerAction,
@@ -7,28 +7,47 @@ import {
   SearchRequest,
   SearchResult,
 } from '../interfaces/bible-worker';
+import { AppEventBus } from './app-event-bus.service';
 
 interface PendingRequest {
   resolve: (value: unknown) => void;
   reject: (reason: Error) => void;
+  translation?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
+  private eventBus = inject(AppEventBus);
   private worker: Worker | null = null;
   private pendingRequests = new Map<string, PendingRequest>();
+  private loadingTranslations = new Map<string, string>();
   private booksRequests = new Map<string, Promise<Book[]>>();
 
   constructor() {
     if (typeof Worker !== 'undefined') {
       this.worker = new Worker(new URL('../app.worker', import.meta.url));
       this.worker.onmessage = ({ data }: MessageEvent<BibleWorkerResponse>) => {
+        if ('loading' in data) {
+          this.loadingTranslations.set(data.id, data.loading.translation);
+          this.eventBus.emit('translation:loading', data.loading);
+          return;
+        }
+
         const pending = this.pendingRequests.get(data.id);
         if (pending) {
           this.pendingRequests.delete(data.id);
+          const loadingTranslation = this.loadingTranslations.get(data.id);
+          this.loadingTranslations.delete(data.id);
           if (data.success) {
             pending.resolve(data.data);
           } else {
+            if (loadingTranslation) {
+              this.eventBus.emit('translation:loading', {
+                translation: loadingTranslation,
+                phase: 'error',
+                error: data.error,
+              });
+            }
             pending.reject(new Error(data.error));
           }
         }
@@ -41,6 +60,7 @@ export class ApiService {
   private runInWorker<Action extends BibleWorkerAction>(
     type: Action,
     payload: BibleWorkerActions[Action]['payload'],
+    translation?: string,
   ): Promise<BibleWorkerActions[Action]['result']> {
     return new Promise((resolve, reject) => {
       if (!this.worker) {
@@ -48,7 +68,7 @@ export class ApiService {
         return;
       }
       const id = crypto.randomUUID();
-      this.pendingRequests.set(id, { resolve: resolve as (value: unknown) => void, reject });
+      this.pendingRequests.set(id, { resolve: resolve as (value: unknown) => void, reject, translation });
       this.worker.postMessage({ id, type, payload });
     });
   }
@@ -62,7 +82,11 @@ export class ApiService {
     const existing = this.booksRequests.get(normalizedTranslation);
     if (existing) return existing;
 
-    const request = this.runInWorker('GET_BOOKS', { translation: normalizedTranslation });
+    const request = this.runInWorker('GET_BOOKS', { translation: normalizedTranslation }, normalizedTranslation)
+      .catch((error: unknown) => {
+        this.booksRequests.delete(normalizedTranslation);
+        throw error;
+      });
     this.booksRequests.set(normalizedTranslation, request);
     return request;
   }

@@ -98,7 +98,7 @@ import { StorageService } from 'src/app/services/storage.service';
                 >
                   <ion-icon slot="start" ios="time-outline" md="time-sharp"></ion-icon>
                   <ion-label>
-                    {{ recentRead.bookName }}
+                    {{ recentReadBookName() }}
                     {{ recentRead.chapter }}
                   </ion-label>
                 </ion-item>
@@ -183,6 +183,10 @@ export class LayoutComponent {
   protected translation = computed(() => {
     const { translation } = this.routeFirstChildParams() ?? {};
     return translation || this.bibleTranslation.translation();
+  });
+  protected readonly recentReadBookName = computed(() => {
+    const recentRead = this.bookmarkService.recentRead();
+    return recentRead?.bookName ?? recentRead?.bookUsfm ?? '';
   });
   protected routeFirstChildData = computed(() => {
     this.routerNavigationService.navigationEnd();

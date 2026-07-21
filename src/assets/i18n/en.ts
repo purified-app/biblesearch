@@ -19,9 +19,11 @@ export const en = {
   NumberOfBookmarks: 'Number of bookmarks to keep',
   Of: 'of',
   OldTestament: 'Old Testament',
+  PreparingTranslation: 'Preparing translation',
   Language: 'Language',
   Read: 'Read',
   RecentRead: 'Recent Read',
+  Retry: 'Retry',
   Save: 'Save',
   Search: 'Search',
   SelectBook: 'Select Book',
@@ -32,4 +34,5 @@ export const en = {
   SortChronological: 'Chronological',
   SortRelevance: 'Relevance',
   StartPage: 'Start page',
+  UnableToOpenBible: 'Unable to open Bible',
 };

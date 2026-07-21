@@ -28,6 +28,7 @@ const initialValues: AppStorage = {
   language: navigator.language.slice(0, 2),
   notes: [],
   recentRead: {
+    bookName: 'Genesis',
     bookUsfm: 'GEN',
     chapter: 1,
     translation: 'KJV',

@@ -20,8 +20,10 @@ export const no = {
   NumberOfBookmarks: 'Antall bokmerker å beholde',
   Of: 'av',
   OldTestament: 'Det gamle testamente',
+  PreparingTranslation: 'Klargjør oversettelse',
   Read: 'Les',
   RecentRead: 'Nylig lest',
+  Retry: 'Prøv igjen',
   Save: 'Lagre',
   Search: 'Søk',
   SelectBook: 'Velg bok',
@@ -32,4 +34,5 @@ export const no = {
   SortChronological: 'Kronologisk',
   SortRelevance: 'Relevans',
   StartPage: 'Startside',
+  UnableToOpenBible: 'Kan ikke åpne Bibelen',
 };

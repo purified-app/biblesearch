@@ -28,39 +28,52 @@ for (const translation of translations) {
 
   database.run(`
     CREATE TABLE Books (
-      id INTEGER PRIMARY KEY,
-      name TEXT,
+      bookNumber INTEGER PRIMARY KEY,
+      name TEXT NOT NULL,
       abbreviation TEXT,
-      bookNumber INTEGER,
-      chapters INTEGER,
-      usfm TEXT,
-      canon TEXT,
-      translation TEXT
+      chapters INTEGER NOT NULL,
+      usfm TEXT NOT NULL UNIQUE,
+      canon TEXT NOT NULL,
+      translation TEXT NOT NULL
     );
     CREATE TABLE Verses (
       id INTEGER PRIMARY KEY,
-      bookName TEXT,
-      bookNumber INTEGER,
-      chapter INTEGER,
-      text TEXT,
-      translation TEXT,
-      verse INTEGER,
-      bookUsfm TEXT,
-      canon TEXT
+      bookNumber INTEGER NOT NULL REFERENCES Books(bookNumber),
+      chapter INTEGER NOT NULL,
+      verse INTEGER NOT NULL,
+      text TEXT NOT NULL,
+      UNIQUE (bookNumber, chapter, verse)
     );
     CREATE VIRTUAL TABLE Verses_fts USING fts5(
-      bookName, bookNumber, chapter, text, translation, verse, bookUsfm, canon,
+      text,
       content='Verses', content_rowid='id'
     );
+    CREATE VIEW v_Verses AS
+      SELECT
+        v.id,
+        b.name AS bookName,
+        v.bookNumber,
+        v.chapter,
+        v.text,
+        b.translation,
+        v.verse,
+        b.usfm AS bookUsfm,
+        b.canon
+      FROM Verses AS v
+      JOIN Books AS b ON b.bookNumber = v.bookNumber;
   `);
 
   database.run(`
-    INSERT INTO Books
-    SELECT * FROM source.Books WHERE translation = ?
+    INSERT INTO Books (bookNumber, name, abbreviation, chapters, usfm, canon, translation)
+    SELECT bookNumber, name, abbreviation, chapters, usfm, canon, translation
+    FROM source.Books
+    WHERE translation = ?
   `, [translation]);
   database.run(`
-    INSERT INTO Verses
-    SELECT * FROM source.Verses WHERE translation = ?
+    INSERT INTO Verses (id, bookNumber, chapter, verse, text)
+    SELECT id, bookNumber, chapter, verse, text
+    FROM source.Verses
+    WHERE translation = ?
   `, [translation]);
   database.run("INSERT INTO Verses_fts(Verses_fts) VALUES('rebuild')");
   database.run("DETACH DATABASE source");

@@ -21,9 +21,6 @@
       </div>
     }
 
-    @if (searchService.searchResults.isLoading()) {
-      <ion-spinner></ion-spinner>
-    }
     <app-search-results-list
       [results]="searchService.searchResults.value()"
       [searchTerm]="searchService.searchTerm()"

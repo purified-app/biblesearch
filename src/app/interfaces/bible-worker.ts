@@ -1,4 +1,5 @@
 import { Book, Verse } from './index';
+import type { TranslationLoadingEvent } from '../services/app-event-bus.service';
 
 export interface SearchRequest {
   query: string;
@@ -54,4 +55,8 @@ export type BibleWorkerResponse =
       id: string;
       success: false;
       error: string;
+    }
+  | {
+      id: string;
+      loading: TranslationLoadingEvent;
     };

@@ -7,33 +7,74 @@ import sqlite3InitModule, {
   type Sqlite3Static,
 } from '@sqlite.org/sqlite-wasm';
 import { BibleWorkerRequest } from './interfaces/bible-worker';
+import type { TranslationLoadingPhase } from './services/app-event-bus.service';
 
 let sqlite3: Sqlite3Static | undefined;
 const dbConnections = new Map<string, Database>();
 const appBaseUrl = new URL('.', globalThis.location.href);
 
-async function fetchDatabase(translation: string): Promise<ArrayBuffer> {
+async function fetchDatabase(
+  translation: string,
+  onProgress: (progress: number) => void,
+): Promise<ArrayBuffer> {
   const databaseUrl = new URL(`assets/databases/${translation}.db`, appBaseUrl);
   const response = await fetch(databaseUrl);
   if (!response.ok) {
     throw new Error(`Failed to fetch database ${translation}: ${response.statusText}`);
   }
-  return response.arrayBuffer();
+
+  const contentLength = Number(response.headers.get('content-length'));
+  if (!response.body || !Number.isFinite(contentLength) || contentLength <= 0) {
+    onProgress(0);
+    const database = await response.arrayBuffer();
+    onProgress(100);
+    return database;
+  }
+
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let receivedBytes = 0;
+  onProgress(0);
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    receivedBytes += value.byteLength;
+    onProgress(Math.round((receivedBytes / contentLength) * 100));
+  }
+
+  const database = new Uint8Array(receivedBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    database.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return database.buffer;
 }
 
 async function getSqlite(): Promise<Sqlite3Static> {
   if (sqlite3) return sqlite3;
-  sqlite3 = await sqlite3InitModule();
+  sqlite3 = await sqlite3InitModule({
+    locateFile: (fileName) => new URL(fileName, appBaseUrl).href,
+  });
   return sqlite3;
 }
 
-async function getDb(translation: string): Promise<Database> {
+async function getDb(
+  translation: string,
+  onLoading: (phase: TranslationLoadingPhase, progress?: number) => void = () => undefined,
+): Promise<Database> {
   const normalizedTranslation = translation.toUpperCase();
   const existing = dbConnections.get(normalizedTranslation);
   if (existing) return existing;
 
+  onLoading('engine');
   const sqlite = await getSqlite();
-  const databaseBytes = await fetchDatabase(normalizedTranslation);
+  const databaseBytes = await fetchDatabase(normalizedTranslation, (progress) => {
+    onLoading('download', progress);
+  });
+  onLoading('database');
   const db = new sqlite.oo1.DB(':memory:');
   const databasePointer = sqlite.wasm.allocFromTypedArray(databaseBytes);
   const flags =
@@ -56,6 +97,7 @@ async function getDb(translation: string): Promise<Database> {
   }
 
   dbConnections.set(normalizedTranslation, db);
+  onLoading('ready');
   return db;
 }
 
@@ -127,7 +169,9 @@ addEventListener('message', async ({ data }: MessageEvent<BibleWorkerRequest>) =
     switch (type) {
       case 'GET_BOOKS': {
         const { translation } = payload;
-        const db = await getDb(translation);
+        const db = await getDb(translation, (phase, progress) => {
+          postMessage({ id, loading: { translation, phase, progress } });
+        });
         const rows = queryAll(
           db,
           `SELECT name, bookNumber, chapters, usfm, canon, translation
@@ -142,11 +186,13 @@ addEventListener('message', async ({ data }: MessageEvent<BibleWorkerRequest>) =
 
       case 'GET_VERSES': {
         const { translation, bookUsfm, chapter } = payload;
-        const db = await getDb(translation);
+        const db = await getDb(translation, (phase, progress) => {
+          postMessage({ id, loading: { translation, phase, progress } });
+        });
         const rows = queryAll(
           db,
-          'SELECT * FROM Verses WHERE translation = ? AND bookUsfm = ? AND chapter = ?',
-          [translation.toUpperCase(), bookUsfm, Number(chapter)]
+          'SELECT * FROM v_Verses WHERE bookUsfm = ? AND chapter = ?',
+          [bookUsfm, Number(chapter)]
         );
         postMessage({ id, success: true, data: rows });
         break;
@@ -163,7 +209,12 @@ addEventListener('message', async ({ data }: MessageEvent<BibleWorkerRequest>) =
         let combinedCount = 0;
 
         for (const activeTranslation of activeTranslations) {
-          const db = await getDb(activeTranslation);
+          const db = await getDb(activeTranslation, (phase, progress) => {
+            postMessage({
+              id,
+              loading: { translation: activeTranslation, phase, progress },
+            });
+          });
 
           const whereClauses: string[] = [];
           const queryParams: (string | number)[] = [];
@@ -187,8 +238,8 @@ addEventListener('message', async ({ data }: MessageEvent<BibleWorkerRequest>) =
         const matchChapterVerseOnly = term.match(/^(\d+):(\d+)$/);
         const matchChapter = term.match(/^(.*?)\s+(\d+)$/);
 
-        let tableName = 'Verses_fts';
-        let selectClause = '*';
+        let tableName = 'v_Verses';
+        let selectClause = 'v_Verses.*';
         let orderByClause = 'bookNumber, chapter, verse';
         let isStructuredParsed = false;
 
@@ -207,7 +258,7 @@ addEventListener('message', async ({ data }: MessageEvent<BibleWorkerRequest>) =
             whereClauses.push('verse = ?');
             queryParams.push(v1, v2, v3, Number(chapter), Number(verse));
             
-            tableName = 'Verses';
+            tableName = 'v_Verses';
             orderByClause = 'bookNumber, chapter, verse';
             isStructuredParsed = true;
           }
@@ -225,7 +276,7 @@ addEventListener('message', async ({ data }: MessageEvent<BibleWorkerRequest>) =
             whereClauses.push('chapter = ?');
             queryParams.push(v1, v2, v3, Number(chapter));
 
-            tableName = 'Verses';
+            tableName = 'v_Verses';
             orderByClause = 'bookNumber, chapter, verse';
             isStructuredParsed = true;
           }
@@ -236,7 +287,7 @@ addEventListener('message', async ({ data }: MessageEvent<BibleWorkerRequest>) =
           whereClauses.push('chapter = ?');
           whereClauses.push('verse = ?');
           queryParams.push(Number(chapter), Number(verse));
-          tableName = 'Verses';
+          tableName = 'v_Verses';
           orderByClause = 'bookNumber, chapter, verse';
           isStructuredParsed = true;
         }
@@ -247,21 +298,21 @@ addEventListener('message', async ({ data }: MessageEvent<BibleWorkerRequest>) =
           if (ftsQuery !== '') {
             whereClauses.push('Verses_fts MATCH ?');
             queryParams.push(ftsQuery);
-            tableName = 'Verses_fts';
+            tableName = 'Verses_fts JOIN v_Verses ON v_Verses.id = Verses_fts.rowid';
             // Custom BM25 rank scoring in SQLite WASM FTS5 (use text column weight, others 0)
-            selectClause = '*, bm25(Verses_fts, 0, 0, 0, 1.0, 0, 0, 0, 0) as score';
+            selectClause = 'v_Verses.*, bm25(Verses_fts, 1.0) as score';
             orderByClause = sort === 'relevance' ? 'score' : 'bookNumber, chapter, verse';
           } else {
             if (whereClauses.length === 0) {
               continue;
             }
-            tableName = 'Verses';
+            tableName = 'v_Verses';
           }
         } else if (!isStructuredParsed && term === '') {
           if (whereClauses.length === 0) {
             continue;
           }
-          tableName = 'Verses';
+          tableName = 'v_Verses';
         }
 
         const WHERE = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';

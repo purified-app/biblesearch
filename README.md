@@ -5,7 +5,6 @@ Angular Bible reader and offline full-text search application. Bible translation
 ## Development
 
 ```sh
-cd client
 bun install
 bun run build:databases
 bun run start
@@ -20,6 +19,5 @@ Enable **GitHub Actions** as the Pages source in the repository settings once.
 To verify the production artifact locally:
 
 ```sh
-cd client
 bun run build:pages
 ```

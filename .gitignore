@@ -1,10 +1,42 @@
-*.tar
-.DS_Store
-.github_token
-secrets
-.qodo
+# Dependencies and generated application output
+/node_modules/
+/dist/
+/.angular/
+/coverage/
+/out-tsc/
+/tmp/
+
+# Generated offline database packs
+/src/assets/databases/*.db
+
+# Ionic native build artifacts
+/.ionic/
+/www/
+/platforms/
+/plugins/
+
+# Local configuration and secrets
 .env
+.env.*
+!.env.example
+.github_token
+secrets/
+
+# Tooling and editor state
+*.log
+*.tar
 *.db-*
-client/src/assets/databases/*.db
-*/node_modules
-node_modules/
+.DS_Store
+Thumbs.db
+*~
+*.sw[mnpcod]
+.idea/
+.history/
+.qodo/
+
+# Keep shared VS Code configuration, ignore local workspace state
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
