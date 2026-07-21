@@ -37,6 +37,8 @@ export class PageSwipeDirective {
   }
 
   onTouchEnd() {
+    if (!window.getSelection()?.isCollapsed) return;
+
     const swipeDistanceX = this.touchStartX - this.touchEndX;
     const swipeDistanceY = this.touchStartY - this.touchEndY;
 

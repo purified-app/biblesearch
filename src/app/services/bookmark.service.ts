@@ -1,25 +1,11 @@
 import { inject, Injectable } from '@angular/core';
-import { Verse } from '../interfaces';
-import BookmarkUtils from '../utils/bookmark.utils';
+import { AnnotationService } from './annotation.service';
 import { StorageService } from './storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class BookmarkService {
-  private storage = inject(StorageService);
-  recentRead = this.storage.getSignal('recentRead');
-  bookmarks = this.storage.getSignal('bookmarks');
+  private readonly storage = inject(StorageService);
 
-  saveVersesAsBookmark(verses: Verse[]) {
-    const bookmark = BookmarkUtils.createBookmarkFromVerses(verses);
-    const bookmarks = this.storage.get('bookmarks');
-    const bookmarksLimit = this.storage.get('bookmarksLimit');
-    // Check the length of the array'
-    if (bookmarks.length >= bookmarksLimit) {
-      // Remove the last element if the array is at max length
-      bookmarks.pop();
-    }
-    // Add the new value to the beginning of the array
-    bookmarks.unshift(bookmark);
-    this.storage.set('bookmarks', bookmarks);
-  }
+  readonly recentRead = this.storage.getSignal('recentRead');
+  readonly bookmarks = inject(AnnotationService).bookmarks;
 }

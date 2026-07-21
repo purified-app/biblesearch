@@ -1,20 +1,40 @@
-<div class="verses-container">
+<div class="verses-container" (pointerup)="onTextSelection()">
   @for (verse of verses(); track verse.id) {
-    @let color = $any(verse).color;
     <div
       class="verse-container"
-      [class.selected]="selectedVerseIds().has(verse.id)"
-      (click)="onVerseClick(verse)"
+      [class.selected]="selectedVerseNumbers().has(verse.verse)"
+      (click)="onVerseClick($event, verse)"
     >
       <span [scrollTo]="versesToFocus().includes(verse.verse)">
-        <span class="verse-number" id="verse-{{ verse.verse }}" [highlightColor]="color">
+        <span class="verse-number" id="verse-{{ verse.verse }}">
           {{ verse.verse }}
         </span>
         <span
           class="verse-text"
-          [innerHTML]="verse.text | highlightSearch: searchTerm()"
-          [highlightColor]="color"
+          [attr.data-verse-id]="verse.id"
         >
+          @for (
+            segment of verse.text | verseTextSegments: verse.verse : verse.highlights : searchTerm();
+            track $index
+          ) {
+            @if (segment.highlightId) {
+              <mark
+                [attr.data-highlight-id]="segment.highlightId"
+                [style.background-color]="segment.backgroundColor"
+                [style.color]="segment.color"
+              >
+                @if (segment.searchMatch) {
+                  <strong class="highlight">{{ segment.text }}</strong>
+                } @else {
+                  {{ segment.text }}
+                }
+              </mark>
+            } @else if (segment.searchMatch) {
+              <strong class="highlight">{{ segment.text }}</strong>
+            } @else {
+              {{ segment.text }}
+            }
+          }
         </span>
       </span>
       @for (note of verse.notes; track $index) {

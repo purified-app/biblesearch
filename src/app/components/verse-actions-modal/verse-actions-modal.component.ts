@@ -12,12 +12,10 @@ import {
 import { TranslatePipe } from '@angular-libs/translate';
 import { QueryParam } from 'src/app/constants/query-param';
 import { TextKey } from 'src/app/constants/text-key';
-import { Verse } from 'src/app/interfaces';
-import { BookmarkService } from 'src/app/services/bookmark.service';
-import NoteUtils from 'src/app/utils/note.utils';
+import { VerseSelection } from 'src/app/interfaces';
+import { AnnotationService } from 'src/app/services/annotation.service';
 import { NoteModalService } from '../note-modal/note-modal.service';
 import { RainbowColor, RainbowColors } from './../../constants/colors';
-import { VerseHighlightService } from './verse-highlight.service';
 
 @Component({
   selector: 'app-verse-actions-modal',
@@ -69,25 +67,24 @@ import { VerseHighlightService } from './verse-highlight.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VerseActionsModalComponent implements OnInit, VerseActionsModalProps {
-  verses!: (Verse & { color?: string })[];
+  selection!: VerseSelection;
   protected color?: string;
   protected RainbowColors = RainbowColors;
   protected RainbowColor = RainbowColor;
   protected TextKey = TextKey;
 
-  private bookmarkService = inject(BookmarkService);
-  private highlightService = inject(VerseHighlightService);
+  private annotations = inject(AnnotationService);
   private modalController = inject(ModalController);
   private noteModalService = inject(NoteModalService);
 
   ngOnInit(): void {
-    this.color = this.verses.length === 1 ? this.verses[0]?.['color'] : undefined;
+    this.color = this.annotations.getHighlightColor(this.selection);
   }
 
   protected async onActionClick(role: string, data?: string) {
     switch (role) {
       case 'share':
-        const verseQueryParam = this.verses.map((verse) => verse.verse).join(',');
+        const verseQueryParam = this.selection.targets.map((target) => target.verse).join(',');
 
         // Ensure query params are properly placed before the hash fragment
         const urlObj = new URL(window.location.href);
@@ -99,7 +96,7 @@ export class VerseActionsModalComponent implements OnInit, VerseActionsModalProp
         }
         break;
       case 'note':
-        const note = NoteUtils.createNoteFromVerses(this.verses);
+        const note = this.annotations.createNote(this.selection.targets);
         const modal = await this.noteModalService.openModal(note);
         modal.onDidDismiss().then((event) => {
           event.role === 'save' ? this.modalController.dismiss(event.data, role) : null;
@@ -107,10 +104,10 @@ export class VerseActionsModalComponent implements OnInit, VerseActionsModalProp
         return;
       case 'highlight':
         this.color = data;
-        this.highlightService.saveVerseHighlights(this.verses, this.color ?? '');
+        this.annotations.saveHighlight(this.selection, this.color ?? '');
         break;
       case 'bookmark':
-        this.bookmarkService.saveVersesAsBookmark(this.verses);
+        this.annotations.saveBookmark(this.selection.targets);
         break;
     }
     this.modalController.dismiss(data, role);
@@ -118,5 +115,5 @@ export class VerseActionsModalComponent implements OnInit, VerseActionsModalProp
 }
 
 interface VerseActionsModalProps {
-  verses: Verse[];
+  selection: VerseSelection;
 }

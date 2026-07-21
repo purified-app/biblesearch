@@ -20,10 +20,9 @@ import {
 } from '@ionic/angular/standalone';
 import { ALTranslate } from '@angular-libs/translate';
 import { TextKey } from 'src/app/constants/text-key';
-import { Note } from 'src/app/interfaces';
-import { StorageService } from 'src/app/services/storage.service';
+import { NoteAnnotation } from 'src/app/interfaces';
+import { AnnotationService } from 'src/app/services/annotation.service';
 import BookmarkUtils from 'src/app/utils/bookmark.utils';
-import { StorageUtils } from 'src/app/utils/storage.utils';
 
 @Component({
   selector: 'app-note-modal',
@@ -61,9 +60,9 @@ export class NoteModalComponent implements OnInit, NoteModalProps {
   private alertController = inject(AlertController);
   private router = inject(Router);
   private translation = inject(ALTranslate);
-  private storage = inject(StorageService);
+  private annotations = inject(AnnotationService);
 
-  note!: Note;
+  note!: NoteAnnotation;
 
   noteContent = signal<string | undefined>(this.note?.content);
 
@@ -74,7 +73,7 @@ export class NoteModalComponent implements OnInit, NoteModalProps {
   protected TextKey = TextKey;
 
   ngOnInit(): void {
-    this.title = BookmarkUtils.getTitle(this.note.bookmark);
+    this.title = BookmarkUtils.getTitle(this.note);
   }
 
   protected async onDeleteNote() {
@@ -101,18 +100,21 @@ export class NoteModalComponent implements OnInit, NoteModalProps {
   }
 
   protected navigateToBookmark() {
-    const { bookUsfm, chapter, translation, verses } = this.note.bookmark;
+    const firstTarget = this.note.targets[0];
+    const verses = this.note.targets.map((target) => target.verse);
     this.modalController.dismiss();
-    this.router.navigate([`/read/${translation}/${bookUsfm}/${chapter}`], {
+    this.router.navigate(
+      [`/read/${firstTarget.translation}/${firstTarget.bookUsfm}/${firstTarget.chapter}`],
+      {
       queryParams: { verse: verses.join(',') },
-    });
+      },
+    );
   }
 
   protected onSave() {
     if (this.note) {
-      this.note.content = this.noteContent();
-      StorageUtils.updateNoteMeta(this.note);
-      this.storage.notesAdapter.upsertOne(this.note);
+      this.note.content = this.noteContent() ?? '';
+      this.annotations.save(this.note);
     }
 
     this.modalController.dismiss(this.note, 'save');
@@ -123,11 +125,11 @@ export class NoteModalComponent implements OnInit, NoteModalProps {
     this.noteContent.set(element.value);
   }
 
-  protected deleteNote(note: Note) {
-    this.storage.notesAdapter.removeOne(note.id);
+  protected deleteNote(note: NoteAnnotation) {
+    this.annotations.deleteAnnotation(note.id);
   }
 }
 
 interface NoteModalProps {
-  note: Note;
+  note: NoteAnnotation;
 }

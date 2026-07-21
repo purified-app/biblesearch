@@ -11,13 +11,12 @@ import {
   IonList,
   IonNote,
 } from '@ionic/angular/standalone';
-import { Note } from 'src/app/interfaces';
+import { NoteAnnotation } from 'src/app/interfaces';
 import BookmarkUtils from 'src/app/utils/bookmark.utils';
-import NoteUtils from 'src/app/utils/note.utils';
 import { TextKey } from 'src/app/constants/text-key';
 import { TranslatePipe } from '@angular-libs/translate';
 import { PageHeaderComponent } from 'src/app/components/page-header/page-header.component';
-import { StorageService } from 'src/app/services/storage.service';
+import { AnnotationService } from 'src/app/services/annotation.service';
 
 @Component({
   selector: 'app-notes',
@@ -44,7 +43,7 @@ import { StorageService } from 'src/app/services/storage.service';
               <ion-label>
                 <div class="note-header">
                   <strong>{{ getNoteTitle(note) }}</strong>
-                  <ion-note color="medium">{{ note.createdDate | date: 'medium' }}</ion-note>
+                  <ion-note color="medium">{{ note.createdAt | date: 'medium' }}</ion-note>
                 </div>
                 <ion-note color="medium">{{ note.content }}</ion-note>
               </ion-label>
@@ -64,21 +63,21 @@ import { StorageService } from 'src/app/services/storage.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NotesPage {
-  private storage = inject(StorageService);
-  protected notes = this.storage.getSignal('notes');
-  protected selectedNote = signal<Note | undefined>(undefined);
-  protected selectedNoteTitle = computed(() => NoteUtils.getNoteTitle(this.selectedNote()));
+  private annotations = inject(AnnotationService);
+  protected notes = this.annotations.notes;
+  protected selectedNote = signal<NoteAnnotation | undefined>(undefined);
+  protected selectedNoteTitle = computed(() => BookmarkUtils.getTitle(this.selectedNote()));
   protected noteModalService = inject(NoteModalService);
-  protected getNoteTitle = (note: Note) => BookmarkUtils.getTitle(note.bookmark);
+  protected getNoteTitle = BookmarkUtils.getTitle;
   protected TextKey = TextKey;
 
-  protected async onNoteClick(note: Note) {
+  protected async onNoteClick(note: NoteAnnotation) {
     const modal = await this.noteModalService.openModal(note);
-    await modal.onDidDismiss<Note>();
+    await modal.onDidDismiss<NoteAnnotation>();
     this.selectedNote.set(undefined);
   }
 
-  protected deleteNote(note: Note) {
-    this.storage.notesAdapter.removeOne(note.id);
+  protected deleteNote(note: NoteAnnotation) {
+    this.annotations.deleteAnnotation(note.id);
   }
 }

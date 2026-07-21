@@ -14,28 +14,47 @@ export interface Book {
   translation: string;
 }
 
-export interface Bookmark {
-  /** 1-66 */
-  bookNumber: number;
-  /** `GEN`, `EXO` etc */
-  bookUsfm: string;
-  /** `Genesis`, `Exodus` etc */
-  bookName?: string;
-  chapter: number;
-  verses: number[];
-  title?: string;
-  /** `KJV`, `NB` etc */
+export interface VerseTarget {
   translation: string;
+  bookNumber: number;
+  bookUsfm: string;
+  bookName: string;
+  chapter: number;
+  verse: number;
+  startOffset?: number;
+  endOffset?: number;
+  quote?: string;
+  textBefore?: string;
+  textAfter?: string;
 }
 
-export interface Note {
-  /** ID is a timestamp from when the note was created */
-  id: number;
-  bookmark: Bookmark;
-  createdDate?: string;
-  content?: string;
-  updatedDate?: string;
+export interface VerseSelection {
+  targets: VerseTarget[];
+  highlightId?: number;
 }
+
+interface AnnotationBase {
+  id: number;
+  targets: VerseTarget[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface HighlightAnnotation extends AnnotationBase {
+  type: 'highlight';
+  color: string;
+}
+
+export interface NoteAnnotation extends AnnotationBase {
+  type: 'note';
+  content: string;
+}
+
+export interface BookmarkAnnotation extends AnnotationBase {
+  type: 'bookmark';
+}
+
+export type Annotation = HighlightAnnotation | NoteAnnotation | BookmarkAnnotation;
 
 export interface RecentRead {
   bookUsfm: string;
@@ -60,6 +79,7 @@ export interface Verse {
   translation: string;
 }
 
-export interface VerseNotes extends Verse {
-  notes: Note[];
+export interface AnnotatedVerse extends Verse {
+  highlights: HighlightAnnotation[];
+  notes: NoteAnnotation[];
 }

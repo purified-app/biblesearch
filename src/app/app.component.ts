@@ -3,9 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { IonApp } from '@ionic/angular/standalone';
 import { initializeAppIcons } from './app.icons';
 import { InitialTranslationLoaderComponent } from './components/initial-translation-loader/initial-translation-loader.component';
-import { BookmarkService } from './services/bookmark.service';
 import { UserSettingsService } from './services/user-settings.service';
-import BookmarkUtils from './utils/bookmark.utils';
 
 @Component({
   selector: 'app-root',
@@ -14,9 +12,6 @@ import BookmarkUtils from './utils/bookmark.utils';
   imports: [InitialTranslationLoaderComponent, IonApp, RouterOutlet],
 })
 export class AppComponent {
-  protected bookmarkService = inject(BookmarkService);
-  protected getBookmarkTitle = BookmarkUtils.getTitle;
-
   private userSettings = inject(UserSettingsService);
 
   constructor() {

@@ -29,10 +29,11 @@
   }
   <app-verse-reader
     [verses]="versesIncMetadata()"
-    [selectedVerses]="selectedVerses()"
+    [selection]="selection()"
     [versesToFocus]="versesToFocus()"
     [searchTerm]="search()"
     (verseClick)="onVerseClick($event)"
+    (textSelection)="onTextSelection($event)"
     (noteClick)="onNoteClick($event.event, $event.note)"
   >
   </app-verse-reader>
@@ -47,7 +48,7 @@
       <ion-icon name="chevron-forward-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
-  } @if (selectedVerses().length) {
+  } @if (selection().targets.length) {
   <ion-fab slot="fixed" vertical="bottom" horizontal="center">
     <ion-fab-button id="open-action-sheet" color="dark" (click)="onActionFabClick()">
       <ion-icon name="chevron-up-circle"></ion-icon>

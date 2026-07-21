@@ -30,7 +30,7 @@ import { VerseActionsModalService } from 'src/app/components/verse-actions-modal
 import { TextKey } from 'src/app/constants/text-key';
 import { UrlPath } from 'src/app/constants/url-path';
 import { PageSwipeDirective } from 'src/app/directives/page-swipe.directive';
-import { Note, VerseNotes } from 'src/app/interfaces';
+import { AnnotatedVerse, VerseTarget, VerseSelection, NoteAnnotation } from 'src/app/interfaces';
 import { ChapterNavigationService } from 'src/app/services/chapter-navigation.service';
 import { ScrollVerseTrackerService } from 'src/app/services/scroll-verse-tracker.service';
 import { StorageService } from 'src/app/services/storage.service';
@@ -77,7 +77,7 @@ export class VersesPage implements AfterViewInit {
   protected routeQueryParams = toSignal(this.route.queryParams);
   protected routeFragment = toSignal(this.route.fragment);
   protected search = signal('');
-  protected selectedVerses = this.versesService.selectedVerses;
+  protected selection = signal<VerseSelection>({ targets: [] });
   protected showFabs = signal(true);
 
   protected versesIncMetadata = this.versesService.versesIncMetadata;
@@ -103,24 +103,38 @@ export class VersesPage implements AfterViewInit {
   }
 
   async onActionFabClick() {
-    const modal = await this.verseActionsModalService.openModal(this.selectedVerses());
+    const modal = await this.verseActionsModalService.openModal(this.selection());
     modal.onDidDismiss().then(() => {
-      this.selectedVerses.set([]);
+      this.selection.set({ targets: [] });
+      window.getSelection()?.removeAllRanges();
     });
   }
 
-  async onNoteClick(event: Event, note: Note) {
+  async onNoteClick(event: Event, note: NoteAnnotation) {
     event.stopImmediatePropagation();
     this.noteModalService.openModal(note);
   }
 
-  onVerseClick(verse: VerseNotes) {
-    this.selectedVerses.update((current) => {
-      const isSelected = current.some((v) => v.id === verse.id);
-      return isSelected
-        ? current.filter((v) => v.id !== verse.id)
-        : [...current, verse].sort((a, b) => a.verse - b.verse);
+  onVerseClick(verse: AnnotatedVerse) {
+    const target: VerseTarget = {
+      translation: verse.translation,
+      bookNumber: verse.bookNumber,
+      bookUsfm: verse.bookUsfm,
+      bookName: verse.bookName,
+      chapter: verse.chapter,
+      verse: verse.verse,
+    };
+    this.selection.update((current) => {
+      const isSelected = current.targets.some((selected) => selected.verse === verse.verse);
+      const targets = isSelected
+        ? current.targets.filter((selected) => selected.verse !== verse.verse)
+        : [...current.targets, target].sort((first, second) => first.verse - second.verse);
+      return { targets };
     });
+  }
+
+  onTextSelection(selection: VerseSelection) {
+    this.selection.set(selection);
   }
 
   protected navigateForward(options?: NavigationOptions) {

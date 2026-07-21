@@ -1,46 +1,53 @@
 import { computed, effect, inject, Injectable, resource, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { Verse, VerseNotes } from '../../../interfaces';
+import { AnnotatedVerse, Verse } from '../../../interfaces';
 import { VersePageParams } from '../../../interfaces/route-params';
 import { ApiService } from '../../../services/api.service';
 import { StorageService } from '../../../services/storage.service';
-import { VerseHighlightsService } from '../../../services/verse-highlights.service';
-import { StorageUtils } from '../../../utils/storage.utils';
+import { AnnotationService } from '../../../services/annotation.service';
 
 @Injectable()
 export class VersesService {
   private apiService = inject(ApiService);
   private storage = inject(StorageService);
   private route = inject(ActivatedRoute);
-  private verseHighlightsService = inject(VerseHighlightsService);
+  private annotations = inject(AnnotationService);
 
   // Signals
   routeParams = toSignal<VersePageParams>(this.route.params as any);
-  selectedVerses = signal<VerseNotes[]>([]);
-
-  notes = this.storage.getSignal('notes');
-
-  allVerseHighlights = this.storage.getSignal('verseHighlights');
-
   chapterHighlights = computed(() => {
     const { bookUsfm, chapter, translation } = this.routeParams()!;
-    const highlights = this.verseHighlightsService.getHighlightMap(bookUsfm, +chapter, translation);
-    return highlights;
+    return this.annotations.highlights().filter((highlight) =>
+      highlight.targets.some(
+        (target) =>
+          target.bookUsfm === bookUsfm &&
+          target.chapter === +chapter &&
+          target.translation === translation,
+      ),
+    );
   });
   chapterNotes = computed(() => {
-    const { bookUsfm, chapter } = this.routeParams()!;
-    const notes = this.notes();
-    return notes.filter((note) => {
-      return note.bookmark.bookUsfm === bookUsfm && note.bookmark.chapter === +chapter;
-    });
+    const { bookUsfm, chapter, translation } = this.routeParams()!;
+    return this.annotations.notes().filter((note) =>
+      note.targets.some(
+        (target) =>
+          target.bookUsfm === bookUsfm &&
+          target.chapter === +chapter &&
+          target.translation === translation,
+      ),
+    );
   });
-  versesIncMetadata = computed(() => {
+  versesIncMetadata = computed<AnnotatedVerse[]>(() => {
     const verses = this.versesResource.value();
-    return verses?.map((verse) => {
-      const color = this.chapterHighlights().get(verse.verse) ?? '';
-      const notes = this.chapterNotes().filter((n) => n.bookmark.verses[0] === verse.verse);
-      return { ...verse, color, notes };
+    return verses.map((verse) => {
+      const highlights = this.chapterHighlights().filter((highlight) =>
+        highlight.targets.some((target) => target.verse === verse.verse),
+      );
+      const notes = this.chapterNotes().filter((note) =>
+        note.targets.some((target) => target.verse === verse.verse),
+      );
+      return { ...verse, highlights, notes };
     });
   });
 
@@ -69,15 +76,11 @@ export class VersesService {
     defaultValue: [],
   });
 
-  removeNoteFromVerses(verses: VerseNotes[], noteId: number) {
+  removeNoteFromVerses(verses: AnnotatedVerse[], noteId: number) {
     return verses.map((verse) => ({
       ...verse,
       notes: verse.notes.filter((n) => n.id !== noteId),
     }));
   }
 
-  getHighlightVerses() {
-    const { bookUsfm, chapter } = this.routeParams()!;
-    return StorageUtils.getVersesToHighlightByBook(this.storage, bookUsfm, Number(chapter));
-  }
 }

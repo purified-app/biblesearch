@@ -27,6 +27,7 @@ import BookmarkUtils from 'src/app/utils/bookmark.utils';
 import { SearchPopover } from '../search/search.component';
 import { slideAnimation } from './slide.animation';
 import { StorageService } from 'src/app/services/storage.service';
+import { BookmarkAnnotation } from 'src/app/interfaces';
 
 @Component({
   selector: 'app-layout',
@@ -111,6 +112,7 @@ import { StorageService } from 'src/app/services/storage.service';
               <ion-list-header>{{ TextKey.Bookmarks | translate }}</ion-list-header>
 
               @for (bookmark of this.bookmarkService.bookmarks(); track $index) {
+                @let firstTarget = bookmark.targets[0];
                 <ion-item
                   detail="false"
                   lines="none"
@@ -118,11 +120,11 @@ import { StorageService } from 'src/app/services/storage.service';
                   routerLinkActive="selected"
                   [routerLink]="[
                     '/read',
-                    bookmark.translation,
-                    bookmark.bookUsfm,
-                    bookmark.chapter,
+                    firstTarget.translation,
+                    firstTarget.bookUsfm,
+                    firstTarget.chapter,
                   ]"
-                  [queryParams]="{ focusVerses: bookmark?.verses?.join(',') }"
+                  [queryParams]="{ focusVerses: getBookmarkVerses(bookmark) }"
                 >
                   <ion-icon slot="start" ios="bookmark-outline" md="bookmark-sharp"></ion-icon>
                   <ion-label>
@@ -178,6 +180,8 @@ export class LayoutComponent {
   // Signals
   protected routeFirstChildParams = toSignal(this.route.firstChild?.params!);
   protected getBookmarkTitle = BookmarkUtils.getTitle;
+  protected getBookmarkVerses = (bookmark: BookmarkAnnotation) =>
+    bookmark.targets.map((target) => target.verse).join(',');
 
   // Computed signals
   protected translation = computed(() => {
