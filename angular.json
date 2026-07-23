@@ -73,7 +73,11 @@
             }
           },
           "defaultConfiguration": "development",
-          "options": {}
+          "options": {
+            "prebundle": {
+              "exclude": ["@sqlite.org/sqlite-wasm"]
+            }
+          }
         },
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n"

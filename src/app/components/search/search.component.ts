@@ -28,8 +28,10 @@ import { SearchService } from './search.service';
           ></ion-searchbar>
           <div class="search-results">
             <app-search-results-list
-              [results]="searchService.searchResults.value()"
+              [results]="searchService.visibleSearchResults()"
               [searchTerm]="searchTerm()"
+              [loading]="searchService.searchResults.isLoading()"
+              (loadNextPage)="searchService.loadNextPage()"
             ></app-search-results-list>
           </div>
         </ion-content>

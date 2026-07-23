@@ -21,4 +21,9 @@
       </ion-item>
     }
   </ion-list>
+  @if (results()!.count > results()!.verses.length) {
+    <ion-infinite-scroll [disabled]="loading()" (ionInfinite)="loadMore($event)">
+      <ion-infinite-scroll-content></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  }
 }

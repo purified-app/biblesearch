@@ -55,9 +55,7 @@ async function fetchDatabase(
 
 async function getSqlite(): Promise<Sqlite3Static> {
   if (sqlite3) return sqlite3;
-  sqlite3 = await sqlite3InitModule({
-    locateFile: (fileName) => new URL(fileName, appBaseUrl).href,
-  });
+  sqlite3 = await sqlite3InitModule();
   return sqlite3;
 }
 
@@ -201,7 +199,9 @@ addEventListener('message', async ({ data }: MessageEvent<BibleWorkerRequest>) =
       case 'SEARCH': {
         const { query: rawQuery, translations, canon, books, sort = 'chronological' } = payload;
         const term = (rawQuery || '').trim();
-        const limit = 120;
+        const pageSize = 500;
+        const page = Math.max(1, Math.floor(Number(payload.page) || 1));
+        const fetchLimit = page * pageSize;
         const activeTranslations = translations
           ? translations.split(',').map((translation) => translation.trim()).filter(Boolean)
           : ['KJV'];
@@ -352,7 +352,7 @@ addEventListener('message', async ({ data }: MessageEvent<BibleWorkerRequest>) =
           LIMIT ?
         `;
 
-          const verses = queryAll(db, mainQuery, [...actualQueryParams, limit]);
+          const verses = queryAll(db, mainQuery, [...actualQueryParams, fetchLimit]);
           combinedCount += count;
           combinedVerses.push(...verses);
         }
@@ -372,7 +372,10 @@ addEventListener('message', async ({ data }: MessageEvent<BibleWorkerRequest>) =
         postMessage({
           id,
           success: true,
-          data: { count: combinedCount, verses: combinedVerses.slice(0, limit) },
+          data: {
+            count: combinedCount,
+            verses: combinedVerses.slice(0, fetchLimit),
+          },
         });
         break;
       }

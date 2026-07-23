@@ -8,22 +8,22 @@
     [value]="searchService.searchTerm()"
   ></ion-searchbar>
   <div class="search-results">
-    @if (searchService.searchTerm().length >= 2) {
-      <div class="sort-container">
-        <ion-segment [value]="searchService.sortOrder()" (ionChange)="onSortChange($event)">
-          <ion-segment-button value="relevance">
-            <ion-label>{{ TextKey.SortRelevance | translate }}</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="chronological">
-            <ion-label>{{ TextKey.SortChronological | translate }}</ion-label>
-          </ion-segment-button>
-        </ion-segment>
-      </div>
-    }
+    <div class="sort-container">
+      <ion-segment [value]="searchService.sortOrder()" (ionChange)="onSortChange($event)">
+        <ion-segment-button value="chronological">
+          <ion-label>{{ TextKey.SortChronological | translate }}</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="relevance">
+          <ion-label>{{ TextKey.SortRelevance | translate }}</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
 
     <app-search-results-list
-      [results]="searchService.searchResults.value()"
+      [results]="searchService.visibleSearchResults()"
       [searchTerm]="searchService.searchTerm()"
+      [loading]="searchService.searchResults.isLoading()"
+      (loadNextPage)="searchService.loadNextPage()"
     ></app-search-results-list>
   </div>
 </ion-content>

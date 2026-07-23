@@ -7,6 +7,7 @@ export interface SearchRequest {
   books?: string;
   translations?: string;
   sort?: 'relevance' | 'chronological';
+  page?: number;
 }
 
 export interface SearchResult {

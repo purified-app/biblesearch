@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, resource } from '@angular/core';
+import { computed, inject, Injectable, linkedSignal, resource } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService, SearchReqParams, SearchResponse } from 'src/app/services/api.service';
@@ -7,6 +7,7 @@ import { BibleTranslationService } from 'src/app/services/bible-translation.serv
 const SEARCH = 'search';
 const QUERY = 'query';
 const SORT = 'sort';
+const PAGE = 'page';
 
 @Injectable({ providedIn: 'root' })
 export class SearchService {
@@ -20,20 +21,30 @@ export class SearchService {
   isSearchOpen = computed(() => this.queryParams()?.[SEARCH] === 'open');
   searchTerm = computed(() => this.queryParams()?.[QUERY] || '');
   sortOrder = computed(() => (this.queryParams()?.[SORT] as 'relevance' | 'chronological') || 'chronological');
+  page = computed(() => Math.max(1, Math.floor(Number(this.queryParams()?.[PAGE]) || 1)));
   private searchParams = computed<SearchReqParams>(() => ({
     ...(this.queryParams() as SearchReqParams),
+    page: this.page(),
     translations:
       this.queryParams()?.['translations'] || this.bibleTranslation.translation() || 'KJV',
   }));
 
-  // Global search resource
   searchResults = resource<SearchResponse, SearchReqParams>({
     params: this.searchParams,
     loader: async ({ params }) => {
       const trimmedQuery = params.query?.trim() || '';
       if (trimmedQuery.length < 2) return { verses: [], count: 0 };
-      return await this.apiService.search({ ...params, query: trimmedQuery });
+      return this.apiService.search({ ...params, query: trimmedQuery });
     },
+  });
+
+  visibleSearchResults = linkedSignal<
+    { page: number; results: SearchResponse | undefined },
+    SearchResponse | undefined
+  >({
+    source: computed(() => ({ page: this.page(), results: this.searchResults.value() })),
+    computation: ({ page, results }, previous) =>
+      results ?? (page > 1 ? previous?.value : undefined),
   });
 
   // Toggle popover and update URL
@@ -49,7 +60,7 @@ export class SearchService {
   updateSearchQueryParam(value: string): void {
     this.router.navigate([], {
       relativeTo: this.activatedRoute,
-      queryParams: { [QUERY]: value || null },
+      queryParams: { [QUERY]: value || null, [PAGE]: null },
       queryParamsHandling: 'merge',
       replaceUrl: true,
     });
@@ -58,7 +69,16 @@ export class SearchService {
   updateSortOrder(value: 'relevance' | 'chronological'): void {
     this.router.navigate([], {
       relativeTo: this.activatedRoute,
-      queryParams: { [SORT]: value === 'chronological' ? null : value },
+      queryParams: { [SORT]: value === 'chronological' ? null : value, [PAGE]: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
+  loadNextPage(): void {
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams: { [PAGE]: this.page() + 1 },
       queryParamsHandling: 'merge',
       replaceUrl: true,
     });
